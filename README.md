@@ -27,3 +27,6 @@
 
 * PostgreSQL:
   - https://www.postgresql.org/docs/current/
+
+* Docker:
+  - https://github.com/docker/awesome-compose/tree/master/official-documentation-samples/django/
