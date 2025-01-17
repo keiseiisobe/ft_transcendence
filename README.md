@@ -1,7 +1,7 @@
 # How To Build
 
 1.  execute "docker compose up" at the root project directory
-2.  If you can't, execute "sudo chown -R $USER:$USER composeexample manage.py; sudo chmod -R 777 data".
+2.  If you can't, execute "sudo chown -R $USER:$USER games manage.py; sudo chmod -R 777 data".
 
 # Design
 
