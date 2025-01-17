@@ -1,6 +1,9 @@
 # database
 data/
 
+# python
+__pycache__/
+
 # emacs
 
 *~
