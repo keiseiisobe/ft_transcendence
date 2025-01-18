@@ -3,18 +3,27 @@
   <head>
     <meta charset="UTF-8"/>
     {% load static %}
-    <link href="{% static 'pong/style.css' %}" rel="stylesheet"/>
     <title>Pong Game</title>
   </head>
   <body>
     <h1>Pong Game</h1>
     <ul>
+      {% if user.is_authenticated %}
       <li>
-	<a href="{% url 'pong:login_page' %}">login</a>
+	<a href="{% url 'accounts:mypage' %}">mypage</a>
+      </li>
+      <form action="{% url 'logout' %}" method="post">
+	{% csrf_token %}
+	<button type="submit">logout</button>
+      </form>
+      {% else %}
+      <li>
+	<a href="{% url 'login' %}">login</a>
       </li>
       <li>
-	<a href="{% url 'pong:signup_page' %}">signup</a>
+	<a href="{% url 'accounts:signup' %}">signup</a>
       </li>
+      {% endif %}
     </ul>
   </body>
 </html>

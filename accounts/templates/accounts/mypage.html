@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <title>Document</title>
+  </head>
+  <body>
+    {% if user.is_authenticated %}
+    <h1>{{ user.get_username }}'s Page</h1>
+    <p>Match History</p>
+    <ul>
+      <li>2025/01/03: Win (score: 10:0, opponent: computer)</li>
+      <li>2025/01/02: Win (score: 10:1, opponent: peer)</li>
+      <li>2025/01/01: Win (score: 10:2, opponent: computer)</li>
+    </ul>
+    {% else %}
+    <a href="{% url 'login' %}">Log In</a>
+    {% endif %}
+  </body>
+</html>
