@@ -1,11 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 # Create your models here.
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=40, unique=True)
-    password = models.CharField(max_length=200)
-    is_login = models.BooleanField()
+    password = models.CharField(max_length=40)
+    is_login = models.BooleanField(default=False)
     USERNAME_FIELD = "username"
     
