@@ -9,9 +9,21 @@
     <h1>{{ user.get_username }}'s Page</h1>
     <p>Match History</p>
     <ul>
-      <li>2025/01/03: Win (score: 10:0, opponent: computer)</li>
-      <li>2025/01/02: Win (score: 10:1, opponent: peer)</li>
-      <li>2025/01/01: Win (score: 10:2, opponent: computer)</li>
+      {% if user.matchhistory_set.all %}
+      {% for matchhistory in user.matchhistory_set.all %}
+      <li>
+	{{ matchhistory.date }} :
+	{% if matchhistory.result == 1 %}
+	Win
+	{% else %}
+	Lose
+	{% endif %}
+	 for {{ matchhistory.opponent }} with score [ {{ matchhistory.score_1 }} : {{ matchhistory.score_2 }} ]
+      </li>
+      {% endfor %}
+      {% else %}
+      <li>no match history yet.</li>
+      {% endif %}
     </ul>
     {% else %}
     <a href="{% url 'login' %}">Log In</a>
