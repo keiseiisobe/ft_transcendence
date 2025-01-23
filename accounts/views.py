@@ -12,3 +12,6 @@ class SignUpView(CreateView):
 
 def mypage(request):
     return render(request, "accounts/mypage.html", { "user": request.user })
+
+def login(request):
+    return (render(request, "accounts/login.html"))
