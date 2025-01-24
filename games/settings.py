@@ -129,3 +129,6 @@ LOGIN_REDIRECT_URL = '/pong/'
 LOGOUT_REDIRECT_URL = '/pong/'
 
 AUTH_USER_MODEL = "accounts.User"
+AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend',
+    )

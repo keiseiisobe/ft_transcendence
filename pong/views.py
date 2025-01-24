@@ -7,6 +7,9 @@ from .models import MatchHistory
 def index(request):
     return render(request, "pong/index.html")
 
+def header(request):
+    return render(request, "pong/header.html", { "user": request.user })
+
 def gameover(request, opponent, score_1, score_2, result):
     if request.user.is_authenticated:
         request.user.matchhistory_set.create(opponent=opponent, score_1=score_1, score_2=score_2, result=result)
