@@ -1,32 +1,22 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8"/>
-    <title>Document</title>
-  </head>
-  <body>
-    {% if user.is_authenticated %}
-    <h1>{{ user.get_username }}'s Page</h1>
-    <p>Match History</p>
-    <ul>
-      {% if user.matchhistory_set.all %}
-      {% for matchhistory in user.matchhistory_set.all %}
-      <li>
-	{{ matchhistory.date }} :
-	{% if matchhistory.result == 1 %}
-	Win
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card profile-card">
+      <div class="card-body text-center">
+	{% if user.is_authenticated %}
+        <img src="https://randomuser.me/api/portraits/men/52.jpg" alt="User Profile" class="rounded-circle profile-img mb-3">
+        <h3 class="card-title mb-2">{{ user.get_username }}</h3>
+        <p class="card-text text-muted mb-3">Web Developer</p>
+        <p class="card-text mb-4">Passionate about creating beautiful and functional websites. Always learning and
+                exploring new technologies.</p>
+        <div class="social-icons mb-4">
+          <a href="#" class="me-2"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="me-2"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="me-2"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#"><i class="fab fa-github"></i></a>
+        </div>
+        <a href="#" class="btn btn-primary btn-lg w-100">Connect</a>
 	{% else %}
-	Lose
+        <h3 class="card-title mb-2">Sorry, You are not authenticated.</h3>
 	{% endif %}
-	 for {{ matchhistory.opponent }} with score [ {{ matchhistory.score_1 }} : {{ matchhistory.score_2 }} ]
-      </li>
-      {% endfor %}
-      {% else %}
-      <li>no match history yet.</li>
-      {% endif %}
-    </ul>
-    {% else %}
-    <a href="{% url 'login' %}">Log In</a>
-    {% endif %}
-  </body>
-</html>
+      </div>
+    </div>
+</div>

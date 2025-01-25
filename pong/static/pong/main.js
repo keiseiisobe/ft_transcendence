@@ -107,6 +107,7 @@ function setLoginEventHandler() {
 		    let navbar = document.querySelector("#loaded-header");
 		    navbar.innerHTML = text;
 		    setLogoutEventHandler();
+		    setMypageEventHandler();
 		})
 		.catch((err) => console.log(err));
 	}
@@ -116,6 +117,8 @@ function setLoginEventHandler() {
 }
 
 setLoginEventHandler();
+
+
 
 // logout
 
@@ -144,6 +147,33 @@ function setLogoutEventHandler() {
 }
 
 setLogoutEventHandler();
+
+// mypage
+function setMypageEventHandler() {
+    if (document.querySelector("#mypage-button")) {
+	const mypageButton = document.querySelector("#mypage-button");
+
+	async function mypage() {
+	    const url = "http://localhost:8000/accounts/mypage/";
+	    await fetch(url)
+		.then((promise) => {
+		    if (!promise.ok)
+			throw new Error();
+		    return promise.text();
+		})
+		.then((text) => {
+		    document.body.innerHTML = text;
+		    history.pushState(text, "", "");
+		})
+		.catch((err) => console.log(err));
+	}
+	
+	mypageButton.addEventListener("click", mypage);
+    }
+}
+
+setMypageEventHandler();
+
 
 
 // history api
