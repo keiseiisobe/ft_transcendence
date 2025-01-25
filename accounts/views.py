@@ -1,22 +1,23 @@
 from django.shortcuts import render
-from django.views.generic import CreateView
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
-from django.http import JsonResponse, HttpResponseNotFound, HttpResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseNotFound, HttpResponseForbidden
+from django.core.exceptions import ValidationError
 import json
 
 # Create your views here.
 
 def mysignup(request):
     if request.method == "POST":
-        jsonData = json.loads(request.body)
-        username = jsonData.get("username")
-        password = jsonData.get("password")
-        User = get_user_model()
-        newUser = User(username=username)
-        newUser.set_password(password)
-        newUser.save()
+        try :
+            jsonData = json.loads(request.body)
+            username = jsonData.get("username")
+            password = jsonData.get("password")
+            User = get_user_model()
+            User.objects.create_user(username=username, password=password)
+        except ValidationError:
+            return HttpResponseForbidden()
         return HttpResponse()
 
 def mylogin(request):

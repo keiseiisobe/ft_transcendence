@@ -28,7 +28,7 @@
 	  </li>
 	  {% else %}
 	  <li class="nav-item">
-	    <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#loginModal">
+	    <button type="button" id="login-modal-button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#loginModal">
 	      Login
 	    </button>
 	    <!-- Login Modal -->
@@ -71,19 +71,21 @@
 		<div class="modal-content">
 		  <div class="modal-header">
 		    <h5 class="modal-title" id="signupModalLabel">Signup</h5>
-		    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		    <button type="button" id="signup-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 		  </div>
 		  <div class="modal-body">
 		    <form>
+		      {% csrf_token %}
 		      <div class="mb-3">
 			<label for="username" class="form-label">Username</label>
-			<input type="text" class="form-control" id="username" required>
+			<input type="text" class="form-control" id="signup-username" required>
 		      </div>
 		      <div class="mb-3">
 			<label for="password" class="form-label">Password</label>
-			<input type="password" class="form-control" id="password" required>
+			<input type="password" class="form-control" id="signup-password" required>
 		      </div>
-		      <button type="submit" class="btn btn-dark">Signup</button>
+		      <p class="signup-error-message" style="color: red;"></p>
+		      <input type="button" class="btn btn-dark" id="signup-button" value="Signup"/>
 		    </form>
 		  </div>
 		  <div class="modal-footer">
