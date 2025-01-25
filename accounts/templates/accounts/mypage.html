@@ -1,8 +1,8 @@
-<div class="container d-flex justify-content-center align-items-center min-vh-100">
+<div class="container bg-dark d-flex justify-content-center align-items-center min-vh-100">
     <div class="card profile-card">
       <div class="card-body text-center">
 	{% if user.is_authenticated %}
-        <img src="https://randomuser.me/api/portraits/men/52.jpg" alt="User Profile" class="rounded-circle profile-img mb-3">
+        <img src="{{ user.avatar.url }}" alt="User Profile" class="rounded-circle profile-img mb-3" style="width: 100px;height: 100px">
         <h3 class="card-title mb-2">{{ user.get_username }}</h3>
         <p class="card-text text-muted mb-3">Web Developer</p>
         <p class="card-text mb-4">Passionate about creating beautiful and functional websites. Always learning and

@@ -19,7 +19,7 @@
           <button type="button" id="login-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 	</div>
 	<div class="modal-body">
-          <form>
+          <form enctype="multipart/form-data">
 	    {% csrf_token %}
             <div class="mb-3">
 	      <label for="login-username" class="form-label">Username</label>
@@ -53,7 +53,7 @@
           <button type="button" id="signup-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 	</div>
 	<div class="modal-body">
-          <form>
+          <form enctype="multipart/form-data">
 	    {% csrf_token %}
 	    <div class="mb-3">
 	      <label for="avatar" class="form-label">Avatar</label>

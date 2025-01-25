@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
-from django.http import HttpResponse, JsonResponse, HttpResponseNotFound, HttpResponseForbidden
+from django.http import HttpResponse, JsonResponse, FileResponse, HttpResponseNotFound, HttpResponseForbidden
 from django.core.exceptions import ValidationError
 import json
 
@@ -11,7 +11,7 @@ import json
 def mysignup(request):
     if request.method == "POST":
         try :
-            avatar = request.POST["avatar"]
+            avatar = request.FILES["avatar"]
             username = request.POST["username"]
             password = request.POST["password"]
             User = get_user_model()
@@ -37,4 +37,11 @@ def mylogout(request):
 
 def mypage(request):
     return render(request, "accounts/mypage.html", { "user": request.user })
+
+def images(request, filename):
+    try:
+        path = "accounts/images/" + filename
+        return FileResponse(open(path, "rb"))
+    except FileNotFoundError:
+        return HttpResponseNotFound()
 

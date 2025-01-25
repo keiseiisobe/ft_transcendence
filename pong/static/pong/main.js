@@ -33,7 +33,7 @@ function setSignupEventHandler() {
 	    const formData = new FormData();
 	    formData.append("username", signupForm.username.value);
 	    formData.append("password", signupForm.password.value);
-	    //formData.append("avatar", signupForm.avatar.files[0]);
+	    formData.append("avatar", signupForm.avatar.files[0]);
 	    await fetch(url, {
 		method: "POST",
 		headers: {

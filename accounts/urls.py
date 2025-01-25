@@ -8,4 +8,5 @@ urlpatterns = [
     path('login/', views.mylogin, name="login"),
     path('logout/', views.mylogout, name="logout"),
     path('mypage/', views.mypage, name="mypage"),
+    path('images/<path:filename>', views.images, name="images")
 ]

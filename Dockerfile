@@ -5,4 +5,5 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /project
 COPY requirements.txt /project/
 RUN pip install -r requirements.txt
+RUN python -m pip install Pillow
 COPY . /project/

@@ -10,6 +10,7 @@ class UserManager(BaseUserManager):
         User = get_user_model()
         user = User(username=username)
         user.set_password(password)
+        user.avatar = avatar
         user.clean()
         user.save()
         return user
@@ -17,7 +18,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     username = models.CharField(max_length=40, unique=True)
     password = models.CharField(max_length=40)
-    avatar = models.ImageField()
+    avatar = models.ImageField(upload_to="accounts/images", default=None)
     is_login = models.BooleanField(default=False)
     USERNAME_FIELD = "username"
     objects = UserManager()
