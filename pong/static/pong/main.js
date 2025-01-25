@@ -21,6 +21,7 @@ function getCookie(name) {
 function setSignupEventHandler() {
     if (document.querySelector("#signupModal")) {
 	const signupForm = {
+	    avatar: document.querySelector("#avatar"),
 	    username: document.querySelector("#signup-username"),
 	    password: document.querySelector("#signup-password"),
 	    button: document.querySelector("#signup-button")
@@ -29,17 +30,16 @@ function setSignupEventHandler() {
 	async function signup() {
 	    const url = "http://localhost:8000/accounts/signup/";
 	    const csrftoken = getCookie('csrftoken');
+	    const formData = new FormData();
+	    formData.append("username", signupForm.username.value);
+	    formData.append("password", signupForm.password.value);
+	    //formData.append("avatar", signupForm.avatar.files[0]);
 	    await fetch(url, {
 		method: "POST",
 		headers: {
 		    "X-CSRFToken": csrftoken,
-		    "Content-Type": "application/json"
 		},
-		body: JSON.stringify({
-		    username: signupForm.username.value,
-		    password: signupForm.password.value
-		}
-				    )
+		body: formData
 	    })
 		.then((promise) => {
 		    if (promise.status == 403) {
@@ -78,17 +78,15 @@ function setLoginEventHandler() {
 	async function login() {
 	    const url = "http://localhost:8000/accounts/login/";
 	    const csrftoken = getCookie('csrftoken');
+	    const formData = new FormData();
+	    formData.append("username", loginForm.username.value);
+	    formData.append("password", loginForm.password.value);
 	    await fetch(url, {
 		method: "POST",
 		headers: {
 		    "X-CSRFToken": csrftoken,
-		    "Content-Type": "application/json"
 		},
-		body: JSON.stringify({
-		    username: loginForm.username.value,
-		    password: loginForm.password.value
-		}
-				    )
+		body: formData
 	    })
 		.then((promise) => {
 		    if (promise.status == 404) {
@@ -148,6 +146,8 @@ function setLogoutEventHandler() {
 
 setLogoutEventHandler();
 
+
+
 // mypage
 function setMypageEventHandler() {
     if (document.querySelector("#mypage-button")) {
@@ -184,3 +184,6 @@ window.addEventListener("popstate", (event) => {
 
 const initialState = document.body.innerHTML;
 history.replaceState(initialState, "", document.location.href);
+
+
+

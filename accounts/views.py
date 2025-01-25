@@ -11,20 +11,19 @@ import json
 def mysignup(request):
     if request.method == "POST":
         try :
-            jsonData = json.loads(request.body)
-            username = jsonData.get("username")
-            password = jsonData.get("password")
+            avatar = request.POST["avatar"]
+            username = request.POST["username"]
+            password = request.POST["password"]
             User = get_user_model()
-            User.objects.create_user(username=username, password=password)
+            User.objects.create_user(username=username, password=password, avatar=avatar)
         except ValidationError:
             return HttpResponseForbidden()
         return HttpResponse()
 
 def mylogin(request):
     if request.method == "POST":
-        jsonData = json.loads(request.body)
-        username = jsonData.get("username")
-        password = jsonData.get("password")
+        username = request.POST["username"]
+        password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
