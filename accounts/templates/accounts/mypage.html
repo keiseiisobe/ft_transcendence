@@ -109,7 +109,6 @@
               <div class="card-body">
                 <p class="mb-4">
 		  <strong>Friends</strong>
-		  <button type="button" class="btn btn-dark btn-sm rounded-circle navbar-toggle" data-bs-toggle="modal" data-bs-target="#editAvatarModal" style="position: absolute;top: 20%;left: 52%">
 		  <button type="button" class="btn btn-dark btn-sm rounded-circle navbar-toggle" data-bs-toggle="modal" data-bs-target="#addFriendModal" style="position: absolute;left: 350px">
 		    <i class="fas fa-user-plus"></i>
 		  </button>
@@ -135,32 +134,8 @@
 		  </div>
 		</div>
 		<div class="card" style="max-height: 275px;overflow-y: auto">
-		  <ul class="list-group" style="text-align: start">
-		    <li class="list-group-item">
-		      <img src="http://localhost:8000/accounts/images/penguin.png" class="rounded-circle profile-img mb-3" style="height: 30px;width: 30px;position: relative;top: 7px"/>
-		      <span style="color: green;margin-right: 10px">online</span>
-		      <span>username</span>
-		    </li>
-		    <li class="list-group-item">
-		      <img src="http://localhost:8000/accounts/images/penguin.png" class="rounded-circle profile-img mb-3" style="height: 30px;width: 30px;position: relative;top: 7px"/>
-		      <span style="color: green;margin-right: 10px">online</span>
-		      <span>username</span>
-		    </li>
-		    <li class="list-group-item">
-		      <img src="http://localhost:8000/accounts/images/penguin.png" class="rounded-circle profile-img mb-3" style="height: 30px;width: 30px;position: relative;top: 7px"/>
-		      <span style="color: green;margin-right: 10px">online</span>
-		      <span>username</span>
-		    </li>
-		    <li class="list-group-item">
-		      <img src="http://localhost:8000/accounts/images/penguin.png" class="rounded-circle profile-img mb-3" style="height: 30px;width: 30px;position: relative;top: 7px"/>
-		      <span style="color: green;margin-right: 10px">online</span>
-		      <span>username</span>
-		    </li>
-		    <li class="list-group-item">
-		      <img src="http://localhost:8000/accounts/images/penguin.png" class="rounded-circle profile-img mb-3" style="height: 30px;width: 30px;position: relative;top: 7px"/>
-		      <span style="color: green;margin-right: 10px">online</span>
-		      <span>username</span>
-		    </li>
+		  <ul class="list-group" id="friend-list" style="text-align: start">
+		    {% include 'accounts/friends.html'  %}
 		  </ul>
 		</div>
               </div>

@@ -11,5 +11,6 @@ urlpatterns = [
     path('images/<path:filename>', views.images, name="images"),
     path('edit/username/', views.editUsername, name="editUsername"),
     path('edit/password/', views.editPassword, name="editPassword"),
-    path('edit/avatar/', views.editAvatar, name="editAvatar")
+    path('edit/avatar/', views.editAvatar, name="editAvatar"),
+    path('friend/add/', views.addFriend, name="addFriend")
 ]

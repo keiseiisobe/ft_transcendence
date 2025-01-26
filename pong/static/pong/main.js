@@ -170,6 +170,7 @@ function setMypageEventHandler() {
 		    editUsernameEventHandler();
 		    editPasswordEventHandler();
 		    editAvatarEventHandler();
+		    addFriendEventHandler();
 		    history.pushState(text, "", "");
 		})
 		.catch((err) => console.log(err));
@@ -328,7 +329,58 @@ editAvatarEventHandler();
 
 
 // add friends
+function addFriendEventHandler() {
+    if (document.querySelector("#addFriendModal")) {
+	const addFriendForm = {
+	    friendname: document.querySelector("#requested-friend"),
+	    button: document.querySelector("#add-friend-button"),
+	    message: document.querySelector(".add-friend-error-message")
+	};
 
+	async function addFriend() {
+	    const url = "http://localhost:8000/accounts/friend/add/";
+	    const csrftoken = getCookie('csrftoken');
+	    const formData = new FormData();
+	    formData.append("friendname", addFriendForm.friendname.value);
+	    await fetch(url, {
+		method: "POST",
+		headers: {
+		    "X-CSRFToken": csrftoken,
+		},
+		body: formData
+	    })
+		.then((promise) => {
+		    if (promise.ok) {
+			return promise.text();
+		    }
+		    else if (promise.status == 404) {
+			addFriendForm.message.textContent = "No such user.";
+			throw new Error();
+		    }
+		    else if (promise.status == 403) {
+			addFriendForm.message.textContent = "You have already requested friendship.";
+			throw new Error();
+		    }
+		    else {
+			throw new Error();
+		    }
+		})
+		.then((text) => {
+			document.querySelector("#add-friend-close").click();
+			friendList = document.querySelector("#friend-list");
+			friendList.innerHTML = text;
+			addFriendForm.friendname.value = "";
+			addFriendForm.message.textContent = "";
+			history.replaceState(document.body.innerHTML, "", "");
+		})
+		.catch((err) => console.log(err));
+	}
+
+	addFriendForm.button.addEventListener("click", addFriend);
+    }
+}
+
+addFriendEventHandler();
 
 
 // history api
