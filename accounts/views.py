@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.http import HttpResponse, JsonResponse, FileResponse, HttpResponseNotFound, HttpResponseForbidden
 from django.core.exceptions import ValidationError
-import json
+import json, os
 
 # Create your views here.
 
@@ -44,4 +44,34 @@ def images(request, filename):
         return FileResponse(open(path, "rb"))
     except FileNotFoundError:
         return HttpResponseNotFound()
-
+    
+def editUsername(request):
+    if request.method == "POST":
+        try:
+            username = request.POST["username"]
+            request.user.username = username
+            request.user.clean()
+            request.user.save()
+            return HttpResponse()
+        except ValidationError:
+            return HttpResponseForbidden()
+    return HttpResponseForbidden()
+    
+def editPassword(request):
+    if request.method == "POST":
+        password = request.POST["password"]
+        request.user.set_password(password)
+        request.user.save()
+        logout(request)
+        return render(request, "pong/pong.html", { "user": request.user })
+    return HttpResponseForbidden()
+    
+def editAvatar(request):
+    if request.method == "POST":
+        avatar = request.FILES["avatar"]
+        os.remove(request.user.avatar.path)
+        request.user.avatar = avatar
+        request.user.save()
+        return JsonResponse({ "url": request.user.avatar.url })
+    return HttpResponseForbidden()
+    

@@ -166,6 +166,9 @@ function setMypageEventHandler() {
 		})
 		.then((text) => {
 		    document.body.innerHTML = text;
+		    editUsernameEventHandler();
+		    editPasswordEventHandler();
+		    editAvatarEventHandler();
 		    history.pushState(text, "", "");
 		})
 		.catch((err) => console.log(err));
@@ -176,6 +179,135 @@ function setMypageEventHandler() {
 }
 
 setMypageEventHandler();
+
+
+
+// edit username
+function editUsernameEventHandler() {
+    if (document.querySelector("#editUsernameModal")) {
+	const editUsernameForm = {
+	    username: document.querySelector("#edit-username"),
+	    button: document.querySelector("#edit-username-button"),
+	    message: document.querySelector(".edit-username-error-message")
+	};
+
+	async function editUsername() {
+	    const url = "http://localhost:8000/accounts/edit/username/";
+	    const csrftoken = getCookie('csrftoken');
+	    const formData = new FormData();
+	    formData.append("username", editUsernameForm.username.value);
+	    await fetch(url, {
+		method: "POST",
+		headers: {
+		    "X-CSRFToken": csrftoken,
+		},
+		body: formData
+	    })
+		.then((promise) => {
+		    if (promise.ok) {
+			document.querySelector("#edit-username-close").click();
+			username = document.querySelector("#username");
+			username.textContent = editUsernameForm.username.value;
+			editUsernameForm.username.value = "";
+			editUsernameForm.message.textContent = "";
+			history.replaceState(document.body.innerHTML, "", "");
+		    }
+		    else {
+			editUsernameForm.message.textContent = "Username already exist. Try another username.";
+		    }
+		})
+		.catch((err) => console.log(err));
+	}
+
+	editUsernameForm.button.addEventListener("click", editUsername);
+    }
+}
+
+editUsernameEventHandler();
+
+
+// edit password
+function editPasswordEventHandler() {
+    if (document.querySelector("#editPasswordModal")) {
+	const editPasswordForm = {
+	    password: document.querySelector("#edit-password"),
+	    button: document.querySelector("#edit-password-button")
+	};
+
+	async function editPassword() {
+	    const url = "http://localhost:8000/accounts/edit/password/";
+	    const csrftoken = getCookie('csrftoken');
+	    const formData = new FormData();
+	    formData.append("password", editPasswordForm.password.value);
+	    await fetch(url, {
+		method: "POST",
+		headers: {
+		    "X-CSRFToken": csrftoken,
+		},
+		body: formData
+	    })
+		.then((promise) => {
+		    if (!promise.ok)
+			throw new Error();
+		    return promise.text();
+		})
+		.then((text) => {
+		    document.body.innerHTML = text;
+		    setLoginEventHandler();
+		    setSignupEventHandler();
+		    document.querySelector("#login-modal-button").click();
+		    history.replaceState(document.body.innerHTML, "", "");
+		})
+		.catch((err) => console.log(err));
+	}
+
+	editPasswordForm.button.addEventListener("click", editPassword);
+    }
+}
+
+editPasswordEventHandler();
+
+
+
+// edit avatar
+function editAvatarEventHandler() {
+    if (document.querySelector("#editAvatarModal")) {
+	const editAvatarForm = {
+	    avatar: document.querySelector("#edit-avatar"),
+	    button: document.querySelector("#edit-avatar-button")
+	};
+
+	async function editAvatar() {
+	    const url = "http://localhost:8000/accounts/edit/avatar/";
+	    const csrftoken = getCookie('csrftoken');
+	    const formData = new FormData();
+	    formData.append("avatar", editAvatarForm.avatar.files[0]);
+	    await fetch(url, {
+		method: "POST",
+		headers: {
+		    "X-CSRFToken": csrftoken,
+		},
+		body: formData
+	    })
+		.then((promise) => {
+		    if (!promise.ok)
+			throw new Error();
+		    return promise.json();
+		})
+		.then((json) => {
+		    document.querySelector("#edit-avatar-close").click();
+		    image = document.querySelector("#avatar");
+		    image.src = json["url"];
+		    history.replaceState(document.body.innerHTML, "", "");
+		})
+		.catch((err) => console.log(err));
+	}
+
+	editAvatarForm.button.addEventListener("click", editAvatar);
+    }
+}
+
+editAvatarEventHandler();
 
 
 

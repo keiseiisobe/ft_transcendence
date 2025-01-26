@@ -3,7 +3,7 @@
       <div class="card-body text-center">
 	{% if user.is_authenticated %}
 	<div>
-          <img src="{{ user.avatar.url }}" alt="User Profile" class="rounded-circle profile-img mb-3" style="width: 100px;height: 100px">
+          <img id="avatar" src="{{ user.avatar.url }}" alt="User Profile" class="rounded-circle profile-img mb-3" style="width: 100px;height: 100px">
 	  <button type="button" class="btn btn-dark btn-sm rounded-circle navbar-toggle" data-bs-toggle="modal" data-bs-target="#editAvatarModal" style="position: absolute;top: 40%;left: 55%">
             <i class="fas fa-camera"></i>
           </button>
@@ -15,18 +15,18 @@
 		<form enctype="multipart/form-data">
 		  {% csrf_token %}
 		  <div class="mb-3">
-		    <input type="file" class="form-control" accept="image/*" id="avatar"/>
+		    <input type="file" class="form-control" accept="image/*" id="edit-avatar"/>
 		  </div>
-		  <input type="button" class="btn btn-dark" id="edit-avatar-button" value="Edit avatar"/>
+		  <input type="button" class="btn btn-dark" id="edit-avatar-button" value="Edit avatar" required/>
 		</form>
 	      </div>
 	      <div class="modal-footer">
-		<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		<button type="button" id="edit-avatar-close" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 	      </div>
 	    </div>
 	  </div>
 	</div>
-	<h3 class="card-title mb-2">{{ user.get_username }}</h3>
+	<h3 id="username" class="card-title mb-2">{{ user.get_username }}</h3>
 	<button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#editUsernameModal"><i class="fas fa-edit me-2"></i>Edit username</button>
 	<div class="modal fade" id="editUsernameModal" tabindex="-1" aria-labelledby="editUsernameModalLabel" aria-hidden="true" style="top: 200px">
 	  <div class="modal-dialog">
@@ -35,14 +35,15 @@
 		<form>
 		  {% csrf_token %}
 		  <div class="mb-3">
-		    <label for="username" class="form-label">Username</label>
-		    <input type="text" class="form-control" id="username"/>
+		    <label for="edit-username" class="form-label">Username</label>
+		    <input type="text" class="form-control" id="edit-username" required/>
 		  </div>
+		  <p class="edit-username-error-message" style="color: red;"></p>
 		  <input type="button" class="btn btn-dark" id="edit-username-button" value="Edit username"/>
 		</form>
 	      </div>
 	      <div class="modal-footer">
-		<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		<button type="button" id="edit-username-close" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 	      </div>
 	    </div>
 	  </div>
@@ -55,14 +56,14 @@
 		<form>
 		  {% csrf_token %}
 		  <div class="mb-3">
-		    <label for="password" class="form-label">Password</label>
-		    <input type="password" class="form-control" id="password"/>
+		    <label for="edit-password" class="form-label">Password</label>
+		    <input type="password" class="form-control" id="edit-password" required/>
 		  </div>
 		  <input type="button" class="btn btn-dark" id="edit-password-button" value="Edit password"/>
 		</form>
 	      </div>
 	      <div class="modal-footer">
-		<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		<button type="button" id="edit-password-close" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 	      </div>
 	    </div>
 	  </div>
