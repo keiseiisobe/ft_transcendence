@@ -166,6 +166,7 @@ function setMypageEventHandler() {
 		})
 		.then((text) => {
 		    document.body.innerHTML = text;
+		    setCloseMypageEventHandler();
 		    editUsernameEventHandler();
 		    editPasswordEventHandler();
 		    editAvatarEventHandler();
@@ -179,6 +180,21 @@ function setMypageEventHandler() {
 }
 
 setMypageEventHandler();
+
+
+
+// close mypage
+function setCloseMypageEventHandler() {
+    if (document.querySelector("#mypage-close")) {
+	button = document.querySelector("#mypage-close");
+
+	button.addEventListener("click", () => {
+	    history.back();
+	});
+    }
+}
+
+setCloseMypageEventHandler();
 
 
 
@@ -311,6 +327,10 @@ editAvatarEventHandler();
 
 
 
+// add friends
+
+
+
 // history api
 window.addEventListener("popstate", (event) => {
     if (event.state)
@@ -323,6 +343,3 @@ window.addEventListener("popstate", (event) => {
 
 const initialState = document.body.innerHTML;
 history.replaceState(initialState, "", document.location.href);
-
-
-

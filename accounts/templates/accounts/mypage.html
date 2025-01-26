@@ -1,6 +1,6 @@
 <div class="container bg-dark d-flex justify-content-center align-items-center min-vh-100">
     <div class="card profile-card" style="width: 90%;height: 90%">
-      <button type="button" id="login-close" class="btn-close float-right" style="margin: 10px"></button>
+      <input type="button" id="mypage-close" class="btn-close float-right" style="margin: 10px"/>
       <div class="card-body text-center">
 	{% if user.is_authenticated %}
 	<div>
@@ -109,10 +109,31 @@
               <div class="card-body">
                 <p class="mb-4">
 		  <strong>Friends</strong>
-		  <button type="button" class="btn btn-dark btn-sm rounded-circle navbar-toggle" style="position: absolute;left: 350px">
+		  <button type="button" class="btn btn-dark btn-sm rounded-circle navbar-toggle" data-bs-toggle="modal" data-bs-target="#editAvatarModal" style="position: absolute;top: 20%;left: 52%">
+		  <button type="button" class="btn btn-dark btn-sm rounded-circle navbar-toggle" data-bs-toggle="modal" data-bs-target="#addFriendModal" style="position: absolute;left: 350px">
 		    <i class="fas fa-user-plus"></i>
 		  </button>
 		</p>
+		<div class="modal fade" id="addFriendModal" tabindex="-1" aria-labelledby="addFriendModalLabel" aria-hidden="true" style="top: 200px">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-body">
+			<form>
+			  {% csrf_token %}
+			  <div class="mb-3">
+			    <label for="requested-friend" class="form-label">Friend's name</label>
+			    <input type="text" class="form-control" id="requested-friend" required/>
+			  </div>
+			  <p class="add-friend-error-message" style="color: red;"></p>
+			  <input type="button" class="btn btn-dark" id="add-friend-button" value="Make friends"/>
+			</form>
+		      </div>
+		      <div class="modal-footer">
+			<button type="button" id="add-friend-close" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
 		<div class="card" style="max-height: 275px;overflow-y: auto">
 		  <ul class="list-group" style="text-align: start">
 		    <li class="list-group-item">
