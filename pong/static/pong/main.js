@@ -75,13 +75,13 @@ function setLoginEventHandler() {
 	    button: document.querySelector("#login-button")
 	};
 	
-	async function login() {
+	function login() {
 	    const url = "http://localhost:8000/accounts/login/";
 	    const csrftoken = getCookie('csrftoken');
 	    const formData = new FormData();
 	    formData.append("username", loginForm.username.value);
 	    formData.append("password", loginForm.password.value);
-	    await fetch(url, {
+	    fetch(url, {
 		method: "POST",
 		headers: {
 		    "X-CSRFToken": csrftoken,
@@ -102,10 +102,12 @@ function setLoginEventHandler() {
 		})
 		.then((text) => {
 		    document.querySelector("#login-close").click();
+		    document.querySelector(".modal-backdrop").remove();
 		    let navbar = document.querySelector("#loaded-header");
 		    navbar.innerHTML = text;
 		    setLogoutEventHandler();
 		    setMypageEventHandler();
+		    history.replaceState(document.body.innerHTML, "", "");
 		})
 		.catch((err) => console.log(err));
 	}
@@ -136,6 +138,7 @@ function setLogoutEventHandler() {
 		    let navbar = document.querySelector("#loaded-header");
 		    navbar.innerHTML = text;
 		    setLoginEventHandler();
+		    history.replaceState(document.body.innerHTML, "", "");
 		})
 		.catch((err) => console.log(err));
 	}
@@ -179,7 +182,11 @@ setMypageEventHandler();
 // history api
 window.addEventListener("popstate", (event) => {
     if (event.state)
+    {
 	document.body.innerHTML = event.state;
+	setLogoutEventHandler();
+	setMypageEventHandler();
+    }
 });
 
 const initialState = document.body.innerHTML;
