@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'pong.apps.PongConfig',
     'accounts.apps.AccountsConfig',
+    'friendship'
 ]
 
 MIDDLEWARE = [

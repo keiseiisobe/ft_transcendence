@@ -5,5 +5,6 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /project
 COPY requirements.txt /project/
 RUN pip install -r requirements.txt
+RUN pip install django-friendship
 RUN python -m pip install Pillow
 COPY . /project/

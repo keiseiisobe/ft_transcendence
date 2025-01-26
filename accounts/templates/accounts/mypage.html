@@ -1,10 +1,11 @@
 <div class="container bg-dark d-flex justify-content-center align-items-center min-vh-100">
-    <div class="card profile-card">
+    <div class="card profile-card" style="width: 90%;height: 90%">
+      <button type="button" id="login-close" class="btn-close float-right" style="margin: 10px"></button>
       <div class="card-body text-center">
 	{% if user.is_authenticated %}
 	<div>
           <img id="avatar" src="{{ user.avatar.url }}" alt="User Profile" class="rounded-circle profile-img mb-3" style="width: 100px;height: 100px">
-	  <button type="button" class="btn btn-dark btn-sm rounded-circle navbar-toggle" data-bs-toggle="modal" data-bs-target="#editAvatarModal" style="position: absolute;top: 40%;left: 55%">
+	  <button type="button" class="btn btn-dark btn-sm rounded-circle navbar-toggle" data-bs-toggle="modal" data-bs-target="#editAvatarModal" style="position: absolute;top: 20%;left: 52%">
             <i class="fas fa-camera"></i>
           </button>
 	</div>
@@ -68,6 +69,83 @@
 	    </div>
 	  </div>
 	</div>
+	<div class="row" style="margin: 20px;height: 350px;">
+          <div class="col-md-6">
+            <div class="card mb-4 mb-md-0">
+              <div class="card-body">
+                <p class="mb-4"><strong>Match Stats</strong></p>
+		<div class="row" style="font-weight: 1000;">
+		  <div class="col-md-6">
+		    <div class="card">
+		      <p>WINS</p>
+		      <p>10</p>
+		    </div>
+		  </div>
+		  <div class="col-md-6">
+		    <div class="card">
+		      <p>LOSES</p>
+		      <p>5</p>
+		    </div>
+		  </div>
+		</div>
+                <p class="mb-4" style="margin: 15px"><strong>Match History</strong></p>
+		<div class="card" style="max-height: 130px;overflow-y: auto">
+		  <ul class="list-group" style="text-align: start">
+		    <li class="list-group-item">2025/01/01: You win against peer ( 10 : 5 )</li>
+		    <li class="list-group-item">2025/01/02: You lose against computer ( 3 : 10 )</li>
+		    <li class="list-group-item">2025/01/04: You win against computer ( 10 : 9 )</li>
+		    <li class="list-group-item">2025/01/07: You lose against peer ( 8 : 10 )</li>
+		    <li class="list-group-item">2025/01/07: You lose against peer ( 8 : 10 )</li>
+		    <li class="list-group-item">2025/01/07: You lose against peer ( 8 : 10 )</li>
+		    <li class="list-group-item">2025/01/07: You lose against peer ( 8 : 10 )</li>
+		    <li class="list-group-item">2025/01/07: You lose against peer ( 8 : 10 )</li>
+		  </ul>
+		</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6" style="max-height: 100%">
+            <div class="card mb-4 mb-md-0">
+              <div class="card-body">
+                <p class="mb-4">
+		  <strong>Friends</strong>
+		  <button type="button" class="btn btn-dark btn-sm rounded-circle navbar-toggle" style="position: absolute;left: 350px">
+		    <i class="fas fa-user-plus"></i>
+		  </button>
+		</p>
+		<div class="card" style="max-height: 275px;overflow-y: auto">
+		  <ul class="list-group" style="text-align: start">
+		    <li class="list-group-item">
+		      <img src="http://localhost:8000/accounts/images/penguin.png" class="rounded-circle profile-img mb-3" style="height: 30px;width: 30px;position: relative;top: 7px"/>
+		      <span style="color: green;margin-right: 10px">online</span>
+		      <span>username</span>
+		    </li>
+		    <li class="list-group-item">
+		      <img src="http://localhost:8000/accounts/images/penguin.png" class="rounded-circle profile-img mb-3" style="height: 30px;width: 30px;position: relative;top: 7px"/>
+		      <span style="color: green;margin-right: 10px">online</span>
+		      <span>username</span>
+		    </li>
+		    <li class="list-group-item">
+		      <img src="http://localhost:8000/accounts/images/penguin.png" class="rounded-circle profile-img mb-3" style="height: 30px;width: 30px;position: relative;top: 7px"/>
+		      <span style="color: green;margin-right: 10px">online</span>
+		      <span>username</span>
+		    </li>
+		    <li class="list-group-item">
+		      <img src="http://localhost:8000/accounts/images/penguin.png" class="rounded-circle profile-img mb-3" style="height: 30px;width: 30px;position: relative;top: 7px"/>
+		      <span style="color: green;margin-right: 10px">online</span>
+		      <span>username</span>
+		    </li>
+		    <li class="list-group-item">
+		      <img src="http://localhost:8000/accounts/images/penguin.png" class="rounded-circle profile-img mb-3" style="height: 30px;width: 30px;position: relative;top: 7px"/>
+		      <span style="color: green;margin-right: 10px">online</span>
+		      <span>username</span>
+		    </li>
+		  </ul>
+		</div>
+              </div>
+            </div>
+          </div>
+        </div>
 	{% else %}
         <h3 class="card-title mb-2">Sorry, You are not authenticated.</h3>
 	{% endif %}

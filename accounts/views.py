@@ -11,11 +11,14 @@ import json, os
 def mysignup(request):
     if request.method == "POST":
         try :
-            avatar = request.FILES["avatar"]
+            User = get_user_model()
             username = request.POST["username"]
             password = request.POST["password"]
-            User = get_user_model()
-            User.objects.create_user(username=username, password=password, avatar=avatar)
+            avatar = request.FILES.get("avatar", False)
+            if avatar:
+                User.objects.create_user(username=username, password=password, avatar=avatar)
+            else:
+                User.objects.create_user(username=username, password=password)
         except ValidationError:
             return HttpResponseForbidden()
         return HttpResponse()
@@ -69,7 +72,10 @@ def editPassword(request):
 def editAvatar(request):
     if request.method == "POST":
         avatar = request.FILES["avatar"]
-        os.remove(request.user.avatar.path)
+        default = "accounts/images/gnu.png"
+        previous = request.user.avatar.path
+        if previous != default:
+            os.remove(request.user.avatar.path)
         request.user.avatar = avatar
         request.user.save()
         return JsonResponse({ "url": request.user.avatar.url })

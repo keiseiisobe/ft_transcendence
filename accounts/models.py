@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.files import File
 
 # Create your models here.
 
@@ -10,7 +11,10 @@ class UserManager(BaseUserManager):
         User = get_user_model()
         user = User(username=username)
         user.set_password(password)
-        user.avatar = avatar
+        if avatar:
+            user.avatar = avatar
+        else:
+            user.avatar = File(open("accounts/images/gnu.png", "rb"))
         user.clean()
         user.save()
         return user
@@ -18,7 +22,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     username = models.CharField(max_length=40, unique=True)
     password = models.CharField(max_length=40)
-    avatar = models.ImageField(upload_to="accounts/images", default=None)
+    avatar = models.ImageField(upload_to="accounts/images")
     is_login = models.BooleanField(default=False)
     USERNAME_FIELD = "username"
     objects = UserManager()
