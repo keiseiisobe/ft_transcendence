@@ -2,18 +2,71 @@
     <div class="card profile-card">
       <div class="card-body text-center">
 	{% if user.is_authenticated %}
-        <img src="{{ user.avatar.url }}" alt="User Profile" class="rounded-circle profile-img mb-3" style="width: 100px;height: 100px">
-        <h3 class="card-title mb-2">{{ user.get_username }}</h3>
-        <p class="card-text text-muted mb-3">Web Developer</p>
-        <p class="card-text mb-4">Passionate about creating beautiful and functional websites. Always learning and
-                exploring new technologies.</p>
-        <div class="social-icons mb-4">
-          <a href="#" class="me-2"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="me-2"><i class="fab fa-twitter"></i></a>
-          <a href="#" class="me-2"><i class="fab fa-linkedin-in"></i></a>
-          <a href="#"><i class="fab fa-github"></i></a>
-        </div>
-        <a href="#" class="btn btn-primary btn-lg w-100">Connect</a>
+	<div>
+          <img src="{{ user.avatar.url }}" alt="User Profile" class="rounded-circle profile-img mb-3" style="width: 100px;height: 100px">
+	  <button type="button" class="btn btn-dark btn-sm rounded-circle navbar-toggle" data-bs-toggle="modal" data-bs-target="#editAvatarModal" style="position: absolute;top: 40%;left: 55%">
+            <i class="fas fa-camera"></i>
+          </button>
+	</div>
+	<div class="modal fade" id="editAvatarModal" tabindex="-1" aria-labelledby="editAvatarModalLabel" aria-hidden="true" style="top: 200px">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-body">
+		<form enctype="multipart/form-data">
+		  {% csrf_token %}
+		  <div class="mb-3">
+		    <input type="file" class="form-control" accept="image/*" id="avatar"/>
+		  </div>
+		  <input type="button" class="btn btn-dark" id="edit-avatar-button" value="Edit avatar"/>
+		</form>
+	      </div>
+	      <div class="modal-footer">
+		<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	<h3 class="card-title mb-2">{{ user.get_username }}</h3>
+	<button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#editUsernameModal"><i class="fas fa-edit me-2"></i>Edit username</button>
+	<div class="modal fade" id="editUsernameModal" tabindex="-1" aria-labelledby="editUsernameModalLabel" aria-hidden="true" style="top: 200px">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-body">
+		<form>
+		  {% csrf_token %}
+		  <div class="mb-3">
+		    <label for="username" class="form-label">Username</label>
+		    <input type="text" class="form-control" id="username"/>
+		  </div>
+		  <input type="button" class="btn btn-dark" id="edit-username-button" value="Edit username"/>
+		</form>
+	      </div>
+	      <div class="modal-footer">
+		<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	<button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#editPasswordModal"><i class="fas fa-edit me-2"></i>Edit password</button>
+	<div class="modal fade" id="editPasswordModal" tabindex="-1" aria-labelledby="editPasswordModalLabel" aria-hidden="true" style="top: 200px">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-body">
+		<form>
+		  {% csrf_token %}
+		  <div class="mb-3">
+		    <label for="password" class="form-label">Password</label>
+		    <input type="password" class="form-control" id="password"/>
+		  </div>
+		  <input type="button" class="btn btn-dark" id="edit-password-button" value="Edit password"/>
+		</form>
+	      </div>
+	      <div class="modal-footer">
+		<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
 	{% else %}
         <h3 class="card-title mb-2">Sorry, You are not authenticated.</h3>
 	{% endif %}
