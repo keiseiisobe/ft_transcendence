@@ -103,4 +103,23 @@ export class GameView extends View {
       this.#ball.dx = -this.#ball.dx;
     }
   }
+
+  /** プレイヤーのキーアクションを実行する */
+  executePlayerAction(key) {
+    if (key["w"]) {
+      this.#leftPaddle.dy = -this.#leftPaddle.speed;
+    } else if (key["s"]) {
+      this.#leftPaddle.dy = this.#leftPaddle.speed;
+    } else {
+      this.#leftPaddle.dy = 0;
+    }
+
+    if (key["ArrowUp"] || key["Up"]) {
+      this.#rightPaddle.dy = -this.#rightPaddle.speed;
+    } else if (key["ArrowDown"] || key["Down"]) {
+      this.#rightPaddle.dy = this.#rightPaddle.speed;
+    } else {
+      this.#rightPaddle.dy = 0;
+    }
+  }
 }

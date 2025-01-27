@@ -29,9 +29,6 @@ export class PongGame {
     this.#mainView = new MainView(this.#context);
     this.#gameView = new GameView(this.#context);
     this.#resultView = new ResultView(this.#context);
-    // this.#mainView.draw();
-    // this.#gameView.draw();
-    // this.#resultView.draw();
 
     // 表示するビューをメイン画面にする
     this.#viewname = this.#mainView.constructor.name;
@@ -92,6 +89,7 @@ export class PongGame {
         this.#mainView.executePlayerAction({ [key]: true });
         break;
       case "GameView":
+        this.#gameView.executePlayerAction({ [key]: true });
         break;
       case "ResultView":
         break;
@@ -103,6 +101,7 @@ export class PongGame {
       case "MainView":
         break;
       case "GameView":
+        this.#gameView.executePlayerAction({ [key]: false });
         break;
       case "ResultView":
         break;
