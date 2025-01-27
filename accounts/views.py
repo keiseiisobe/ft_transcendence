@@ -33,8 +33,8 @@ def mylogin(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            user.is_login = True
-            user.save()
+            request.user.is_login = True
+            request.user.save()
             return render(request, "pong/header.html", { "user": request.user })
         else:
             return HttpResponseNotFound("Username or password is incorrect")

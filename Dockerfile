@@ -7,4 +7,5 @@ COPY requirements.txt /project/
 RUN pip install -r requirements.txt
 RUN pip install django-friendship
 RUN python -m pip install Pillow
+RUN python -m pip install -U 'channels[daphne]'
 COPY . /project/
