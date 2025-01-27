@@ -31,6 +31,8 @@ export class GameView extends View {
     this.#checkCollisionBallAndWall();
     // ボールとパドルの衝突を確認する
     this.#checkCollisionBallAndPaddle();
+    // パドルと壁の衝突を確認する
+    this.#checkCollisionPaddleAndWall();
 
     // ボールを移動する
     this.#ball.move();
@@ -120,6 +122,43 @@ export class GameView extends View {
       this.#rightPaddle.dy = this.#rightPaddle.speed;
     } else {
       this.#rightPaddle.dy = 0;
+    }
+  }
+
+  /** パドルと壁の衝突を確認する */
+  #checkCollisionPaddleAndWall() {
+    const LpaddleY = this.#leftPaddle.y;
+    const LpaddleDy = this.#leftPaddle.dy;
+    const paddleHeight = this.#leftPaddle.height;
+    const RpaddleY = this.#rightPaddle.y;
+    const RpaddleDy = this.#rightPaddle.dy;
+
+    // 左パドルが上に衝突したらパドルの上に固定する
+    if (LpaddleY + LpaddleDy < 0) {
+      this.#leftPaddle.dy = 0;
+      this.#leftPaddle.y = 0;
+      return;
+    }
+
+    // 左パドルが下に衝突したらパドルを下に固定する
+    if (this.context.canvas.height - paddleHeight < LpaddleY + LpaddleDy) {
+      this.#leftPaddle.dy = 0;
+      this.#leftPaddle.y = this.context.canvas.height - paddleHeight;
+      return;
+    }
+
+    // 右パドルが上に衝突したらパドルの上に固定する
+    if (RpaddleY + RpaddleDy < 0) {
+      this.#rightPaddle.dy = 0;
+      this.#rightPaddle.y = 0;
+      return;
+    }
+
+    // 右パドルが下に衝突したらパドルを下に固定する
+    if (this.context.canvas.height - paddleHeight < RpaddleY + RpaddleDy) {
+      this.#rightPaddle.dy = 0;
+      this.#rightPaddle.y = this.context.canvas.height - paddleHeight;
+      return;
     }
   }
 }
