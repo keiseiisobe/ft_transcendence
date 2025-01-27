@@ -5,7 +5,7 @@ from accounts.models import User
 class MatchHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     opponent = models.CharField(max_length=10)
-    score_1 = models.IntegerField()
-    score_2 = models.IntegerField()
-    result = models.BooleanField() # True for Win, False for Lose
-    date = models.DateField(auto_now_add=True)
+    score_user = models.IntegerField()
+    score_opponent = models.IntegerField()
+    result = models.IntegerField() # 1 for Win, 0 for Lose
+    date = models.DateTimeField(auto_now_add=True)

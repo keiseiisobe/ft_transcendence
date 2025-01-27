@@ -17,6 +17,53 @@ function getCookie(name) {
 
 
 
+// gameover
+function gameOverEventHandler() {
+    if (document.querySelector("#win-button")) {
+	const winButton = document.querySelector("#win-button");
+	const loseButton = document.querySelector("#lose-button");
+
+	async function gameover(opponent, score_user, score_opponent, result) {
+	    const url = "http://localhost:8000/pong/gameover/";
+	    const csrftoken = getCookie('csrftoken');
+	    const formData = new FormData();
+	    formData.append("opponent", opponent);
+	    formData.append("score_user", score_user);
+	    formData.append("score_opponent", score_opponent);
+	    formData.append("result", result);
+	    await fetch(url, {
+		method: "POST",
+		headers: {
+		    "X-CSRFToken": csrftoken,
+		},
+		body: formData
+	    })
+		.then((promise) => promise.text())
+		.then((text) => {
+		    document.body.innerHTML = text;
+		    setLoginEventHandler();
+		    setSignupEventHandler();
+		    setMypageEventHandler();
+		    setLogoutEventHandler();
+		    gameOverEventHandler();
+		})
+		.catch((err) => console.log(err));
+	}
+
+	winButton.addEventListener("click", () => {
+	    gameover("peer", 10, 0, 1);
+	});
+	
+	loseButton.addEventListener("click", () => {
+	    gameover("computer", 3, 10, 0);
+	});
+    }
+}
+
+gameOverEventHandler();
+
+
+
 // signup
 function setSignupEventHandler() {
     if (document.querySelector("#signupModal")) {
@@ -107,6 +154,7 @@ function setLoginEventHandler() {
 		    navbar.innerHTML = text;
 		    setLogoutEventHandler();
 		    setMypageEventHandler();
+		    gameOverEventHandler();
 		    history.replaceState(document.body.innerHTML, "", "");
 		})
 		.catch((err) => console.log(err));
@@ -138,6 +186,8 @@ function setLogoutEventHandler() {
 		    let navbar = document.querySelector("#loaded-header");
 		    navbar.innerHTML = text;
 		    setLoginEventHandler();
+		    setSignupEventHandler();
+		    gameOverEventHandler();
 		    history.replaceState(document.body.innerHTML, "", "");
 		})
 		.catch((err) => console.log(err));
@@ -182,20 +232,31 @@ function setMypageEventHandler() {
 
 setMypageEventHandler();
 
-
+    
 
 // close mypage
 function setCloseMypageEventHandler() {
     if (document.querySelector("#mypage-close")) {
 	button = document.querySelector("#mypage-close");
 
-	button.addEventListener("click", () => {
-	    history.back();
-	});
+	
+	async function closeMypage() {
+	    const url = "http://localhost:8000/accounts/mypage/close/";
+	    await fetch(url)
+		.then((promise) => promise.text())
+		.then((text) => {
+		    document.body.innerHTML = text;
+		    setLogoutEventHandler();
+		    setMypageEventHandler();
+		    gameOverEventHandler();
+		    history.pushState(text, "", "");
+		})
+		.catch((err) => console.log(err));
+	}
+	
+	button.addEventListener("click", closeMypage);
     }
 }
-
-setCloseMypageEventHandler();
 
 
 
@@ -240,7 +301,6 @@ function editUsernameEventHandler() {
     }
 }
 
-editUsernameEventHandler();
 
 
 // edit password
@@ -272,6 +332,7 @@ function editPasswordEventHandler() {
 		    document.body.innerHTML = text;
 		    setLoginEventHandler();
 		    setSignupEventHandler();
+		    gameOverEventHandler();
 		    document.querySelector("#login-modal-button").click();
 		    history.replaceState(document.body.innerHTML, "", "");
 		})
@@ -281,8 +342,6 @@ function editPasswordEventHandler() {
 	editPasswordForm.button.addEventListener("click", editPassword);
     }
 }
-
-editPasswordEventHandler();
 
 
 
@@ -323,8 +382,6 @@ function editAvatarEventHandler() {
 	editAvatarForm.button.addEventListener("click", editAvatar);
     }
 }
-
-editAvatarEventHandler();
 
 
 
@@ -380,7 +437,6 @@ function addFriendEventHandler() {
     }
 }
 
-addFriendEventHandler();
 
 
 // history api

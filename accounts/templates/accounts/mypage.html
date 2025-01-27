@@ -16,9 +16,9 @@
 		<form enctype="multipart/form-data">
 		  {% csrf_token %}
 		  <div class="mb-3">
-		    <input type="file" class="form-control" accept="image/*" id="edit-avatar"/>
+		    <input type="file" class="form-control" accept="image/*" id="edit-avatar" required/>
 		  </div>
-		  <input type="button" class="btn btn-dark" id="edit-avatar-button" value="Edit avatar" required/>
+		  <input type="button" class="btn btn-dark" id="edit-avatar-button" value="Edit avatar"/>
 		</form>
 	      </div>
 	      <div class="modal-footer">
@@ -77,28 +77,37 @@
 		<div class="row" style="font-weight: 1000;">
 		  <div class="col-md-6">
 		    <div class="card">
-		      <p>WINS</p>
-		      <p>10</p>
+		      <p style="color: green;">WINS</p>
+		      <p>{{ wins }}</p>
 		    </div>
 		  </div>
 		  <div class="col-md-6">
 		    <div class="card">
-		      <p>LOSES</p>
-		      <p>5</p>
+		      <p style="color: red;">LOSES</p>
+		      <p>{{ loses }}</p>
 		    </div>
 		  </div>
 		</div>
                 <p class="mb-4" style="margin: 15px"><strong>Match History</strong></p>
 		<div class="card" style="max-height: 130px;overflow-y: auto">
-		  <ul class="list-group" style="text-align: start">
-		    <li class="list-group-item">2025/01/01: You win against peer ( 10 : 5 )</li>
-		    <li class="list-group-item">2025/01/02: You lose against computer ( 3 : 10 )</li>
-		    <li class="list-group-item">2025/01/04: You win against computer ( 10 : 9 )</li>
-		    <li class="list-group-item">2025/01/07: You lose against peer ( 8 : 10 )</li>
-		    <li class="list-group-item">2025/01/07: You lose against peer ( 8 : 10 )</li>
-		    <li class="list-group-item">2025/01/07: You lose against peer ( 8 : 10 )</li>
-		    <li class="list-group-item">2025/01/07: You lose against peer ( 8 : 10 )</li>
-		    <li class="list-group-item">2025/01/07: You lose against peer ( 8 : 10 )</li>
+		  <ul class="list-group" style="text-align: start;font-size: 14px">
+		    {% if matches %}
+		    {% for match in matches %}
+		    <li class="list-group-item">
+		      {{ match.date }} : You
+		      {% if match.result == 1 %}
+		      <span style="color: green;">win</span>
+		      {% else %}
+		      <span style="color: red;">lose</span>
+		      {% endif %}
+		      against {{ match.opponent }} ({{ match.score_user }}:{{ match.score_opponent }})
+		    </li>
+		    {% endfor %}
+		    {% else %}
+		    <div style="text-align: center;margin: 10px">
+		      <p><strong>You have no match history yet.</strong></p>
+		    </div>
+		    {% endif %}
 		  </ul>
 		</div>
               </div>

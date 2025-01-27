@@ -33,4 +33,3 @@ class User(AbstractBaseUser):
         except ObjectDoesNotExist:
             return
         raise ValidationError("")
-    

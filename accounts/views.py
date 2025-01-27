@@ -6,6 +6,7 @@ from django.http import HttpResponse, JsonResponse, FileResponse, HttpResponseNo
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from friendship.models import Friend, Follow
 from friendship.exceptions import AlreadyExistsError
+from pong.models import MatchHistory
 import json, os
 
 # Create your views here.
@@ -46,7 +47,18 @@ def mylogout(request):
 
 def mypage(request):
     friendList = Follow.objects.following(request.user)
-    return render(request, "accounts/mypage.html", { "user": request.user, "friend_list": friendList })
+    wins = request.user.matchhistory_set.filter(result=1).count()
+    loses = request.user.matchhistory_set.filter(result=0).count()
+    matches = request.user.matchhistory_set.all().order_by("-id")
+    return render(request, "accounts/mypage.html",
+                  { "user": request.user,
+                    "friend_list": friendList,
+                    "wins": wins,
+                    "loses": loses,
+                    "matches": matches })
+
+def mypageClose(request):
+    return render(request, "pong/pong.html", { "user": request.user })
 
 def images(request, filename):
     try:
