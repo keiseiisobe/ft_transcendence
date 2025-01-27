@@ -7,14 +7,14 @@ export class ResultView extends View {
   }
 
   /** 描画する */
-  draw() {
+  draw(resultMessage) {
     // 結果を描画する
     this.context.textAlign = "center";
     this.context.textBaseline = "middle";
     this.context.fillStyle = "red";
     this.context.font = "80px Inter";
     this.context.fillText(
-      "Player1 WIN",
+      resultMessage,
       this.context.canvas.width / 2,
       170
     );

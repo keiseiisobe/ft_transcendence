@@ -78,7 +78,9 @@ export class PongGame {
       case "ResultView":
         console.log("ResultView");
         // 結果画面を描画する
-        this.#resultView.draw();
+        this.#resultView.draw(this.#gameView.resultMessage);
+        //  ゲームを停止する
+        this.#stop();
         break;
     }
   }

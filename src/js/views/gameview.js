@@ -10,6 +10,10 @@ export class GameView extends View {
   #leftPaddle;
   #rightPaddle;
 
+  /** ゲーム結果 */
+  resultMessage = "";
+
+
   constructor(context) {
     super(context);
 
@@ -33,6 +37,11 @@ export class GameView extends View {
     this.#checkCollisionBallAndPaddle();
     // パドルと壁の衝突を確認する
     this.#checkCollisionPaddleAndWall();
+
+    // ゲームが終了かどうか検証する
+    if (this.#isGameEnd()) {
+      this.isVisible = false;
+    }
 
     // ボールを移動する
     this.#ball.move();
@@ -63,17 +72,7 @@ export class GameView extends View {
 
     if(ballY + ballSideLen >= canvasHeight || ballY < 0) {
       this.#ball.dy = -this.#ball.dy; //壁に当たった時の挙動
-  } else if(ballX + ballSideLen >= canvasWidth) { //右player側の壁に当たった時
-      // alert("PLAYER1 WIN!");
-      // this.#ball = { x: canvasWidth/2, y: canvasHeight/2, dx: 5, dy: -5, sideLength: 20 };
-      // document.location.reload();
-      this.#ball.dx = -this.#ball.dx;
-  } else if (ballX < 0) { //左player側の壁に当たった時
-      // alert("PLAYER2 WIN!");
-      // this.#ball = { x: canvasWidth/2, y: canvasHeight/2, dx: 5, dy: -5, sideLength: 20 };
-      // document.location.reload();
-      this.#ball.dx = -this.#ball.dx;
-  }
+    }
   }
   
   /** ボールとパドルの衝突を確認する */
@@ -160,5 +159,25 @@ export class GameView extends View {
       this.#rightPaddle.y = this.context.canvas.height - paddleHeight;
       return;
     }
+  }
+
+  /** ゲーム終了かどうか検証する */
+  #isGameEnd() {
+    const ballX = this.#ball.x;
+    const ballDx = this.#ball.dx;
+    const ballSideLen = this.#ball.sideLength;
+
+    // ボールが壁に衝突したか検証する
+    let _isGameEnd = false;
+
+    if(this.context.canvas.width - ballSideLen < ballX + ballDx) { //右player側の壁に当たった時
+      _isGameEnd = true;
+      this.resultMessage = "Player1 WIN!"
+    } else if (ballX + ballDx < 0) { //左player側の壁に当たった時
+      _isGameEnd = true;
+      this.resultMessage = "Player2 WIN!"
+    }
+
+    return _isGameEnd;
   }
 }
