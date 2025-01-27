@@ -4,6 +4,13 @@ export class MainView extends View {
   constructor(context) {
     super(context);
   }
+  /** プレイヤーのキーアクションを実行する */
+  executePlayerAction(key) {
+    // Enterが押されていたらMainViewを非表示にする
+    if (key["Enter"] === true) {
+      this.isVisible = false;
+    }
+  }
 
   /** 描画する */
   draw() {
