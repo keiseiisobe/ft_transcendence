@@ -1,9 +1,11 @@
+"use strict";
 import { View } from "./view.js";
 
 export class MainView extends View {
   constructor(context) {
     super(context);
   }
+  
   /** プレイヤーのキーアクションを実行する */
   executePlayerAction(key) {
     // Enterが押されていたらMainViewを非表示にする

@@ -1,3 +1,5 @@
+"use strict";
+
 export class View {
     context = null;
     /** 表示フラグ */

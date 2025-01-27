@@ -40,34 +40,17 @@ export class PongGame {
     this.#start();
   }
 
-  setKeydownKey(key) {
-    switch (this.#viewname) {
-      case "MainView":
-        this.#mainView.executePlayerAction({ [key]: true });
-        break;
-      case "GameView":
-        break;
-      case "ResultView":
-        break;
-    }
-  }
-
-  setKeyupKey(key) {
-    switch (this.#viewname) {
-      case "MainView":
-        break;
-      case "GameView":
-        break;
-      case "ResultView":
-        break;
-    }
-  }
-
   /** インターバルを開始する */
   #start() {
     this.#intervalId = setInterval(() => {
       this.#run();
     }, this.#INTERVAL_TIME_MS);
+  }
+
+  /** インターバルを停止する */
+  #stop() {
+    clearInterval(this.#intervalId);
+    this.#intervalId = null;
   }
 
   /** インターバルで実行する関数 */
@@ -103,11 +86,27 @@ export class PongGame {
     }
   }
 
+  setKeydownKey(key) {
+    switch (this.#viewname) {
+      case "MainView":
+        this.#mainView.executePlayerAction({ [key]: true });
+        break;
+      case "GameView":
+        break;
+      case "ResultView":
+        break;
+    }
+  }
 
-  /** インターバルを停止する */
-  #stop() {
-    clearInterval(this.#intervalId);
-    this.#intervalId = null;
+  setKeyupKey(key) {
+    switch (this.#viewname) {
+      case "MainView":
+        break;
+      case "GameView":
+        break;
+      case "ResultView":
+        break;
+    }
   }
 
 }

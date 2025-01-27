@@ -1,3 +1,4 @@
+"use strict";
 import { View } from "./view.js";
 
 export class ResultView extends View {
