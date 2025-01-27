@@ -1,6 +1,6 @@
 import { MainView } from "./views/mainview.js";
 // import { GameView } from "./views/gameview.js";
-// import { ResultView } from "./views/resultview.js";
+import { ResultView } from "./views/resultview.js";
 
 export class PongGame {
   #canvas;
@@ -23,7 +23,8 @@ export class PongGame {
 
     this.#mainView = new MainView(this.#context);
     // this.#gameView = new GameView(this.#context);
-    // this.#resultView = new ResultView(this.#context);
-    this.#mainView.draw();
+    this.#resultView = new ResultView(this.#context);
+    // this.#mainView.draw();
+    this.#resultView.draw();
   }
 }
