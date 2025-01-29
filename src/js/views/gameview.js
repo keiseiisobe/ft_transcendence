@@ -2,6 +2,7 @@
 import { View } from "./view.js";
 import { Ball } from "../game/ball.js";
 import { Paddle } from "../game/paddle.js";
+import { Scores } from "../game/scores.js";
 
 export class GameView extends View {
   /** ボール */
@@ -10,6 +11,10 @@ export class GameView extends View {
   #leftPaddle;
   #rightPaddle;
 
+  /** スコア */
+  #scores;
+  /** スコア上限 */
+  #maxScore = 3;
   /** ゲーム結果 */
   resultMessage = "";
 
@@ -23,10 +28,14 @@ export class GameView extends View {
       this.context.canvas.width/2 -10, 
       this.context.canvas.height/2 -10, 
       3, -3, 20);
-      // パドルを生成する
-      this.#leftPaddle = new Paddle(context, 40, this.context.canvas.height/2 -50, 20, 100, 5);
-      this.#rightPaddle = new Paddle(context, this.context.canvas.width -60, this.context.canvas.height/2 -50, 20, 100, 5);
-      // this.#rightPaddle = new Paddle(context, this.context.canvas.width -60, 70, 20, 100, 5); //y=100の時にバグる
+
+    // パドルを生成する
+    this.#leftPaddle = new Paddle(context, 40, this.context.canvas.height/2 -50, 20, 100, 5);
+    this.#rightPaddle = new Paddle(context, this.context.canvas.width -60, this.context.canvas.height/2 -50, 20, 100, 5);
+    // this.#rightPaddle = new Paddle(context, this.context.canvas.width -60, 70, 20, 100, 5); //y=100の時にバグる
+
+    // スコアを生成する
+    this.#scores = new Scores(context);
   }
 
   /** 更新する */
@@ -37,6 +46,12 @@ export class GameView extends View {
     this.#checkCollisionBallAndPaddle();
     // パドルと壁の衝突を確認する
     this.#checkCollisionPaddleAndWall();
+
+    // ラウンドが終了かどうか検証する
+    if (this.#isRoundEnd()) {
+      // this.isVisible = false;
+      this.#restart();
+    }
 
     // ゲームが終了かどうか検証する
     if (this.#isGameEnd()) {
@@ -58,6 +73,9 @@ export class GameView extends View {
     // パドルを描画する
     this.#leftPaddle.draw();
     this.#rightPaddle.draw();
+
+    // スコアを描画する
+    this.#scores.draw();
   }
 
   /** ボールと壁の衝突を確認する */
@@ -161,23 +179,48 @@ export class GameView extends View {
     }
   }
 
-  /** ゲーム終了かどうか検証する */
-  #isGameEnd() {
+  /** ラウンド終了かどうか検証する */
+  #isRoundEnd() {
     const ballX = this.#ball.x;
     const ballDx = this.#ball.dx;
     const ballSideLen = this.#ball.sideLength;
 
     // ボールが壁に衝突したか検証する
-    let _isGameEnd = false;
+    let _isRoundEnd = false;
 
     if(this.context.canvas.width - ballSideLen < ballX + ballDx) { //右player側の壁に当たった時
-      _isGameEnd = true;
-      this.resultMessage = "Player1 WIN!"
+      this.#scores.leftScore.value += 1;
+      _isRoundEnd = true;
     } else if (ballX + ballDx < 0) { //左player側の壁に当たった時
-      _isGameEnd = true;
-      this.resultMessage = "Player2 WIN!"
-    }
+      this.#scores.rightScore.value += 1;
+      _isRoundEnd = true;
+      }
 
+    return _isRoundEnd;
+  }
+
+  #restart() {
+    this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+    this.#ball.x = this.context.canvas.width / 2 -10;
+    this.#ball.y = this.context.canvas.height/2 -10;
+    this.#leftPaddle.x = 40;
+    this.#leftPaddle.y =  this.context.canvas.height/2 -50;
+    this.#rightPaddle.x = this.context.canvas.width -60;
+    this.#rightPaddle.y = this.context.canvas.height/2 -50;
+  }
+
+  #isGameEnd() {
+    let _isGameEnd = false;
+    const LScore = this.#scores.leftScore.value;
+    const RScore = this.#scores.rightScore.value;
+
+    if (LScore == this.#maxScore) {
+      _isGameEnd = true;
+      this.resultMessage = "Player1 WIN!";
+    } else if (RScore == this.#maxScore) {
+      _isGameEnd = true;
+      this.resultMessage = "Player2 WIN!";
+    }
     return _isGameEnd;
   }
 }
