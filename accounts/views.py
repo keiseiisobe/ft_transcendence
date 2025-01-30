@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.password_validation import validate_password
 from django.urls import reverse_lazy
 from django.http import HttpResponse, JsonResponse, FileResponse, HttpResponseNotFound, HttpResponseForbidden
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
@@ -22,8 +23,8 @@ def mysignup(request):
                 User.objects.create_user(username=username, password=password, avatar=avatar)
             else:
                 User.objects.create_user(username=username, password=password)
-        except ValidationError:
-            return HttpResponseForbidden("Username already exist. Try another username.")
+        except ValidationError as e:
+            return HttpResponseForbidden("\n".join(e))
         return HttpResponse()
 
 def mylogin(request):
@@ -75,22 +76,28 @@ def editUsername(request):
             request.user.clean()
             request.user.save()
             return HttpResponse()
-        except ValidationError:
-            return HttpResponseForbidden("Username already exist. Try another username.")
+        except ValidationError as e:
+            return HttpResponseForbidden("\n".join(e))
     return HttpResponseForbidden()
     
 def editPassword(request):
     if request.method == "POST":
-        password = request.POST["password"]
-        request.user.set_password(password)
-        request.user.save()
-        logout(request)
-        return render(request, "pong/pong.html", { "user": request.user })
+        try:
+            password = request.POST["password"]
+            validate_password(password=password)
+            request.user.set_password(password)
+            request.user.save()
+            logout(request)
+            return render(request, "pong/pong.html", { "user": request.user })
+        except ValidationError as e:
+            return HttpResponseForbidden("\n".join(e))
     return HttpResponseForbidden()
     
 def editAvatar(request):
     if request.method == "POST":
-        avatar = request.FILES["avatar"]
+        avatar = request.FILES.get("avatar", False)
+        if avatar == False:
+            return HttpResponseForbidden("Avatar cannot be empty.")
         default = "accounts/images/gnu.png"
         previous = request.user.avatar.path
         if previous != default:
@@ -112,8 +119,8 @@ def addFriend(request):
             return render(request, "accounts/friends.html", { "friend_list": friendList })
         except ObjectDoesNotExist:
             return HttpResponseNotFound("No such user.")
-        except AlreadyExistsError:
+        except AlreadyExistsError as e:
             return HttpResponseForbidden("You have already requested friendship.")
-        except ValidationError:
-            return HttpResponseForbidden("Users cannot follow themselves.")
+        except ValidationError as e:
+            return HttpResponseForbidden("\n".join(e))
     return HttpResponseForbidden()

@@ -81,29 +81,31 @@ function setSignupEventHandler() {
 	    formData.append("username", signupForm.username.value);
 	    formData.append("password", signupForm.password.value);
 	    formData.append("avatar", signupForm.avatar.files[0]);
-	    await fetch(url, {
-		method: "POST",
-		headers: {
-		    "X-CSRFToken": csrftoken,
-		},
-		body: formData
-	    })
-		.then((promise) => {
-		    if (promise.status == 403) {
-			let message = document.querySelector(".signup-error-message");
-			message.textContent = "Username already exist. Try another username.";
-			throw new Error('403');
-		    }
-		    else {
-			signupForm.username.value = "";
-			signupForm.password.value = "";
-			document.querySelector("#signup-close").click();
-			document.querySelector("#login-modal-button").click();
-		    }
-		})
-		.catch((err) => console.log(err));
+	    try {
+		const promise = await fetch(url, {
+		    method: "POST",
+		    headers: {
+			"X-CSRFToken": csrftoken,
+		    },
+		    body: formData
+		});
+		if (promise.ok) {
+		    signupForm.username.value = "";
+		    signupForm.password.value = "";
+		    document.querySelector("#signup-close").click();
+		    document.querySelector("#login-modal-button").click();
+		}
+		else // (promise.status == 403)
+		{
+		    const text = await promise.text();
+		    let message = document.querySelector(".signup-error-message");
+		    message.textContent = text;
+		}
+	    }
+	    catch (err) {
+		console.log(err);
+	    }
 	}
-
 	signupForm.button.addEventListener("click", signup);
     }
 }
@@ -122,32 +124,24 @@ function setLoginEventHandler() {
 	    button: document.querySelector("#login-button")
 	};
 	
-	function login() {
+	async function login() {
 	    const url = "http://localhost:8000/accounts/login/";
 	    const csrftoken = getCookie('csrftoken');
 	    const formData = new FormData();
 	    formData.append("username", loginForm.username.value);
 	    formData.append("password", loginForm.password.value);
-	    fetch(url, {
-		method: "POST",
-		headers: {
-		    "X-CSRFToken": csrftoken,
-		},
-		body: formData
-	    })
-		.then((promise) => {
-		    if (promise.status == 404) {
-			let message = document.querySelector(".login-error-message");
-			message.textContent = "Username or password is incorrect";
-			throw new Error('404');
-		    }
-		    else {
-			loginForm.username.value = "";
-			loginForm.password.value = "";
-			return promise.text();
-		    }
-		})
-		.then((text) => {
+	    try {
+		const promise = await fetch(url, {
+		    method: "POST",
+		    headers: {
+			"X-CSRFToken": csrftoken,
+		    },
+		    body: formData
+		});
+		const text = await promise.text();
+		if (promise.ok) {
+		    loginForm.username.value = "";
+		    loginForm.password.value = "";
 		    document.querySelector("#login-close").click();
 		    document.querySelector(".modal-backdrop").remove();
 		    let navbar = document.querySelector("#loaded-header");
@@ -156,10 +150,17 @@ function setLoginEventHandler() {
 		    setMypageEventHandler();
 		    gameOverEventHandler();
 		    history.replaceState(document.body.innerHTML, "", "");
-		})
-		.catch((err) => console.log(err));
+		}
+		else // (promise.status == 404)
+		{ 
+		    let message = document.querySelector(".login-error-message");
+		    message.textContent = text;
+		}
+	    }
+	    catch (err) {
+		console.log(err);
+	    }
 	}
-
 	loginForm.button.addEventListener("click", login);
     }
 }
@@ -208,7 +209,7 @@ function setMypageEventHandler() {
 
 	async function mypage() {
 	    const url = "http://localhost:8000/accounts/mypage/";
-	    await fetch(url)
+	    await fetch(url, { cache: "no-store" })
 		.then((promise) => {
 		    if (!promise.ok)
 			throw new Error();
@@ -274,29 +275,32 @@ function editUsernameEventHandler() {
 	    const csrftoken = getCookie('csrftoken');
 	    const formData = new FormData();
 	    formData.append("username", editUsernameForm.username.value);
-	    await fetch(url, {
-		method: "POST",
-		headers: {
-		    "X-CSRFToken": csrftoken,
-		},
-		body: formData
-	    })
-		.then((promise) => {
-		    if (promise.ok) {
-			document.querySelector("#edit-username-close").click();
-			username = document.querySelector("#username");
-			username.textContent = editUsernameForm.username.value;
-			editUsernameForm.username.value = "";
-			editUsernameForm.message.textContent = "";
-			history.replaceState(document.body.innerHTML, "", "");
-		    }
-		    else {
-			editUsernameForm.message.textContent = "Username already exist. Try another username.";
-		    }
-		})
-		.catch((err) => console.log(err));
+	    try {
+		const promise = await fetch(url, {
+		    method: "POST",
+		    headers: {
+			"X-CSRFToken": csrftoken,
+		    },
+		    body: formData
+		});
+		if (promise.ok) {
+		    document.querySelector("#edit-username-close").click();
+		    username = document.querySelector("#username");
+		    username.textContent = editUsernameForm.username.value;
+		    editUsernameForm.username.value = "";
+		    editUsernameForm.message.textContent = "";
+		    history.replaceState(document.body.innerHTML, "", "");
+		}
+		else // (promise.status == 403)
+		{
+		    const text = await promise.text();
+		    editUsernameForm.message.textContent = text;
+		}
+	    }
+	    catch (err) {
+		console.log(err);
+	    }
 	}
-
 	editUsernameForm.button.addEventListener("click", editUsername);
     }
 }
@@ -308,7 +312,8 @@ function editPasswordEventHandler() {
     if (document.querySelector("#editPasswordModal")) {
 	const editPasswordForm = {
 	    password: document.querySelector("#edit-password"),
-	    button: document.querySelector("#edit-password-button")
+	    button: document.querySelector("#edit-password-button"),
+	    message: document.querySelector(".edit-password-error-message")
 	};
 
 	async function editPassword() {
@@ -316,29 +321,34 @@ function editPasswordEventHandler() {
 	    const csrftoken = getCookie('csrftoken');
 	    const formData = new FormData();
 	    formData.append("password", editPasswordForm.password.value);
-	    await fetch(url, {
-		method: "POST",
-		headers: {
-		    "X-CSRFToken": csrftoken,
-		},
-		body: formData
-	    })
-		.then((promise) => {
-		    if (!promise.ok)
-			throw new Error();
-		    return promise.text();
-		})
-		.then((text) => {
+	    try {
+		const promise = await fetch(url, {
+		    method: "POST",
+		    headers: {
+			"X-CSRFToken": csrftoken,
+		    },
+		    body: formData
+		});
+		const text = await promise.text();
+		if (promise.ok) {
 		    document.body.innerHTML = text;
 		    setLoginEventHandler();
 		    setSignupEventHandler();
 		    gameOverEventHandler();
+		    editPasswordForm.password.value = "";
+		    editPasswordForm.message.textContent = "";
 		    document.querySelector("#login-modal-button").click();
 		    history.replaceState(document.body.innerHTML, "", "");
-		})
-		.catch((err) => console.log(err));
+		}
+		else // (promise.status == 403)
+		{
+		    editPasswordForm.message.textContent = text;
+		}
+	    }
+	    catch (err) {
+		console.log(err);
+	    }
 	}
-
 	editPasswordForm.button.addEventListener("click", editPassword);
     }
 }
@@ -350,7 +360,8 @@ function editAvatarEventHandler() {
     if (document.querySelector("#editAvatarModal")) {
 	const editAvatarForm = {
 	    avatar: document.querySelector("#edit-avatar"),
-	    button: document.querySelector("#edit-avatar-button")
+	    button: document.querySelector("#edit-avatar-button"),
+	    message: document.querySelector(".edit-avatar-error-message")
 	};
 
 	async function editAvatar() {
@@ -358,27 +369,33 @@ function editAvatarEventHandler() {
 	    const csrftoken = getCookie('csrftoken');
 	    const formData = new FormData();
 	    formData.append("avatar", editAvatarForm.avatar.files[0]);
-	    await fetch(url, {
-		method: "POST",
-		headers: {
-		    "X-CSRFToken": csrftoken,
-		},
-		body: formData
-	    })
-		.then((promise) => {
-		    if (!promise.ok)
-			throw new Error();
-		    return promise.json();
-		})
-		.then((json) => {
+	    try {
+		const promise = await fetch(url, {
+		    method: "POST",
+		    headers: {
+			"X-CSRFToken": csrftoken,
+		    },
+		    body: formData
+		});
+		if (promise.ok) {
+		    const json = await promise.json();
 		    document.querySelector("#edit-avatar-close").click();
-		    image = document.querySelector("#avatar");
+		    let image = document.querySelector("#avatar");
 		    image.src = json["url"];
+		    editAvatarForm.avatar.value = "";
+		    editAvatarForm.message.textContent = "";
 		    history.replaceState(document.body.innerHTML, "", "");
-		})
-		.catch((err) => console.log(err));
+		}
+		else // (promise.status == 403)
+		{
+		    const text = await promise.text();
+		    editAvatarForm.message.textContent = text;
+		}
+	    }
+	    catch (err) {
+		console.log(err);
+	    }
 	}
-
 	editAvatarForm.button.addEventListener("click", editAvatar);
     }
 }
@@ -399,40 +416,32 @@ function addFriendEventHandler() {
 	    const csrftoken = getCookie('csrftoken');
 	    const formData = new FormData();
 	    formData.append("friendname", addFriendForm.friendname.value);
-	    await fetch(url, {
-		method: "POST",
-		headers: {
-		    "X-CSRFToken": csrftoken,
-		},
-		body: formData
-	    })
-		.then((promise) => {
-		    if (promise.ok) {
-			return promise.text();
-		    }
-		    else if (promise.status == 404) {
-			addFriendForm.message.textContent = "No such user.";
-			throw new Error();
-		    }
-		    else if (promise.status == 403) {
-			addFriendForm.message.textContent = "You have already requested friendship.";
-			throw new Error();
-		    }
-		    else {
-			throw new Error();
-		    }
-		})
-		.then((text) => {
-			document.querySelector("#add-friend-close").click();
-			friendList = document.querySelector("#friend-list");
-			friendList.innerHTML = text;
-			addFriendForm.friendname.value = "";
-			addFriendForm.message.textContent = "";
-			history.replaceState(document.body.innerHTML, "", "");
-		})
-		.catch((err) => console.log(err));
+	    try {
+		const promise = await fetch(url, {
+		    method: "POST",
+		    headers: {
+			"X-CSRFToken": csrftoken,
+		    },
+		    body: formData
+		});
+		const text = await promise.text();
+		if (promise.ok) {
+		    document.querySelector("#add-friend-close").click();
+		    friendList = document.querySelector("#friend-list");
+		    friendList.innerHTML = text;
+		    addFriendForm.friendname.value = "";
+		    addFriendForm.message.textContent = "";
+		    history.replaceState(document.body.innerHTML, "", "");
+		}
+		else // ( promise.status == (403 || 404) )
+		{
+		    addFriendForm.message.textContent = text;
+		}
+	    }
+	    catch (err) {
+		console.log(err);
+	    }
 	}
-
 	addFriendForm.button.addEventListener("click", addFriend);
     }
 }
