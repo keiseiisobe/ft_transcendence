@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'pong.apps.PongConfig',
     'accounts.apps.AccountsConfig',
-    'friendship'
+    'friendship',
+    'rainbowtests'
 ]
 
 MIDDLEWARE = [
@@ -138,3 +139,4 @@ AUTHENTICATION_BACKENDS = (
         'django.contrib.auth.backends.ModelBackend',
     )
 ASGI_APPLICATION = "games.asgi.application"
+TEST_RUNNER = 'rainbowtests.test.runner.RainbowDiscoverRunner'
