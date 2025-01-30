@@ -20,3 +20,9 @@ services:
       - POSTGRES_PASSWORD=postgres
     depends_on:
       - db
+  selenium:
+    image: seleniarm/standalone-chromium:latest
+    ports:
+      - "4444:4444"
+    volumes:
+      - /dev/shm:/dev/shm
