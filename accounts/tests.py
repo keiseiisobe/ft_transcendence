@@ -5,10 +5,11 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import socket
 
 # Create your tests here.
-import os
-os.environ['DJANGO_LIVE_TEST_SERVER_ADDRESS'] = 'web:8081'
 
 class UserModelTests(TestCase):
     def test_username_must_not_be_empty(self):
@@ -47,59 +48,59 @@ class UserModelTests(TestCase):
 class SeleniumTest(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.host = "localhost"
+        cls.host = socket.gethostbyname(socket.gethostname())
         cls.port = 8081
         super().setUpClass()
         options = webdriver.ChromeOptions()
         options.add_argument('--no-sandbox')
         cls.selenium = webdriver.Remote(command_executor="http://selenium:4444/wd/hub", options=options)
+        cls.selenium.set_window_size(1280, 832)
+        print(f"Live Server: {cls.live_server_url}")
         cls.selenium.implicitly_wait(10)
-        '''
-        chromedriver_path = "/usr/bin/chromedriver"
-        service = Service(chromedriver_path)
-        options = webdriver.ChromeOptions()
-        options.add_argument('--disable-gpu')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')        
-        options.add_argument('--user-data-dir=/tmp')        
-        options.add_argument('--headless')
-        cls.selenium = webdriver.Chrome(service=service, options=options)
-        cls.selenium.implicitly_wait(10)
-        '''
         
     @classmethod
     def tearDownClass(cls):
         cls.selenium.quit()
         super().tearDownClass()
 
-    def test_signup_and_login(self):
-        print(f"{self.live_server_url}")
-        self.selenium.get(f"http://web:8081/pong/")
+    def test_signup_and_login_and_logout(self):
+        self.selenium.get(f"{self.live_server_url}/pong/")
         self.assertEqual(self.selenium.title, "Pong Game")
         username = "kisobe"
         password = "password"
         
         # signup
-        signupModalButton = self.selenium.find_element(By.ID, "signup-modal-button")
-        self.assertIn("Signup", signupModalButton.get_attribute("textContent"))
+        signupModalButton = WebDriverWait(self.selenium, 50).until(
+            EC.element_to_be_clickable((By.ID, "signup-modal-button"))
+        )
         signupModalButton.click()
-        self.selenium.implicitly_wait(10)
-        signupUsername = self.selenium.find_element(By.CSS_SELECTOR, "#signup-username")
+        signupUsername = WebDriverWait(self.selenium, 50).until(
+            EC.element_to_be_clickable((By.ID, "signup-username"))
+        )
         signupUsername.send_keys(username)
-        signupPassword = self.selenium.find_element(By.CSS_SELECTOR, "#signup-password")
+        signupPassword = self.selenium.find_element(By.ID, "signup-password")
         signupPassword.send_keys(password)
-        signupButton = self.selenium.find_element(By.CSS_SELECTOR, "#signup-button")
+        signupButton = self.selenium.find_element(By.ID, "signup-button")
         signupButton.click()
-        self.selenium.implicitly_wait(10)
 
         # login
-        loginUsername = self.selenium.find_element(By.CSS_SELECTOR, "#login-username")
+        loginUsername = WebDriverWait(self.selenium, 50).until(
+            EC.element_to_be_clickable((By.ID, "login-username"))
+        )
         loginUsername.send_keys(username)
-        loginPassword = self.selenium.find_element(By.CSS_SELECTOR, "#login-password")
+        loginPassword = self.selenium.find_element(By.ID, "login-password")
         loginPassword.send_keys(password)
-        loginButton = self.selenium.find_element(By.CSS_SELECTOR, "#login-button")
+        loginButton = self.selenium.find_element(By.ID, "login-button")
         loginButton.click()
 
-        self.selenium.implicitly_wait(10)
-        header = self.selenium.find_element(By.CSS_SELECTOR, "#loaded-header")
-        self.assertIn("Mypage", header.get_attribute("innerText"))
+        logoutButton = WebDriverWait(self.selenium, 50).until(
+            EC.element_to_be_clickable((By.ID, "logout-button"))
+        )
+        self.assertEqual(logoutButton.get_attribute("value"), "Logout")
+
+        #logout
+        logoutButton.click()
+        signupModalButton = WebDriverWait(self.selenium, 50).until(
+            EC.element_to_be_clickable((By.ID, "signup-modal-button"))
+        )
+        self.assertEqual(signupModalButton.get_attribute("id"), "signup-modal-button")

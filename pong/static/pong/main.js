@@ -24,7 +24,7 @@ function gameOverEventHandler() {
 	const loseButton = document.querySelector("#lose-button");
 
 	async function gameover(opponent, score_user, score_opponent, result) {
-	    const url = "http://localhost:8000/pong/gameover/";
+	    const url = window.location.origin + "/pong/gameover/";
 	    const csrftoken = getCookie('csrftoken');
 	    const formData = new FormData();
 	    formData.append("opponent", opponent);
@@ -75,7 +75,7 @@ function setSignupEventHandler() {
 	};
 
 	async function signup() {
-	    const url = "http://localhost:8000/accounts/signup/";
+	    const url = window.location.origin + "/accounts/signup/";
 	    const csrftoken = getCookie('csrftoken');
 	    const formData = new FormData();
 	    formData.append("username", signupForm.username.value);
@@ -125,7 +125,7 @@ function setLoginEventHandler() {
 	};
 	
 	async function login() {
-	    const url = "http://localhost:8000/accounts/login/";
+	    const url = window.location.origin + "/accounts/login/";
 	    const csrftoken = getCookie('csrftoken');
 	    const formData = new FormData();
 	    formData.append("username", loginForm.username.value);
@@ -176,7 +176,7 @@ function setLogoutEventHandler() {
 	const logoutButton = document.querySelector("#logout-button");
 
 	async function logout() {
-	    const url = "http://localhost:8000/accounts/logout/";
+	    const url = window.location.origin + "/accounts/logout/";
 	    await fetch(url)
 		.then((promise) => {
 		    if (!promise.ok)
@@ -208,7 +208,7 @@ function setMypageEventHandler() {
 	const mypageButton = document.querySelector("#mypage-button");
 
 	async function mypage() {
-	    const url = "http://localhost:8000/accounts/mypage/";
+	    const url = window.location.origin + "/accounts/mypage/";
 	    await fetch(url, { cache: "no-store" })
 		.then((promise) => {
 		    if (!promise.ok)
@@ -242,7 +242,7 @@ function setCloseMypageEventHandler() {
 
 	
 	async function closeMypage() {
-	    const url = "http://localhost:8000/accounts/mypage/close/";
+	    const url = window.location.origin + "/accounts/mypage/close/";
 	    await fetch(url)
 		.then((promise) => promise.text())
 		.then((text) => {
@@ -271,7 +271,7 @@ function editUsernameEventHandler() {
 	};
 
 	async function editUsername() {
-	    const url = "http://localhost:8000/accounts/edit/username/";
+	    const url = window.location.origin + "/accounts/edit/username/";
 	    const csrftoken = getCookie('csrftoken');
 	    const formData = new FormData();
 	    formData.append("username", editUsernameForm.username.value);
@@ -317,7 +317,7 @@ function editPasswordEventHandler() {
 	};
 
 	async function editPassword() {
-	    const url = "http://localhost:8000/accounts/edit/password/";
+	    const url = window.location.origin + "/accounts/edit/password/";
 	    const csrftoken = getCookie('csrftoken');
 	    const formData = new FormData();
 	    formData.append("password", editPasswordForm.password.value);
@@ -365,7 +365,7 @@ function editAvatarEventHandler() {
 	};
 
 	async function editAvatar() {
-	    const url = "http://localhost:8000/accounts/edit/avatar/";
+	    const url = window.location.origin + "/accounts/edit/avatar/";
 	    const csrftoken = getCookie('csrftoken');
 	    const formData = new FormData();
 	    formData.append("avatar", editAvatarForm.avatar.files[0]);
@@ -412,7 +412,7 @@ function addFriendEventHandler() {
 	};
 
 	async function addFriend() {
-	    const url = "http://localhost:8000/accounts/friend/add/";
+	    const url = window.location.origin + "/accounts/friend/add/";
 	    const csrftoken = getCookie('csrftoken');
 	    const formData = new FormData();
 	    formData.append("friendname", addFriendForm.friendname.value);

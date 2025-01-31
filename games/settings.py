@@ -140,3 +140,4 @@ AUTHENTICATION_BACKENDS = (
     )
 ASGI_APPLICATION = "games.asgi.application"
 TEST_RUNNER = 'rainbowtests.test.runner.RainbowDiscoverRunner'
+
