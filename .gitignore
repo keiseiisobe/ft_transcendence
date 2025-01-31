@@ -1,5 +1,6 @@
 # database
 data/
+accounts/images/accounts/
 
 # python
 __pycache__/
