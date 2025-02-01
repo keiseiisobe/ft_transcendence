@@ -191,6 +191,58 @@ class SeleniumTest(StaticLiveServerTestCase):
             EC.visibility_of_element_located((By.CLASS_NAME, "add-friend-error-message"))
         )
         self.assertIn(expected_message, error_message.text)
+
+    def edit_username(self, new_username):
+        modalButton = WebDriverWait(self.selenium, 10).until(
+            EC.element_to_be_clickable((By.ID, "edit-username-modal-button"))
+        )
+        modalButton.click()
+        username = WebDriverWait(self.selenium, 10).until(
+            EC.element_to_be_clickable((By.ID, "edit-username"))
+        )
+        username.send_keys(new_username)
+        WebDriverWait(self.selenium, 10).until(
+            EC.text_to_be_present_in_element_attribute((By.ID, "edit-username"), "value", new_username)
+        )
+        button = self.selenium.find_element(By.ID, "edit-username-button")
+        button.click()
+
+    def edit_username_ok(self, new_username):
+        username = WebDriverWait(self.selenium, 10).until(
+            EC.text_to_be_present_in_element((By.ID, "username"), new_username)
+        )
+        self.assertTrue(username)
+        
+    def edit_username_error(self, expected_message):
+        error_message = WebDriverWait(self.selenium, 10).until(
+            EC.visibility_of_element_located((By.CLASS_NAME, "edit-username-error-message"))
+        )
+        self.assertIn(expected_message, error_message.text)
+        
+    def edit_password(self, new_password):
+        modalButton = WebDriverWait(self.selenium, 10).until(
+            EC.element_to_be_clickable((By.ID, "edit-password-modal-button"))
+        )
+        modalButton.click()
+        password = WebDriverWait(self.selenium, 10).until(
+            EC.element_to_be_clickable((By.ID, "edit-password"))
+        )
+        password.send_keys(new_password)
+        WebDriverWait(self.selenium, 10).until(
+            EC.text_to_be_present_in_element_attribute((By.ID, "edit-password"), "value", new_password)
+        )
+        button = self.selenium.find_element(By.ID, "edit-password-button")
+        button.click()
+
+    def edit_password_ok(self, username, new_password):
+        self.login(username, new_password)
+        self.login_ok()
+        
+    def edit_password_error(self, expected_message):
+        error_message = WebDriverWait(self.selenium, 10).until(
+            EC.visibility_of_element_located((By.CLASS_NAME, "edit-password-error-message"))
+        )
+        self.assertIn(expected_message, error_message.text)
         
     #success test
     
@@ -240,6 +292,34 @@ class SeleniumTest(StaticLiveServerTestCase):
         self.mypage()
         self.add_friend(friend)
         self.add_friend_ok(friend)
+
+    def test_edit_username(self):
+        self.selenium.get(f"{self.live_server_url}/pong/")
+        self.assertEqual(self.selenium.title, "Pong Game")
+        username = "kmotoyam"
+        password = "kojikojikojikojikoji"
+        self.signup_prepare()
+        self.signup(username, password)
+        self.login(username, password)
+        self.login_ok()
+        self.mypage()
+        new_username = "koji"
+        self.edit_username(new_username)
+        self.edit_username_ok(new_username)
+
+    def test_edit_password(self):
+        self.selenium.get(f"{self.live_server_url}/pong/")
+        self.assertEqual(self.selenium.title, "Pong Game")
+        username = "kojwatan"
+        password = "kojikojikojikojikoji"
+        self.signup_prepare()
+        self.signup(username, password)
+        self.login(username, password)
+        self.login_ok()
+        self.mypage()
+        new_password = "complexedpassword"
+        self.edit_password(new_password)
+        self.edit_password_ok(username, new_password)
         
     # failure test
     error_message = {
@@ -352,3 +432,76 @@ class SeleniumTest(StaticLiveServerTestCase):
         self.add_friend(friend)
         self.add_friend_error(self.error_message["alreadyfriend"])
         
+    def test_edit_username_is_empty(self):
+        self.selenium.get(f"{self.live_server_url}/pong/")
+        self.assertEqual(self.selenium.title, "Pong Game")
+        username = "ryanagit"
+        password = "password"
+        self.signup_prepare()
+        self.signup(username, password)
+        self.login(username, password)
+        self.login_ok()
+        self.mypage()
+        new_username = ""
+        self.edit_username(new_username)
+        self.edit_username_error(self.error_message["usernameempty"])
+
+    def test_edit_with_username_already_present(self):
+        self.selenium.get(f"{self.live_server_url}/pong/")
+        username1 = "resaito"
+        password = "password"
+        self.signup_prepare()
+        self.signup(username1, password)
+        self.signup_ok()
+        self.login(username1, password)
+        self.logout()
+        username2 = "kousuzuk"
+        self.signup_prepare()
+        self.signup(username2, password)
+        self.signup_ok()
+        self.login(username2, password)
+        self.login_ok()
+        self.mypage()
+        self.edit_username(username1)
+        self.edit_username_error(self.error_message["usernameexist"])
+
+    def test_edit_username_to_myself(self):
+        self.selenium.get(f"{self.live_server_url}/pong/")
+        username = "resaito"
+        password = "password"
+        self.signup_prepare()
+        self.signup(username, password)
+        self.signup_ok()
+        self.login(username, password)
+        self.login_ok()
+        self.mypage()
+        self.edit_username(username)
+        self.edit_username_error(self.error_message["usernameexist"])
+
+    def test_edit_password_is_empty(self):
+        self.selenium.get(f"{self.live_server_url}/pong/")
+        self.assertEqual(self.selenium.title, "Pong Game")
+        username = "ryanagit"
+        password = "password"
+        self.signup_prepare()
+        self.signup(username, password)
+        self.login(username, password)
+        self.login_ok()
+        self.mypage()
+        new_password = ""
+        self.edit_password(new_password)
+        self.edit_password_error(self.error_message["badpassword"])
+
+    def test_edit_with_bad_password(self):
+        self.selenium.get(f"{self.live_server_url}/pong/")
+        self.assertEqual(self.selenium.title, "Pong Game")
+        username = "ryanagit"
+        password = "password"
+        self.signup_prepare()
+        self.signup(username, password)
+        self.login(username, password)
+        self.login_ok()
+        self.mypage()
+        new_password = "fooo"
+        self.edit_password(new_password)
+        self.edit_password_error(self.error_message["badpassword"])

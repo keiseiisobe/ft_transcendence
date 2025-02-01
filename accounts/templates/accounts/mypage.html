@@ -29,7 +29,7 @@
 	  </div>
 	</div>
 	<h3 id="username" class="card-title mb-2">{{ user.get_username }}</h3>
-	<button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#editUsernameModal"><i class="fas fa-edit me-2"></i>Edit username</button>
+	<button type="button" id="edit-username-modal-button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#editUsernameModal"><i class="fas fa-edit me-2"></i>Edit username</button>
 	<div class="modal fade" id="editUsernameModal" tabindex="-1" aria-labelledby="editUsernameModalLabel" aria-hidden="true" style="top: 200px">
 	  <div class="modal-dialog">
 	    <div class="modal-content">
@@ -50,7 +50,7 @@
 	    </div>
 	  </div>
 	</div>
-	<button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#editPasswordModal"><i class="fas fa-edit me-2"></i>Edit password</button>
+	<button type="button" id="edit-password-modal-button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#editPasswordModal"><i class="fas fa-edit me-2"></i>Edit password</button>
 	<div class="modal fade" id="editPasswordModal" tabindex="-1" aria-labelledby="editPasswordModalLabel" aria-hidden="true" style="top: 200px">
 	  <div class="modal-dialog">
 	    <div class="modal-content">
