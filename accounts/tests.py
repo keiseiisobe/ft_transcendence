@@ -70,9 +70,14 @@ class SeleniumTest(StaticLiveServerTestCase):
             EC.element_to_be_clickable((By.ID, "signup-username"))
         )
         signupUsername.send_keys(username)
+        WebDriverWait(self.selenium, 10).until(
+            EC.text_to_be_present_in_element_attribute((By.ID, "signup-username"), "value", username)
+        )
         signupPassword = self.selenium.find_element(By.ID, "signup-password")
         signupPassword.send_keys(password)
-        self.selenium.implicitly_wait(10)
+        WebDriverWait(self.selenium, 10).until(
+            EC.text_to_be_present_in_element_attribute((By.ID, "signup-password"), "value", password)
+        )
         signupButton = self.selenium.find_element(By.ID, "signup-button")
         signupButton.click()
 
@@ -81,9 +86,14 @@ class SeleniumTest(StaticLiveServerTestCase):
             EC.element_to_be_clickable((By.ID, "login-username"))
         )
         loginUsername.send_keys(username)
+        WebDriverWait(self.selenium, 10).until(
+            EC.text_to_be_present_in_element_attribute((By.ID, "login-username"), "value", username)
+        )
         loginPassword = self.selenium.find_element(By.ID, "login-password")
         loginPassword.send_keys(password)
-        self.selenium.implicitly_wait(10)
+        WebDriverWait(self.selenium, 10).until(
+            EC.text_to_be_present_in_element_attribute((By.ID, "login-password"), "value", password)
+        )
         loginButton = self.selenium.find_element(By.ID, "login-button")
         loginButton.click()
 
@@ -135,7 +145,6 @@ class SeleniumTest(StaticLiveServerTestCase):
             EC.element_to_be_clickable((By.ID, "signup-close"))
         )
         closeButton.click()
-        self.selenium.implicitly_wait(50)
         
     def login_close(self):
         closeButton = WebDriverWait(self.selenium, 10).until(
@@ -155,6 +164,33 @@ class SeleniumTest(StaticLiveServerTestCase):
             EC.element_to_be_clickable((By.ID, "mypage-close"))
         )
         closeButton.click()
+
+    def add_friend(self, username):
+        modalButton = WebDriverWait(self.selenium, 10).until(
+            EC.element_to_be_clickable((By.ID, "add-friend-modal-button"))
+        )
+        modalButton.click()
+        requested_friend = WebDriverWait(self.selenium, 10).until(
+            EC.element_to_be_clickable((By.ID, "requested-friend"))
+        )
+        requested_friend.send_keys(username)
+        WebDriverWait(self.selenium, 10).until(
+            EC.text_to_be_present_in_element_attribute((By.ID, "requested-friend"), "value", username)
+        )
+        button = self.selenium.find_element(By.ID, "add-friend-button")
+        button.click()
+
+    def add_friend_ok(self, username):
+        friend_list = WebDriverWait(self.selenium, 10).until(
+            EC.text_to_be_present_in_element((By.ID, "friend-list"), username)
+        )
+        self.assertTrue(friend_list)
+
+    def add_friend_error(self, expected_message):
+        error_message = WebDriverWait(self.selenium, 10).until(
+            EC.visibility_of_element_located((By.CLASS_NAME, "add-friend-error-message"))
+        )
+        self.assertIn(expected_message, error_message.text)
         
     #success test
     
@@ -185,11 +221,31 @@ class SeleniumTest(StaticLiveServerTestCase):
         self.assertEqual(displayed_username.text, username)
         self.mypage_close()
         self.logout()
+
+    def test_add_friend(self):
+        self.selenium.get(f"{self.live_server_url}/pong/")
+        self.assertEqual(self.selenium.title, "Pong Game")
+        friend = "jyasukaw"
+        password = "password"
+        self.signup_prepare()
+        self.signup(friend, password)
+        self.login(friend, password)
+        self.login_ok()
+        self.logout()
+        username = "kousuzuk"
+        self.signup_prepare()
+        self.signup(username, password)
+        self.login(username, password)
+        self.login_ok()
+        self.mypage()
+        self.add_friend(friend)
+        self.add_friend_ok(friend)
         
     # failure test
     error_message = {
         "alreadyfriend": "You have already requested friendship.",
         "badpassword": "This password is too short",
+        "cannotaddyouself": "Users cannot follow themselves",
         "incorrect": "Username or password is incorrect",
         "nosuchuser": "No such user.",
         "usernameempty": "Username cannot be empty",
@@ -246,7 +302,53 @@ class SeleniumTest(StaticLiveServerTestCase):
         self.signup_prepare()
         self.signup(username, password)
         self.signup_ok()
-        self.login_close()
+        self.login(username, password)
+        self.logout()
         self.signup_prepare()
         self.signup(username, password)
         self.signup_error(self.error_message["usernameexist"])
+
+    def test_add_friend_not_registered(self):
+        self.selenium.get(f"{self.live_server_url}/pong/")
+        username = "resaito"
+        password = "password"
+        self.signup_prepare()
+        self.signup(username, password)
+        self.signup_ok()
+        self.login(username, password)
+        self.login_ok()
+        self.mypage()
+        friend = "jyasukaw"
+        self.add_friend(friend)
+        self.add_friend_error(self.error_message["nosuchuser"])
+
+    def test_add_friend_myself(self):
+        self.selenium.get(f"{self.live_server_url}/pong/")
+        username = "nop"
+        password = "password"
+        self.signup_prepare()
+        self.signup(username, password)
+        self.signup_ok()
+        self.login(username, password)
+        self.mypage()
+        self.add_friend(username)
+        self.add_friend_error(self.error_message["cannotaddyouself"])
+        
+    def test_add_friend_already_requested(self):
+        self.selenium.get(f"{self.live_server_url}/pong/")
+        friend = "kojwatan"
+        password = "password"
+        self.signup_prepare()
+        self.signup(friend, password)
+        self.login(friend, password)
+        self.logout()
+        username = "hoyuki"
+        self.signup_prepare()
+        self.signup(username, password)
+        self.login(username, password)
+        self.mypage()
+        self.add_friend(friend)
+        self.add_friend_ok(friend)
+        self.add_friend(friend)
+        self.add_friend_error(self.error_message["alreadyfriend"])
+        
