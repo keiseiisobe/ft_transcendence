@@ -1,6 +1,7 @@
 import { MainView } from "./views/mainview.js";
 import { GameView } from "./views/gameview.js";
 import { ResultView } from "./views/resultview.js";
+import { SelectView } from "./views/selectview.js";
 
 export class PongGame {
   #canvas;
@@ -13,6 +14,8 @@ export class PongGame {
   #gameView = null;
   /** 結果画面 */
   #resultView = null;
+  /** 選択画面 */
+  #selectView = null;
 
   /** インターバルID */
   #intervalId = null;
@@ -29,12 +32,13 @@ export class PongGame {
     this.#mainView = new MainView(this.#context);
     this.#gameView = new GameView(this.#context);
     this.#resultView = new ResultView(this.#context);
+    this.#selectView = new SelectView(this.#context);
 
     // 表示するビューをメイン画面にする
-    this.#viewname = this.#mainView.constructor.name;
+    // this.#viewname = this.#mainView.constructor.name;
 
     // ゲームを開始する
-    this.#start();
+    // this.#start();
   }
 
   /** インターバルを開始する */
