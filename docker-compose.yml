@@ -1,32 +1,35 @@
 services:
   db:
-    image: postgres
+    image: postgres:16-alpine
+    platform: linux/arm64
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+
   web:
     build: .
+    platform: linux/arm64
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/project
     ports:
       - "8000:8000"
-    links:
-      - selenium
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
     depends_on:
       - db
       - selenium
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
   selenium:
-    image: selenium/standalone-chrome
+    image: seleniarm/standalone-chromium  # 修正
+    platform: linux/arm64
     environment:
       - SE_VNC_NO_PASSWORD=1
     ports:
-      - 4444:4444
-      - 7900:7900
+      - "4444:4444"
+      - "7900:7900"
