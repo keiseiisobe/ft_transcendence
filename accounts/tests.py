@@ -7,7 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import socket
+import socket, os
 
 # Create your tests here.
 
@@ -192,6 +192,24 @@ class SeleniumTest(StaticLiveServerTestCase):
         )
         self.assertIn(expected_message, error_message.text)
 
+    def edit_avatar(self, new_avatar_path):
+        modalButton = WebDriverWait(self.selenium, 10).until(
+            EC.element_to_be_clickable((By.ID, "edit-avatar-modal-button"))
+        )
+        modalButton.click()
+        avatar = WebDriverWait(self.selenium, 10).until(
+            EC.element_to_be_clickable((By.ID, "edit-avatar"))
+        )
+        avatar.send_keys(new_avatar_path)
+        WebDriverWait(self.selenium, 10).until(
+            EC.text_to_be_present_in_element_attribute((By.ID, "edit-avatar"), "value", new_avatar_path)
+        )
+        button = self.selenium.find_element(By.ID, "edit-avatar-button")
+        button.click()
+
+    def edit_avatar_ok(self, new_avatar_filename):
+        pass
+        
     def edit_username(self, new_username):
         modalButton = WebDriverWait(self.selenium, 10).until(
             EC.element_to_be_clickable((By.ID, "edit-username-modal-button"))
@@ -293,6 +311,22 @@ class SeleniumTest(StaticLiveServerTestCase):
         self.add_friend(friend)
         self.add_friend_ok(friend)
 
+    '''
+    def test_edit_avatar(self):
+        self.selenium.get(f"{self.live_server_url}/pong/")
+        self.assertEqual(self.selenium.title, "Pong Game")
+        username = "kisobe"
+        password = "password"
+        self.signup_prepare()
+        self.signup(username, password)
+        self.login(username, password)
+        self.login_ok()
+        self.mypage()
+        new_avatar_path = "images/penguin.png"
+        self.edit_avatar(new_avatar_path)
+        self.edit_username_ok(new_username)
+    '''
+    
     def test_edit_username(self):
         self.selenium.get(f"{self.live_server_url}/pong/")
         self.assertEqual(self.selenium.title, "Pong Game")

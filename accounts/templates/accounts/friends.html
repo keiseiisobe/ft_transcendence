@@ -7,12 +7,12 @@
   {% else %}
   <span style="color: #808080;margin-right: 10px">offline</span>
   {% endif %}
-  <span><strong>{{ friend.username }}</strong></span>
+  <span>{{ friend.username }}</span>
 </li>
 {% endfor %}
 {% else %}
 <div style="text-align: center;margin: 10px">
-  <p><strong>You have no friends yet.</strong></p>
-  <p><strong>Click the button above, and make friends!</strong></p>
+  <p>You have no friends yet.</p>
+  <p>Click the button above, and make friends!</p>
 </div>
 {% endif %}
