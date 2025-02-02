@@ -12,11 +12,11 @@
 </nav>
 <div class="container">
   <canvas id="canvas" width="900" height="600"></canvas>
+  <p>
+    <input type="button" class="btn btn-success" id="win-button" value="You win"/>
+    <input type="button" class="btn btn-danger" id="lose-button" value="You lose"/>
+  </p>
 </div>
-<p>
-  <input type="button" class="btn btn-success" id="win-button" value="You win"/>
-  <input type="button" class="btn btn-danger" id="lose-button" value="You lose"/>
-</p>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 {% load static %}
 <script src="{% static 'pong/main.js' %}"></script>
