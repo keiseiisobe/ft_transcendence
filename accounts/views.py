@@ -1,3 +1,4 @@
+from django.db import DataError
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.forms import UserCreationForm
@@ -25,6 +26,8 @@ def mysignup(request):
                 User.objects.create_user(username=username, password=password)
         except ValidationError as e:
             return HttpResponseForbidden("\n".join(e))
+        except DataError as e:
+            return HttpResponseForbidden(e)
         return HttpResponse()
 
 def mylogin(request):

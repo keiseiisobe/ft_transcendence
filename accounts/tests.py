@@ -1,3 +1,4 @@
+from django.db import DataError
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -22,6 +23,13 @@ class UserModelTests(TestCase):
         user = User(username="")
         with self.assertRaises(ValidationError, msg="Username cannot be empty"):
             user.clean()
+
+    def test_username_must_be_less_than_40(self):
+        User = get_user_model()
+        username = "TheAnswerToLifeUniverseAndEverythingIs42."
+        password = "password"
+        with self.assertRaises(DataError):
+            User.objects.create_user(username=username, password=password)
             
     def test_password_must_not_be_empty(self):
         User = get_user_model()
