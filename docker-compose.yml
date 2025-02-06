@@ -1,12 +1,16 @@
 services:
   db:
     image: postgres
+    container_name: postgres_db
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -14,19 +18,21 @@ services:
       - .:/project
     ports:
       - "8000:8000"
-    links:
-      - selenium
     environment:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     depends_on:
       - db
-      - selenium
-  selenium:
-    image: selenium/standalone-chrome
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
     environment:
-      - SE_VNC_NO_PASSWORD=1
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com  # 任意のメールアドレス
+      - PGADMIN_DEFAULT_PASSWORD=admin  # 任意のパスワード
     ports:
-      - 4444:4444
-      - 7900:7900
+      - "5050:80"
+    depends_on:
+      - db
