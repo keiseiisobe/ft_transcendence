@@ -8,4 +8,3 @@ urlpatterns = [
     path('header.html', views.header, name="header"),
     path('gameover/', views.gameover, name="gameover")
 ]
-
