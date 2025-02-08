@@ -9,5 +9,6 @@ RUN pip install -r requirements.txt; \
     pip install django-friendship \
     		django-rainbowtests \
 		Pillow \
-		"selenium >= 4.8.0";
+		"selenium >= 4.8.0"; \
+		pip install PyJWT
 COPY . /project/
