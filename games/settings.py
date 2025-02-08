@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'three.apps.ThreeConfig',
     'pong.apps.PongConfig',
     'django.contrib.admin',
     'django.contrib.auth',
