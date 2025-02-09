@@ -10,5 +10,7 @@ RUN pip install -r requirements.txt; \
     		django-rainbowtests \
 		Pillow \
 		"selenium >= 4.8.0"; \
-		pip install PyJWT
+		pip install PyJWT; \
+		pip install pyotp; \
+		pip install qrcode
 COPY . /project/
