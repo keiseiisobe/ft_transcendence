@@ -10,11 +10,11 @@ services:
       - POSTGRES_PASSWORD=postgres
 
   web:
-    build: .
     platform: linux/arm64
+    build: ./web
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/project
+      - ./web:/project
     ports:
       - "8000:8000"
     depends_on:
