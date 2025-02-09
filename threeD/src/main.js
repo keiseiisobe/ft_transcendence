@@ -6,13 +6,19 @@ export class PongMap
         const defaults = {
             dom: document.querySelector("body"),
             aspectRatio: 900 / 582,
-            depth: 0.2
+            depth: 0.2,
+            paddleLengh: 0.16,
+            ballSize: 0.2,
+            camMoveMult: 0.2
         };
         options = { ...defaults, ...options };
 
         this.htmlDom = options.dom
         this.aspectRatio = options.aspectRatio;
         this.depth = options.depth
+        this.paddleLengh = options.paddleLengh
+        this.ballSize = options.ballSize
+        this.camMoveMult = options.camMoveMult
         
         this.planeW = 9.00
         this.planeH = this.planeW / this.aspectRatio 
@@ -49,18 +55,8 @@ export class PongMap
     }
 
     #animate() {
-        const speed = 0.1
-        if (this.pressedKeys[38]) {
-            this.setBallPos(this.ball.position.x, this.ball.position.y + speed)
-        }
-        if (this.pressedKeys[40]) {
-            this.setBallPos(this.ball.position.x, this.ball.position.y - speed)
-        }
-        if (this.pressedKeys[37]) {
-            this.setBallPos(this.ball.position.x - speed, this.ball.position.y)
-        }
-        if (this.pressedKeys[39]) {
-            this.setBallPos(this.ball.position.x + speed, this.ball.position.y)
+        if (this.onUpdate_) {
+            this.onUpdate_(this.pressedKeys)
         }
         this.renderer.render(this.scene, this.camera);
     } 
@@ -74,53 +70,57 @@ export class PongMap
 
         const plane = new THREE.Mesh(planeGeo, planeMat)
         plane.matrixAutoUpdate = false
-        plane.position.set(0, 0, -(this.depth / 2))
+        plane.position.set(0, 0, -this.depth)
         plane.scale.set(this.planeW, this.planeH, 1)
         plane.updateMatrix()
         this.scene.add(plane)
 
         const wallL = new THREE.Mesh(boxGeo, blocksMat)
         wallL.matrixAutoUpdate = false
-        wallL.position.set(-(this.planeW / 2) - 1, 0, 0)
+        wallL.position.set(-(this.planeW / 2) - 1, 0, -this.depth / 2)
         wallL.scale.set(2, this.planeH, this.depth)
         wallL.updateMatrix()
         this.scene.add(wallL)
 
         const wallR = wallL.clone()
-        wallR.position.set((this.planeW / 2) + 1, 0, 0)
+        wallR.position.set((this.planeW / 2) + 1, 0, -this.depth / 2)
         wallR.updateMatrix()
         this.scene.add(wallR)
 
         const wallU = new THREE.Mesh(boxGeo, blocksMat)
         wallU.matrixAutoUpdate = false
-        wallU.position.set(0, (this.planeH / 2) + 1, 0)
+        wallU.position.set(0, (this.planeH / 2) + 1, -this.depth / 2)
         wallU.scale.set(2 + this.planeW + 2, 2, this.depth)
         wallU.updateMatrix()
         this.scene.add(wallU)
 
         const wallD = wallU.clone()
-        wallD.position.set(0, -(this.planeH / 2) - 1, 0)
+        wallD.position.set(0, -(this.planeH / 2) - 1, -this.depth / 2)
         wallD.updateMatrix()
         this.scene.add(wallD)
 
         this.ball = new THREE.Mesh(boxGeo, blocksMat)
-        this.ball.position.set(0, 0, 0)
-        this.ball.scale.set(0.2, 0.2, this.depth)
+        this.ball.position.set(0, 0, -this.depth + this.ballSize / 2)
+        this.ball.scale.set(this.ballSize, this.ballSize, this.ballSize)
         this.scene.add(this.ball)
 
         this.paddleR = new THREE.Mesh(boxGeo, blocksMat)
-        this.paddleR.position.set(this.planeW / 2 - 0.2, 0, 0)
-        this.paddleR.scale.set(0.2, 1, this.depth)
+        this.paddleR.position.set(this.planeW / 2 - 0.3, 0, -this.depth + this.ballSize / 2)
+        this.paddleR.scale.set(0.2, this.planeH * this.paddleLengh, this.ballSize)
         this.scene.add(this.paddleR)
 
         this.paddleL = new THREE.Mesh(boxGeo, blocksMat)
-        this.paddleL.position.set(-this.planeW / 2 + 0.2, 0, 0)
-        this.paddleL.scale.set(0.2, 1, this.depth)
+        this.paddleL.position.set(-this.planeW / 2 + 0.3, 0, -this.depth + this.ballSize / 2)
+        this.paddleL.scale.set(0.2, this.planeH * this.paddleLengh, this.ballSize)
         this.scene.add(this.paddleL)
 
         const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
         directionalLight.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z)
         this.scene.add(directionalLight)
+
+        const poinLight = new THREE.PointLight(0xffffff, 1, 0, 0)
+        poinLight.position.set(0, 0, this.depth - 2)
+        this.scene.add(poinLight)
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
         this.scene.add(ambientLight)
@@ -128,7 +128,15 @@ export class PongMap
 
     setBallPos(x, y) {
         this.ball.position.set(x, y, this.ball.position.z)
-        this.camera.position.set(-x / (this.planeW / 2) * 0.2, -y / (this.planeH / 2) * 0.2, this.camera.position.z)
+        this.camera.position.set(-x / (this.planeW / 2) * this.camMoveMult, -y / (this.planeH / 2) * this.camMoveMult, this.camera.position.z)
         this.camera.lookAt(0, 0, 0)
+    }
+
+    get ballPos() {
+        return this.ball.position
+    }
+
+    onUpdate(f) {
+        this.onUpdate_ = f
     }
 }

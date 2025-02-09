@@ -21,6 +21,14 @@
         import * as threeD from './src/main.js';
         const pongMap = new threeD.PongMap({
         })
+
+        pongMap.onUpdate((pressedKeys) => {
+            const speed = 0.1
+            if (pressedKeys[38]) pongMap.setBallPos(pongMap.ballPos.x, pongMap.ballPos.y + speed);
+            if (pressedKeys[40]) pongMap.setBallPos(pongMap.ballPos.x, pongMap.ballPos.y - speed);
+            if (pressedKeys[37]) pongMap.setBallPos(pongMap.ballPos.x - speed, pongMap.ballPos.y);
+            if (pressedKeys[39]) pongMap.setBallPos(pongMap.ballPos.x + speed, pongMap.ballPos.y);
+        });
     </script>
 </body>
 
