@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.files import File
 from django.contrib.auth.validators import ASCIIUsernameValidator
 
+import pyotp
+
 # Create your models here.
 
 class UserManager(BaseUserManager):
@@ -27,8 +29,12 @@ class User(AbstractBaseUser):
     password = models.CharField(max_length=300)
     avatar = models.ImageField(upload_to="accounts/images")
     is_login = models.BooleanField(default=False)
+    use_totp = models.BooleanField(default=True)
+    totp_secret = models.CharField(max_length=32, blank=True, null=True)  # TOTPシークレットを保存
+
     USERNAME_FIELD = "username"
     objects = UserManager()
+
     def clean(self):
         User = get_user_model()
         try:
@@ -38,3 +44,15 @@ class User(AbstractBaseUser):
         except ObjectDoesNotExist:
             return
         raise ValidationError("Username already exist. Try another username.")
+
+    def generate_totp_secret(self):
+        """TOTP用のシークレットキーを生成"""
+        self.totp_secret = pyotp.random_base32()
+        self.save()
+
+    def verify_totp(self, otp_code):
+        """ユーザーのTOTPコードを検証"""
+        if not self.totp_secret:
+            return False
+        totp = pyotp.TOTP(self.totp_secret)
+        return totp.verify(otp_code)
