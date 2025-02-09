@@ -3,14 +3,24 @@
 
 <head>
     <meta charset="UTF-8" />
+    <style>
+        body {
+            margin:0;
+            padding:0;
+            overflow: hidden;
+        }
+    </style>
     <title>My Library Demo</title>
 </head>
 
 <body>
-    <h1>My Library Demo</h1>
+    <body>
+        <h1 align="center">Pong Game</h1> 
+    </body>
     <script type="module">
-        import {greet} from './src/main.js';
-        greet('Demo User');
+        import * as threeD from './src/main.js';
+        const pongMap = new threeD.PongMap({
+        })
     </script>
 </body>
 
