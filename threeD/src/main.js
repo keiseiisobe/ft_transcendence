@@ -33,6 +33,8 @@ export class PongMap
         this.camera = new THREE.PerspectiveCamera(75, 1, 0.01, 1000);
         this.camera.position.z = 4.5;
 
+        this.ballVelocity = new THREE.Vector2(0, 0)
+
         window.onresize = this.#updateSize.bind(this)
         this.#updateSize()
 
@@ -58,6 +60,9 @@ export class PongMap
         if (this.onUpdate_) {
             this.onUpdate_(this.pressedKeys)
         }
+        var newPos = new THREE.Vector2(this.ballPos.x, this.ballPos.y)
+        newPos.add(this.ballVelocity)
+        this.setBallPos(newPos.x, newPos.y)
         this.renderer.render(this.scene, this.camera);
     } 
 
@@ -127,13 +132,25 @@ export class PongMap
     }
 
     setBallPos(x, y) {
-        this.ball.position.set(x, y, this.ball.position.z)
-        this.camera.position.set(-x / (this.planeW / 2) * this.camMoveMult, -y / (this.planeH / 2) * this.camMoveMult, this.camera.position.z)
+        this.ball.position.set(
+            Math.max(-1, Math.min(x, 1)) * (this.planeW / 2 - this.ballSize / 2), 
+            Math.max(-1, Math.min(y, 1)) * (this.planeH / 2 - this.ballSize / 2), 
+            this.ball.position.z
+        )
+        this.camera.position.set(-x * this.camMoveMult, -y  * this.camMoveMult, this.camera.position.z)
         this.camera.lookAt(0, 0, 0)
     }
 
+    setBallVelocity(x, y) {
+        this.ballVelocity.set(x, y)
+    }
+
+
     get ballPos() {
-        return this.ball.position
+        return {
+            x: this.ball.position.x / (this.planeW / 2 - this.ballSize / 2),
+            y: this.ball.position.y / (this.planeH / 2 - this.ballSize / 2)
+        }
     }
 
     onUpdate(f) {
