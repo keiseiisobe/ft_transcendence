@@ -1,6 +1,7 @@
 services:
   db:
-    image: postgres:16-alpine
+    container_name: db
+    image: postgres:16
     platform: linux/arm64
     volumes:
       - ./data/db:/var/lib/postgresql/data
@@ -8,8 +9,14 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432"
+    networks:
+      - system-monitor
+      - log-management
 
   web:
+    container_name: web
     platform: linux/arm64
     build: ./web
     volumes:
@@ -32,3 +39,79 @@ services:
     ports:
       - "4444:4444"
       - "7900:7900"
+  
+# ==========================================
+# Log management
+# ==========================================
+#  erasticsearch:
+#     build: ./devops/log-management/elasticsearch
+#     platform: linux/arm64
+#     environment:
+#       - discovery.type=single-node
+#     ports:
+#       - "9200:9200"
+#       - "9300"
+#     networks:
+#       - log-management
+#   logstash:
+#     build: ./devops/log-management/logstash
+#     platform: linux/arm64
+#     volumes:
+#       - ./logstash/pipeline:/usr/share/logstash/pipeline
+#     ports:
+#       - "5000:5000"
+#       - "9600:9600"
+#     networks:
+#       - log-management
+#   kinaba:
+#     build: ./devops/log-management/kinaba
+#     platform: linux/arm64
+#     ports:
+#       - "5601:5601"
+#     networks:
+#       - log-management
+
+
+# ==========================================
+# system monitor
+# ==========================================
+  prometheus:
+    container_name: prometheus
+    build: ./devops/system-monitor/prometheus
+    platform: linux/arm64
+    ports:
+      - "9090:9090"
+    networks:
+      - system-monitor
+  grafana:
+    container_name: grafana
+    build: ./devops/system-monitor/grafana
+    platform: linux/arm64
+    ports:
+      - "3000:3000"
+    networks:
+      - system-monitor
+  node-exporter:
+    container_name: node-exporter
+    build: ./devops/system-monitor/node-exporter
+    platform: linux/arm64
+    ports:
+      - "9100"
+    networks:
+      - system-monitor
+  postgres-exporter:
+    container_name: postgres-exporter
+    image: quay.io/prometheuscommunity/postgres-exporter
+    platform: linux/arm64
+    env_file:
+      - ./.env
+    ports:
+      - "9187"
+    networks:
+      - system-monitor
+networks:
+  system-monitor:
+      driver: bridge
+  log-management:
+      driver: bridge
+
