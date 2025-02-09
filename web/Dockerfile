@@ -4,10 +4,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 WORKDIR /project
 COPY requirements.txt /project/
-RUN pip install -r requirements.txt; \
-    pip install -U 'channels[daphne]'; \
-    pip install django-friendship \
-    		django-rainbowtests \
-		Pillow \
-		"selenium >= 4.8.0";
+RUN pip install -r requirements.txt
 COPY . /project/
+RUN chmod 777 docker-entrypoint.sh
+ENTRYPOINT ["./docker-entrypoint.sh"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

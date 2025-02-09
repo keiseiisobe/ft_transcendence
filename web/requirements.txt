@@ -1,2 +1,7 @@
 Django==4.2
 psycopg2>=2.8
+channels[daphne]
+django-friendship
+django-rainbowtests
+Pillow
+selenium>=4.8.0
