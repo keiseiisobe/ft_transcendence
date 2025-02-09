@@ -12,7 +12,6 @@ services:
   web:
     platform: linux/arm64
     build: ./web
-    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./web:/project
     ports:
