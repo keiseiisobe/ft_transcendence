@@ -30,10 +30,24 @@ export class PongMap
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0xff0000)
 
-        this.camera = new THREE.PerspectiveCamera(75, 1, 0.01, 1000);
-        this.camera.position.z = 4.5;
+        this.camera = new THREE.PerspectiveCamera(90, 1, 0.01, 1000);
+        this.camera.position.z = 4;
 
         this.ballVelocity = new THREE.Vector2(0, 0)
+
+        this.clock = new THREE.Clock()
+        
+        this.hasCollision = false
+        this.collisions = {
+            "v_wall_u": false,
+            "v_wall_d": false,
+            "h_wall_r": false,
+            "h_wall_l": false,
+            "paddle_l": false,
+            "paddle_r": false,
+            "right_wall": false,
+            "left_wall": false
+        }
 
         window.onresize = this.#updateSize.bind(this)
         this.#updateSize()
@@ -57,12 +71,29 @@ export class PongMap
     }
 
     #animate() {
+        var dt = this.clock.getDelta()
+
         if (this.onUpdate_) {
-            this.onUpdate_(this.pressedKeys)
+            this.onUpdate_(this.pressedKeys, dt)
         }
-        var newPos = new THREE.Vector2(this.ballPos.x, this.ballPos.y)
-        newPos.add(this.ballVelocity)
-        this.setBallPos(newPos.x, newPos.y)
+
+        if (this.hasCollision && this.onCollision_) {
+            this.onCollision_(this.collisions)
+            this.hasCollision = false
+            this.collisions = {
+                "v_wall_u": false,
+                "v_wall_d": false,
+                "h_wall_r": false,
+                "h_wall_l": false,
+                "paddle_l": false,
+                "paddle_r": false,
+                "right_wall": false,
+                "left_wall": false
+            }
+        }
+
+        this.#setBallPosScreeSpace(this.ball.position.clone().add(this.ballVelocity.clone().multiplyScalar(dt)))
+
         this.renderer.render(this.scene, this.camera);
     } 
 
@@ -80,29 +111,29 @@ export class PongMap
         plane.updateMatrix()
         this.scene.add(plane)
 
-        const wallL = new THREE.Mesh(boxGeo, blocksMat)
-        wallL.matrixAutoUpdate = false
-        wallL.position.set(-(this.planeW / 2) - 1, 0, -this.depth / 2)
-        wallL.scale.set(2, this.planeH, this.depth)
-        wallL.updateMatrix()
-        this.scene.add(wallL)
+        this.wallL = new THREE.Mesh(boxGeo, blocksMat)
+        this.wallL.matrixAutoUpdate = false
+        this.wallL.position.set(-(this.planeW / 2) - 1, 0, -this.depth / 2)
+        this.wallL.scale.set(2, 2 + this.planeH + 2, this.depth)
+        this.wallL.updateMatrix()
+        this.scene.add(this.wallL)
 
-        const wallR = wallL.clone()
-        wallR.position.set((this.planeW / 2) + 1, 0, -this.depth / 2)
-        wallR.updateMatrix()
-        this.scene.add(wallR)
+        this.wallR = this.wallL.clone()
+        this.wallR.position.set((this.planeW / 2) + 1, 0, -this.depth / 2)
+        this.wallR.updateMatrix()
+        this.scene.add(this.wallR)
 
-        const wallU = new THREE.Mesh(boxGeo, blocksMat)
-        wallU.matrixAutoUpdate = false
-        wallU.position.set(0, (this.planeH / 2) + 1, -this.depth / 2)
-        wallU.scale.set(2 + this.planeW + 2, 2, this.depth)
-        wallU.updateMatrix()
-        this.scene.add(wallU)
+        this.wallU = new THREE.Mesh(boxGeo, blocksMat)
+        this.wallU.matrixAutoUpdate = false
+        this.wallU.position.set(0, (this.planeH / 2) + 1, -this.depth / 2)
+        this.wallU.scale.set(2 + this.planeW + 2, 2, this.depth)
+        this.wallU.updateMatrix()
+        this.scene.add(this.wallU)
 
-        const wallD = wallU.clone()
-        wallD.position.set(0, -(this.planeH / 2) - 1, -this.depth / 2)
-        wallD.updateMatrix()
-        this.scene.add(wallD)
+        this.wallD = this.wallU.clone()
+        this.wallD.position.set(0, -(this.planeH / 2) - 1, -this.depth / 2)
+        this.wallD.updateMatrix()
+        this.scene.add(this.wallD)
 
         this.ball = new THREE.Mesh(boxGeo, blocksMat)
         this.ball.position.set(0, 0, -this.depth + this.ballSize / 2)
@@ -130,21 +161,95 @@ export class PongMap
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
         this.scene.add(ambientLight)
     }
+    
+    #setBallPosScreeSpace(vec) {
+        const ballNewPos = {
+            x: vec.x - this.ball.scale.x / 2,
+            y: vec.y - this.ball.scale.y / 2,
+            w: this.ball.scale.x,
+            h: this.ball.scale.y
+        } 
+        const checkedObj = [ this.wallL,  this.wallR, this.wallU,  this.wallD, this.paddleL, this.paddleR, ] 
+        for (const i in checkedObj)
+        {
+            const collision = this.#testBallCollision(ballNewPos, checkedObj[i])
+            if (collision.x < 0 || collision.y < 0) {
+                switch (Number(i)) {
+                    case 0:
+                        this.collisions["left_wall"] = true
+                        break;
+                    case 1:
+                        this.collisions["right_wall"] = true
+                        break;
+                    case 4:
+                        this.collisions["paddle_l"] = true
+                        break;
+                    case 5:
+                        this.collisions["paddle_r"] = true
+                        break;
+                    default:
+                        break;
+                }
+
+                if (collision.x < 0 && (collision.y >= 0 || collision.x >= collision.y)) {
+                    if (this.ballVelocity.x > 0) {
+                        vec.x += collision.x
+                        this.collisions["h_wall_r"] = true
+                    }
+                    else {
+                        vec.x -= collision.x
+                        this.collisions["h_wall_l"] = true
+                    }
+                    if (this.ballVelocity.y > 0)
+                        vec.y -= Math.abs(this.ballVelocity.clone().normalize().y / this.ballVelocity.clone().normalize().x * collision.x)
+                    else
+                        vec.y += Math.abs(this.ballVelocity.clone().normalize().y / this.ballVelocity.clone().normalize().x * collision.x)
+                }
+
+                else if (collision.y < 0 && (collision.x >= 0 || collision.y >= collision.x)) {
+                    if (this.ballVelocity.x > 0)
+                        vec.x -= Math.abs(this.ballVelocity.clone().normalize().x / this.ballVelocity.clone().normalize().y * collision.y)
+                    else
+                        vec.x += Math.abs(this.ballVelocity.clone().normalize().x / this.ballVelocity.clone().normalize().y * collision.y)
+
+                    if (this.ballVelocity.y > 0) {
+                        vec.y += collision.y
+                        this.collisions["v_wall_u"] = true
+                    }
+                    else {
+                        vec.y -= collision.y
+                        this.collisions["v_wall_d"] = true
+                    }
+                }
+                this.hasCollision = true
+                break;
+            }
+        }
+
+        this.ball.position.set(
+                Math.max(-(this.planeW / 2) + this.ballSize / 2, Math.min(vec.x, (this.planeW / 2) - this.ballSize / 2)),
+                Math.max(-(this.planeH / 2) + this.ballSize / 2, Math.min(vec.y, (this.planeH / 2) - this.ballSize / 2)),
+                this.ball.position.z
+        )
+        
+        this.camera.position.set(
+            -vec.x / (this.planeW / 2) * this.camMoveMult,
+            -vec.y / (this.planeH / 2) * this.camMoveMult,
+            this.camera.position.z
+        )
+        this.camera.lookAt(0, 0, 0)
+    }
 
     setBallPos(x, y) {
-        this.ball.position.set(
-            Math.max(-1, Math.min(x, 1)) * (this.planeW / 2 - this.ballSize / 2), 
-            Math.max(-1, Math.min(y, 1)) * (this.planeH / 2 - this.ballSize / 2), 
-            this.ball.position.z
-        )
-        this.camera.position.set(-x * this.camMoveMult, -y  * this.camMoveMult, this.camera.position.z)
-        this.camera.lookAt(0, 0, 0)
+        this.#setBallPosScreeSpace(new THREE.Vector2(
+            x * (this.planeW / 2 - this.ballSize / 2),
+            y * (this.planeH / 2 - this.ballSize / 2)
+        ))
     }
 
     setBallVelocity(x, y) {
         this.ballVelocity.set(x, y)
     }
-
 
     get ballPos() {
         return {
@@ -155,5 +260,38 @@ export class PongMap
 
     onUpdate(f) {
         this.onUpdate_ = f
+    }
+
+    #testBallCollision(ball, paddle_) {
+        
+        var paddle = {
+            x: paddle_.position.x - paddle_.scale.x / 2,
+            y: paddle_.position.y - paddle_.scale.y / 2,
+            w: paddle_.scale.x,
+            h: paddle_.scale.y
+        } 
+        var collision = new THREE.Vector2(0, 0)
+        if(ball.x < paddle.x+paddle.w && ball.x+ball.w > paddle.x && ball.y < paddle.y+paddle.h && ball.y+ball.h > paddle.y) {
+            if(this.ballVelocity.x > 0 && ball.x < paddle.x + paddle.w)
+                collision.x = paddle.x - (ball.x + ball.w)
+            if(this.ballVelocity.x < 0 && ball.x + ball.w > paddle.x)
+                collision.x = ball.x - (paddle.x + paddle.w)
+            if(this.ballVelocity.y > 0 && ball.y < paddle.y + paddle.h)
+                collision.y = paddle.y - (ball.y + ball.h)
+            if(this.ballVelocity.y < 0 && ball.y + ball.h > paddle.y)
+                collision.y = ball.y - (paddle.y + paddle.h)
+        }
+        return collision
+    }
+
+    get ballVelo() {
+        return {
+            x: this.ballVelocity.x,
+            y: this.ballVelocity.y
+        }
+    }
+
+    onCollision(f) {
+        this.onCollision_ = f
     }
 }

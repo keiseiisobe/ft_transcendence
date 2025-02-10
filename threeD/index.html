@@ -22,13 +22,18 @@
         const pongMap = new threeD.PongMap({
         })
 
-        pongMap.onUpdate((pressedKeys) => {
-            const speed = 0.03
-            if (pressedKeys[38]) pongMap.setBallVelocity(0,  speed)
-            if (pressedKeys[40]) pongMap.setBallVelocity(0, -speed);
-            if (pressedKeys[37]) pongMap.setBallVelocity(-speed, 0);
-            if (pressedKeys[39]) pongMap.setBallVelocity( speed, 0);
+        pongMap.onUpdate((pressedKeys, dt) => {
+            const speed = 2
+            if (pressedKeys[38]) pongMap.setBallVelocity(pongMap.ballVelo.x,  speed)
+            if (pressedKeys[40]) pongMap.setBallVelocity(pongMap.ballVelo.x, -speed);
+            if (pressedKeys[37]) pongMap.setBallVelocity(-speed, pongMap.ballVelo.y);
+            if (pressedKeys[39]) pongMap.setBallVelocity( speed, pongMap.ballVelo.y);
         });
+        pongMap.onCollision((collisions) => {
+            console.log(collisions)
+            pongMap.setBallVelocity(0, 0),
+            pongMap.setBallPos(0, 0)
+        })
     </script>
 </body>
 
