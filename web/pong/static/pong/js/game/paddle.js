@@ -12,7 +12,9 @@ export class Paddle {
     dy = 0;
     /** 移動速度 */
     speed;
-  
+
+    preY;
+    
     constructor(context, x, y, width, height, speed) {
       this.context = context;
       this.x = x;

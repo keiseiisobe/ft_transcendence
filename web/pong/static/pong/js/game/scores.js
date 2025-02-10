@@ -1,6 +1,7 @@
 class Score {
     /** 得点 */
     value = 0;
+    preValue = 0;
 }
 
 export class Scores {

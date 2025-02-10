@@ -10,14 +10,17 @@ export class Ball {
     dy;
     /** 一辺の長さ */
     sideLength;
+
+    preX;
+    preY;
   
     constructor(context, x, y, dx, dy,sideLength) {
-      this.context = context;
-      this.x = x;
-      this.y = y;
-      this.dx = dx;
-      this.dy = dy;
-      this.sideLength = sideLength;
+	this.context = context;
+	this.x = x;
+	this.y = y;
+	this.dx = dx;
+	this.dy = dy;
+	this.sideLength = sideLength;
     }
   
     /** 移動する */

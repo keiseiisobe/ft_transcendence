@@ -12,12 +12,13 @@ export class GameView extends View {
   rightPaddle;
 
   /** スコア */
-  #scores;
+  scores;
   /** スコア上限 */
-  #maxScore = 3;
+  #maxScore = 1000;
   /** ゲーム結果 */
   resultMessage = "";
 
+    #computerUpdateTime;
 
   constructor(context) {
     super(context);
@@ -30,12 +31,14 @@ export class GameView extends View {
       3, -3, 20);
 
     // パドルを生成する
-    this.leftPaddle = new Paddle(context, 40, this.context.canvas.height/2 -50, 20, 100, 40);
-    this.rightPaddle = new Paddle(context, this.context.canvas.width -60, this.context.canvas.height/2 -50, 20, 100, 40);
+    this.leftPaddle = new Paddle(context, 40, this.context.canvas.height/2 -50, 20, 100, 100);
+    this.rightPaddle = new Paddle(context, this.context.canvas.width -60, this.context.canvas.height/2 -50, 20, 100, 100);
     // this.rightPaddle = new Paddle(context, this.context.canvas.width -60, 70, 20, 100, 5); //y=100の時にバグる
 
     // スコアを生成する
-    this.#scores = new Scores(context);
+      this.scores = new Scores(context);
+      
+      this.#computerUpdateTime = Date.now() - 500;
   }
 
   /** 更新する */
@@ -61,6 +64,15 @@ export class GameView extends View {
       // ボールを移動する
       this.ball.move();
       // パドルを移動する
+
+      if (Date.now() - this.#computerUpdateTime >= 500) {
+	  if (this.leftPaddle.y > this.ball.y)
+	      this.leftPaddle.dy = -this.leftPaddle.speed;
+	  else if (this.leftPaddle.y < this.ball.y)
+	      this.leftPaddle.dy = this.leftPaddle.speed;
+	  this.#computerUpdateTime = Date.now();
+      }
+      
       this.leftPaddle.move();
       this.rightPaddle.move();
   }
@@ -75,7 +87,7 @@ export class GameView extends View {
     this.rightPaddle.draw();
 
     // スコアを描画する
-    this.#scores.draw();
+    this.scores.draw();
   }
 
   /** ボールと壁の衝突を確認する */
@@ -188,12 +200,14 @@ export class GameView extends View {
     // ボールが壁に衝突したか検証する
     let _isRoundEnd = false;
 
-    if(this.context.canvas.width - ballSideLen < ballX + ballDx) { //右player側の壁に当たった時
-      this.#scores.leftScore.value += 1;
-      _isRoundEnd = true;
+      if(this.context.canvas.width - ballSideLen < ballX + ballDx) { //右player側の壁に当たった時
+	  this.scores.leftScore.preValue = this.scores.leftScore.value;
+	  this.scores.leftScore.value += 1;
+	  _isRoundEnd = true;
     } else if (ballX + ballDx < 0) { //左player側の壁に当たった時
-      this.#scores.rightScore.value += 1;
-      _isRoundEnd = true;
+	this.scores.rightScore.preValue = this.scores.rightScore.value;
+	this.scores.rightScore.value += 1;
+	_isRoundEnd = true;
       }
 
     return _isRoundEnd;
@@ -211,8 +225,8 @@ export class GameView extends View {
 
   #isGameEnd() {
     let _isGameEnd = false;
-    const LScore = this.#scores.leftScore.value;
-    const RScore = this.#scores.rightScore.value;
+    const LScore = this.scores.leftScore.value;
+    const RScore = this.scores.rightScore.value;
 
     if (LScore == this.#maxScore) {
       _isGameEnd = true;

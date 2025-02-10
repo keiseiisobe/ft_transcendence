@@ -82,7 +82,22 @@ export class PongGame {
 		"ball_y": this.gameView.ball.y,
 		"left_paddle_y": this.gameView.leftPaddle.y,
 		"right_paddle_y": this.gameView.rightPaddle.y,
+		"pre_ball_x": this.gameView.ball.preX == undefined
+		    ? this.gameView.ball.x : this.gameView.ball.preX,
+		"pre_ball_y": this.gameView.ball.preY == undefined
+		    ? this.gameView.ball.y : this.gameView.ball.preY,
+		"pre_left_paddle_y": this.gameView.leftPaddle.preY == undefined
+		    ? this.gameView.leftPaddle.y : this.gameView.leftPaddle.preY,
+		"pre_right_paddle_y": this.gameView.rightPaddle.preY == undefined
+		    ? this.gameView.rightPaddle.y : this.gameView.rightPaddle.preY,
+		"reward": this.gameView.scores.leftScore.value > this.gameView.scores.leftScore.preValue
+		    ? -1 : this.gameView.scores.rightScore.value > this.gameView.scores.rightScore.preValue
+		    ? 1 : 0 
 	    }));
+	    this.gameView.ball.preX = this.gameView.ball.x;
+	    this.gameView.ball.preY = this.gameView.ball.y;
+	    this.gameView.leftPaddle.preY = this.gameView.leftPaddle.y;
+	    this.gameView.rightPaddle.preY = this.gameView.rightPaddle.y;
 	    this.#aiUpdateTime = Date.now();
 	}
         // 画面をクリアする
