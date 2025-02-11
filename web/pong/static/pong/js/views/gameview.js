@@ -201,10 +201,12 @@ export class GameView extends View {
     let _isRoundEnd = false;
 
       if(this.context.canvas.width - ballSideLen < ballX + ballDx) { //右player側の壁に当たった時
+	  this.#computerUpdateTime = Date.now() - 500;
 	  this.scores.leftScore.preValue = this.scores.leftScore.value;
 	  this.scores.leftScore.value += 1;
 	  _isRoundEnd = true;
     } else if (ballX + ballDx < 0) { //左player側の壁に当たった時
+	this.#computerUpdateTime = Date.now() - 500;
 	this.scores.rightScore.preValue = this.scores.rightScore.value;
 	this.scores.rightScore.value += 1;
 	_isRoundEnd = true;
