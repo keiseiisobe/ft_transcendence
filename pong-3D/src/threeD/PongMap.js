@@ -1,4 +1,6 @@
 import * as THREE from 'three'
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 export class PongMap
 {
@@ -26,7 +28,7 @@ export class PongMap
         this.renderer.setPixelRatio(window.devicePixelRatio)
 
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0xff0000)
+        this.scene.background = new THREE.Color(0xffffff)
 
         this.camera = new THREE.PerspectiveCamera(90, 1, 0.01, 1000);
         this.camera.position.z = 4;
@@ -46,6 +48,10 @@ export class PongMap
             "right_wall": false,
             "left_wall": false
         }
+
+        this.leftScore_ = 0
+        this.rightScore_ = 0
+        this.isScoreVisible = true
 
         window.onresize = this.#updateSize.bind(this)
         this.#updateSize()
@@ -92,7 +98,17 @@ export class PongMap
 
         this.#setBallPosScreeSpace(this.ball.position.clone().add(this.ballVelocity.clone().multiplyScalar(dt)))
 
+        if (this.leftScoreMesh && this.rightScoreMesh && this.isScoreVisible) {
+            this.scene.add(this.leftScoreMesh)
+            this.scene.add(this.rightScoreMesh)
+        }
+
         this.renderer.render(this.scene, this.camera);
+
+        if (this.leftScoreMesh && this.rightScoreMesh && this.isScoreVisible) {
+            this.scene.remove(this.leftScoreMesh)
+            this.scene.remove(this.rightScoreMesh)
+        }
     } 
 
     #addObjects() {
@@ -101,6 +117,7 @@ export class PongMap
 
         const planeMat = new THREE.MeshStandardMaterial({color: 0x0, roughness: 0.2, metalness: 1})
         const blocksMat = new THREE.MeshStandardMaterial({ color: 0xffffff })
+        this.scoreMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff })
 
         const plane = new THREE.Mesh(planeGeo, planeMat)
         plane.matrixAutoUpdate = false
@@ -158,6 +175,25 @@ export class PongMap
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
         this.scene.add(ambientLight)
+
+        const fontLoader = new FontLoader()
+
+        fontLoader.load('src/font/Pong_Score_Regular.json', (font) => {
+            this.scoreGeometries = [
+                new TextGeometry('0', { font: font, size: 0.5, depth: 0.1 }),
+                new TextGeometry('1', { font: font, size: 0.5, depth: 0.1 }),
+                new TextGeometry('2', { font: font, size: 0.5, depth: 0.1 }),
+                new TextGeometry('3', { font: font, size: 0.5, depth: 0.1 }),
+                new TextGeometry('4', { font: font, size: 0.5, depth: 0.1 }),
+                new TextGeometry('5', { font: font, size: 0.5, depth: 0.1 }),
+                new TextGeometry('6', { font: font, size: 0.5, depth: 0.1 }),
+                new TextGeometry('7', { font: font, size: 0.5, depth: 0.1 }),
+                new TextGeometry('8', { font: font, size: 0.5, depth: 0.1 }),
+                new TextGeometry('9', { font: font, size: 0.5, depth: 0.1 })
+            ]
+            this.leftScore = 0
+            this.rightScore = 0
+        })
     }
     
     #setBallPosScreeSpace(vec) {
@@ -308,4 +344,33 @@ export class PongMap
     set rightPaddlePos(y) {
         this.paddleR.position.y = Math.max(-1, Math.min(y, 1)) * (this.planeH / 2 - this.paddleR.scale.y / 2)
     }
+
+    set leftScore(n) {
+        this.leftScore_ = Number(n) % 10
+        this.leftScoreMesh = new THREE.Mesh(this.scoreGeometries[this.leftScore_], this.scoreMaterial)
+        this.leftScoreMesh.position.set(-0.7, this.planeH / 3, -this.depth + this.ballSize)
+    }
+
+    get leftScore() {
+        return this.leftScore_
+    }
+
+    set rightScore(n) {
+        this.rightScore_ = Number(n) % 10
+        this.rightScoreMesh = new THREE.Mesh(this.scoreGeometries[this.rightScore_], this.scoreMaterial)
+        this.rightScoreMesh.position.set(0.7 - 0.5, this.planeH / 3, -this.depth + this.ballSize)
+    }
+
+    get rightScore() {
+        return this.rightScore_
+    }
+
+    showScore() {
+        this.isScoreVisible = true
+    }
+
+    hideScore() {
+        this.isScoreVisible = false
+    }
+
 }
