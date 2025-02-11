@@ -38,8 +38,16 @@ pongMap.onCollision((collisions) => {
     pongMap.setBallPos(0, 0)
     pongMap.rightScore += 1
     pongMap.leftScore += 1
-    if (collisions["v_wall_u"])
+    if (collisions["v_wall_u"]) {
         pongMap.hideScore()
-    if (collisions["v_wall_d"])
+        pongMap.setMiddleText("Hello")
+    }
+    if (collisions["v_wall_d"]) {
         pongMap.showScore()
+        pongMap.setMiddleText("World")
+    }
+    if (collisions["paddle_l"])
+        pongMap.hideMiddleText()
+    if (collisions["paddle_r"])
+        pongMap.showMiddleText()
 })

@@ -52,9 +52,6 @@ export class PongMap
         this.leftScore_ = 0
         this.rightScore_ = 0
 
-        const fontLoader = new FontLoader()
-        fontLoader.load('src/font/Helvetica_Neue_Medium.json', (font) => { this.helveticaFont = font })
-
         window.onresize = this.#updateSize.bind(this)
         this.#updateSize()
 
@@ -386,17 +383,22 @@ export class PongMap
     }
 
     setMiddleText(str) {
-        const geo = new TextGeometry(str, { font: this.helveticaFont})
-        const mat = new THREE.MeshStandardMaterial({color: 0xffffff})
-        
-        if (this.midlleTextMesh)
-            this.scene.remove(this.midlleTextMesh)
-        this.midlleTextMesh = new THREE.Mesh(geo, mat)
-        this.midlleTextMesh.position.set(0, 0, 3)
-        this.midlleTextMesh.scale.set(0.4, 0.4, 0.4)
-        this.midlleTextMesh.rotateY(8.5)
-        this.midlleTextMesh.rotateX(2.5)
-        this.scene.add(this.midlleTextMesh)
+        const fontLoader = new FontLoader()
+        fontLoader.load('src/font/helvetiker_regular.typeface.json', (font) => { 
+            const geo = new TextGeometry(str, { font: font, size: 0.5, depth: 0.1 })
+            const mat = new THREE.MeshStandardMaterial({color: 0xffffff})
+            
+            var visible = true
+            if (this.midlleTextMesh) {
+                this.scene.remove(this.midlleTextMesh)
+                visible = this.midlleTextMesh.visible
+            }
+            this.midlleTextMesh = new THREE.Mesh(geo, [mat, mat])
+            geo.computeBoundingBox()
+            this.midlleTextMesh.position.set(-geo.boundingBox.max.x / 2, -geo.boundingBox.max.y / 2, 1)
+            this.midlleTextMesh.visible = visible
+            this.scene.add(this.midlleTextMesh)
+        })
     }
 
     showMiddleText() {
