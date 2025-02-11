@@ -15,6 +15,8 @@ import { PongMap } from "./threeD/PongMap.js"
 const pongMap = new PongMap(document.getElementById("canvas"), {
 })
 
+pongMap.setMiddleText("Hello")
+
 pongMap.onUpdate((pressedKeys, dt) => {
     const speed = 2
     if (pressedKeys[38]) pongMap.setBallVelocity(pongMap.ballVelo.x, speed)
@@ -36,4 +38,8 @@ pongMap.onCollision((collisions) => {
     pongMap.setBallPos(0, 0)
     pongMap.rightScore += 1
     pongMap.leftScore += 1
+    if (collisions["v_wall_u"])
+        pongMap.hideScore()
+    if (collisions["v_wall_d"])
+        pongMap.showScore()
 })

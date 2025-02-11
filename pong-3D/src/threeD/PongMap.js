@@ -51,7 +51,9 @@ export class PongMap
 
         this.leftScore_ = 0
         this.rightScore_ = 0
-        this.isScoreVisible = true
+
+        const fontLoader = new FontLoader()
+        fontLoader.load('src/font/Helvetica_Neue_Medium.json', (font) => { this.helveticaFont = font })
 
         window.onresize = this.#updateSize.bind(this)
         this.#updateSize()
@@ -98,17 +100,7 @@ export class PongMap
 
         this.#setBallPosScreeSpace(this.ball.position.clone().add(this.ballVelocity.clone().multiplyScalar(dt)))
 
-        if (this.leftScoreMesh && this.rightScoreMesh && this.isScoreVisible) {
-            this.scene.add(this.leftScoreMesh)
-            this.scene.add(this.rightScoreMesh)
-        }
-
         this.renderer.render(this.scene, this.camera);
-
-        if (this.leftScoreMesh && this.rightScoreMesh && this.isScoreVisible) {
-            this.scene.remove(this.leftScoreMesh)
-            this.scene.remove(this.rightScoreMesh)
-        }
     } 
 
     #addObjects() {
@@ -347,8 +339,15 @@ export class PongMap
 
     set leftScore(n) {
         this.leftScore_ = Number(n) % 10
+        var visible = true
+        if (this.leftScoreMesh) {
+            visible = this.leftScoreMesh.visible
+            this.scene.remove(this.leftScoreMesh)
+        }
         this.leftScoreMesh = new THREE.Mesh(this.scoreGeometries[this.leftScore_], this.scoreMaterial)
         this.leftScoreMesh.position.set(-0.7, this.planeH / 3, -this.depth + this.ballSize)
+        this.leftScoreMesh.visible = visible
+        this.scene.add(this.leftScoreMesh)
     }
 
     get leftScore() {
@@ -357,8 +356,15 @@ export class PongMap
 
     set rightScore(n) {
         this.rightScore_ = Number(n) % 10
+        var visible = true
+        if (this.rightScoreMesh) {
+            visible = this.rightScoreMesh.visible
+            this.scene.remove(this.rightScoreMesh)
+        }
         this.rightScoreMesh = new THREE.Mesh(this.scoreGeometries[this.rightScore_], this.scoreMaterial)
         this.rightScoreMesh.position.set(0.7 - 0.5, this.planeH / 3, -this.depth + this.ballSize)
+        this.rightScoreMesh.visible = visible
+        this.scene.add(this.rightScoreMesh)
     }
 
     get rightScore() {
@@ -366,11 +372,41 @@ export class PongMap
     }
 
     showScore() {
-        this.isScoreVisible = true
+        if (this.leftScoreMesh)
+            this.leftScoreMesh.visible = true
+        if (this.rightScoreMesh)
+            this.rightScoreMesh.visible = true
     }
 
     hideScore() {
-        this.isScoreVisible = false
+        if (this.leftScoreMesh)
+            this.leftScoreMesh.visible = false
+        if (this.rightScoreMesh)
+            this.rightScoreMesh.visible = false
+    }
+
+    setMiddleText(str) {
+        const geo = new TextGeometry(str, { font: this.helveticaFont})
+        const mat = new THREE.MeshStandardMaterial({color: 0xffffff})
+        
+        if (this.midlleTextMesh)
+            this.scene.remove(this.midlleTextMesh)
+        this.midlleTextMesh = new THREE.Mesh(geo, mat)
+        this.midlleTextMesh.position.set(0, 0, 3)
+        this.midlleTextMesh.scale.set(0.4, 0.4, 0.4)
+        this.midlleTextMesh.rotateY(8.5)
+        this.midlleTextMesh.rotateX(2.5)
+        this.scene.add(this.midlleTextMesh)
+    }
+
+    showMiddleText() {
+        if (this.midlleTextMesh)
+            this.midlleTextMesh.visible = true
+    }
+    
+    hideMiddleText() {
+        if (this.midlleTextMesh)
+            this.midlleTextMesh.visible = false
     }
 
 }
