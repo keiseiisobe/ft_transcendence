@@ -20,10 +20,17 @@ pongMap.onUpdate((pressedKeys, dt) => {
     if (pressedKeys[40]) pongMap.setBallVelocity(pongMap.ballVelo.x, -speed);
     if (pressedKeys[37]) pongMap.setBallVelocity(-speed, pongMap.ballVelo.y);
     if (pressedKeys[39]) pongMap.setBallVelocity(speed, pongMap.ballVelo.y);
+    if (pressedKeys[69]) pongMap.leftPaddlePos  += 0.02
+    if (pressedKeys[68]) pongMap.leftPaddlePos  -= 0.02
+    if (pressedKeys[73]) pongMap.rightPaddlePos += 0.02
+    if (pressedKeys[75]) pongMap.rightPaddlePos -= 0.02
 });
 
 pongMap.onCollision((collisions) => {
     console.log(collisions)
-    pongMap.setBallVelocity(0, 0)
+    pongMap.setBallVelocity(
+        Math.floor(Math.random() * 2) * 4 - 2, 
+        Math.floor(Math.random() * 2) * 2 - 1
+    )
     pongMap.setBallPos(0, 0)
 })

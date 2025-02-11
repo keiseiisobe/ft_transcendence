@@ -292,4 +292,20 @@ export class PongMap
     onCollision(f) {
         this.onCollision_ = f
     }
+
+    get leftPaddlePos() {
+        return this.paddleL.position.y / (this.planeH / 2 - this.paddleL.scale.y / 2)
+    }
+
+    set leftPaddlePos(y) {
+        this.paddleL.position.y = Math.max(-1, Math.min(y, 1)) * (this.planeH / 2 - this.paddleL.scale.y / 2)
+    }
+    
+    get rightPaddlePos() {
+        return this.paddleR.position.y / (this.planeH / 2 - this.paddleR.scale.y / 2)
+    }
+
+    set rightPaddlePos(y) {
+        this.paddleR.position.y = Math.max(-1, Math.min(y, 1)) * (this.planeH / 2 - this.paddleR.scale.y / 2)
+    }
 }
