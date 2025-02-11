@@ -2,9 +2,8 @@ import * as THREE from 'three'
 
 export class PongMap
 {
-    constructor(options = {}) {
+    constructor(canvas, options = {}) {
         const defaults = {
-            dom: document.querySelector("body"),
             aspectRatio: 900 / 582,
             depth: 0.2,
             paddleLengh: 0.16,
@@ -13,7 +12,7 @@ export class PongMap
         };
         options = { ...defaults, ...options };
 
-        this.htmlDom = options.dom
+        this.canvas = canvas
         this.aspectRatio = options.aspectRatio;
         this.depth = options.depth
         this.paddleLengh = options.paddleLengh
@@ -23,9 +22,8 @@ export class PongMap
         this.planeW = 9.00
         this.planeH = this.planeW / this.aspectRatio 
 
-        this.renderer = new THREE.WebGLRenderer({antialias: true})
+        this.renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true})
         this.renderer.setPixelRatio(window.devicePixelRatio)
-        this.htmlDom.appendChild(this.renderer.domElement)
 
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0xff0000)
@@ -62,8 +60,8 @@ export class PongMap
     }
 
     #updateSize() {
-        const width = this.htmlDom.getBoundingClientRect().width;
-        const height = window.innerHeight - this.renderer.domElement.getBoundingClientRect().top;
+        const width = this.canvas.scrollWidth;
+        const height = this.canvas.scrollHeight;
 
         this.renderer.setSize(width, height);
         this.camera.aspect = width / height;

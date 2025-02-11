@@ -35,10 +35,10 @@ export class PongGame {
     this.#selectView = new SelectView(this.#context);
 
     // 表示するビューをメイン画面にする
-    // this.#viewname = this.#mainView.constructor.name;
+    this.#viewname = this.#mainView.constructor.name;
 
     // ゲームを開始する
-    // this.#start();
+    this.#start();
   }
 
   /** インターバルを開始する */
