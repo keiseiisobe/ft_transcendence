@@ -13,10 +13,40 @@ import json, os
 
 # Create your views here.
 
+# jwtに必要
 import jwt
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+
+# totpに必要
+import pyotp
+import qrcode
+from io import BytesIO
+
+User = get_user_model()
+
+# @login_required
+def generate_qr(request, username):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return HttpResponse("Invalid user", status=400)
+
+    # まだTOTPが設定されていない場合、新しいシークレットを生成
+    if not user.totp_secret:
+        user.generate_totp_secret()
+
+    totp = pyotp.TOTP(user.totp_secret)
+    otp_uri = totp.provisioning_uri(name=user.username, issuer_name="MyDjangoApp")
+
+    # QRコードを生成
+    qr = qrcode.make(otp_uri)
+    buffer = BytesIO()
+    qr.save(buffer, format="PNG")
+    buffer.seek(0)
+
+    return HttpResponse(buffer.getvalue(), content_type="image/png")
 
 @login_required
 def protected_view(request):
@@ -39,6 +69,65 @@ def mysignup(request):
             return HttpResponseForbidden(e)
         return HttpResponse()
 
+def totpLogin(request):
+    if request.method != "POST":
+        return JsonResponse({"success": False, "message": "無効なリクエスト"}, status=400)
+
+    username = request.POST.get("username")
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return HttpResponse("Invalid user", status=400)
+
+    totp_code = request.POST.get("totp_code")
+    totp_code = int(totp_code)
+
+    if not user.verify_totp(totp_code):
+        return HttpResponseForbidden("Invalid TOTP code")  # 認証失敗
+
+    login(request, user)
+    request.user.is_login = True
+    request.user.save()
+    expiration_time_access = datetime.utcnow() + timedelta(seconds=30)  # 30秒
+    expiration_time_refresh = datetime.utcnow() + timedelta(days=365)  # 1年
+
+    payload_access = {
+        "id": user.id,
+        "username": user.username,
+        "exp": expiration_time_access,
+        "iat": datetime.utcnow()
+    }
+    payload_refresh = {
+        "id": user.id,
+        "username": user.username,
+        "exp": expiration_time_refresh,
+        "iat": datetime.utcnow()
+    }
+
+    SECRET_KEY = settings.SECRET_KEY
+    access_token = jwt.encode(payload_access, SECRET_KEY, algorithm="HS256")
+    refresh_token = jwt.encode(payload_refresh, SECRET_KEY, algorithm="HS256")
+
+    response = render(request, "pong/header.html", {"user": request.user})
+    response.set_cookie(
+        key="jwt_access",
+        value=access_token,
+        httponly=True,
+        secure=True,
+        samesite="Lax",
+        expires=expiration_time_access.strftime("%a, %d-%b-%Y %H:%M:%S GMT")
+    )
+    response.set_cookie(
+        key="jwt_refresh",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="Lax",
+        expires=expiration_time_refresh.strftime("%a, %d-%b-%Y %H:%M:%S GMT")
+    )
+
+    return response
+
 def mylogin(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -46,6 +135,15 @@ def mylogin(request):
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            if user.use_totp == True:
+                additional_data = {
+                    user,
+                    'use_totp_login'
+                }
+                additional_data_str = f'{additional_data}'
+                response = additional_data_str
+                return HttpResponse(response)
+
             login(request, user)
             request.user.is_login = True
             request.user.save()

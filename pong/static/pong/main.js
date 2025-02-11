@@ -117,55 +117,118 @@ setSignupEventHandler();
 // login
 
 function setLoginEventHandler() {
-    if (document.querySelector("#loginModal")) {
-	const loginForm = {
-	    username: document.querySelector("#login-username"),
-	    password: document.querySelector("#login-password"),
-	    button: document.querySelector("#login-button")
-	};
-	
-	async function login() {
-	    const url = window.location.origin + "/accounts/login/";
-	    const csrftoken = getCookie('csrftoken');
-	    const formData = new FormData();
-	    formData.append("username", loginForm.username.value);
-	    formData.append("password", loginForm.password.value);
-	    try {
-		const promise = await fetch(url, {
-		    method: "POST",
-		    headers: {
-			"X-CSRFToken": csrftoken,
-		    },
-		    body: formData
-		});
-		const text = await promise.text();
-		if (promise.ok) {
-		    loginForm.username.value = "";
-		    loginForm.password.value = "";
-		    document.querySelector("#login-close").click();
-		    document.querySelector(".modal-backdrop").remove();
-		    let navbar = document.querySelector("#loaded-header");
-		    navbar.innerHTML = text;
-		    setLogoutEventHandler();
-		    setMypageEventHandler();
-		    gameOverEventHandler();
-		    history.replaceState(document.body.innerHTML, "", "");
+  if (document.querySelector("#loginModal")) {
+		const loginForm = {
+			username: document.querySelector("#login-username"),
+			password: document.querySelector("#login-password"),
+			button: document.querySelector("#login-button")
+		};
+
+		async function login() {
+			const url = window.location.origin + "/accounts/login/";
+			const csrftoken = getCookie('csrftoken');
+			const formData = new FormData();
+			formData.append("username", loginForm.username.value);
+			formData.append("password", loginForm.password.value);
+			try {
+				const response = await fetch(url, {
+						method: "POST",
+						headers: { "X-CSRFToken": csrftoken,},
+						body: formData
+				});
+				const text = await response.text();
+				if (response.ok && text.includes('use_totp_login')) {
+					loginForm.username.value = "";
+					loginForm.password.value = "";
+					document.querySelector("#login-close").click();
+
+					const username = text.match(/<User:\s*(\w+)>/)
+					let qrImage = document.getElementById("qrCodeImage");
+					let qrUrl = `/accounts/generate_qr/${username[1]}/`;
+					qrImage.src = qrUrl;
+					setTOTPLoginEventHandler(username[1]);
+
+					let successModal = new bootstrap.Modal(document.getElementById("totpModal"));
+					successModal.show();
+				}
+				else if (response.ok) {
+					loginForm.username.value = "";
+					loginForm.password.value = "";
+					document.querySelector("#login-close").click();
+					document.querySelector(".modal-backdrop").remove();
+					let navbar = document.querySelector("#loaded-header");
+					navbar.innerHTML = text;
+					setLogoutEventHandler();
+					setMypageEventHandler();
+					gameOverEventHandler();
+					history.replaceState(document.body.innerHTML, "", "");
+				}
+				else // (promise.status == 404)
+				{
+					let message = document.querySelector(".login-error-message");
+					message.textContent = text;
+				}
+			}
+			catch (err) {
+				console.log(err);
+			}
 		}
-		else // (promise.status == 404)
-		{ 
-		    let message = document.querySelector(".login-error-message");
-		    message.textContent = text;
-		}
-	    }
-	    catch (err) {
-		console.log(err);
-	    }
-	}
-	loginForm.button.addEventListener("click", login);
-    }
+		loginForm.button.addEventListener("click", login);
+  }
 }
 
 setLoginEventHandler();
+
+
+
+// totp login
+
+function setTOTPLoginEventHandler(username) {
+	if (document.querySelector("#totpModal")) {
+		const verificationForm = document.querySelector("#verification-form");
+		verificationForm.addEventListener("submit", function (event) {
+			event.preventDefault(); // デフォルトのフォーム送信を防ぐ
+			const totpCode = document.querySelector("#verification-code").value;
+
+			// サーバーへTOTPコードを送信する（例）
+			verifyTOTP(totpCode);
+		});
+
+		async function verifyTOTP(code) {
+			const url = window.location.origin + "/accounts/totp-login/";
+			const csrftoken = getCookie('csrftoken');
+			const formData = new FormData();
+			formData.append("username", username);
+			formData.append("totp_code", code);
+
+			try {
+				const response = await fetch(url, {
+					method: "POST",
+					headers: {
+							"X-CSRFToken": csrftoken,},
+					body: formData
+				});
+
+				const text = await response.text();
+				if (response.ok) {
+					console.log("TOTP認証成功");
+					document.querySelector("#totp-close").click();
+					let navbar = document.querySelector("#loaded-header");
+					navbar.innerHTML = text;
+					setLogoutEventHandler();
+					setMypageEventHandler();
+					gameOverEventHandler();
+					history.replaceState(document.body.innerHTML, "", "");
+				} else {
+					console.log("TOTP認証失敗");
+					alert("認証に失敗しました。もう一度試してください。");
+				}
+			} catch (err) {
+				console.error(err);
+			}
+		}
+	}
+}
 
 
 
