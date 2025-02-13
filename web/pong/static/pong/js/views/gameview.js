@@ -14,7 +14,7 @@ export class GameView extends View {
   /** スコア */
   scores;
   /** スコア上限 */
-  #maxScore = 1000;
+  #maxScore = 100000;
   /** ゲーム結果 */
   resultMessage = "";
 
@@ -38,7 +38,7 @@ export class GameView extends View {
     // スコアを生成する
       this.scores = new Scores(context);
       
-      this.#computerUpdateTime = Date.now() - 500;
+      this.#computerUpdateTime = Date.now() - 1000;
   }
 
   /** 更新する */
@@ -65,10 +65,10 @@ export class GameView extends View {
       this.ball.move();
       // パドルを移動する
 
-      if (Date.now() - this.#computerUpdateTime >= 500) {
+      if (Date.now() - this.#computerUpdateTime >= 1000) {
 	  if (this.leftPaddle.y > this.ball.y)
 	      this.leftPaddle.dy = -this.leftPaddle.speed;
-	  else if (this.leftPaddle.y < this.ball.y)
+	  else if (this.leftPaddle.y + this.leftPaddle.height < this.ball.y)
 	      this.leftPaddle.dy = this.leftPaddle.speed;
 	  this.#computerUpdateTime = Date.now();
       }

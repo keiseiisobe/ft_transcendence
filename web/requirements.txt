@@ -5,4 +5,5 @@ django-friendship
 django-rainbowtests
 Pillow
 tensorflow
+matplotlib
 selenium>=4.8.0

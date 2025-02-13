@@ -1,0 +1,16 @@
+  /home/keisei/ft_transcendence/web:
+  drwxrwxr-x 7 keisei keisei  4096 Feb 12 15:03 .
+  drwxrwxr-x 7 keisei keisei  4096 Feb  9 21:14 ..
+  -rw-rw-r-- 1 keisei keisei   364 Feb 10 16:31 Dockerfile
+  -rw-rw-r-- 1 keisei keisei   192 Jan 17 17:29 Dockerfile~
+  -rw-rw-r-- 1 keisei keisei     0 Feb  9 17:50 __init__.py
+  drwxrwxr-x 2 keisei keisei  4096 Jan 30 14:40 __pycache__
+  drwxrwxr-x 7 keisei keisei  4096 Feb  9 17:50 accounts
+  -rwxrwxr-x 1 keisei keisei    50 Feb  9 21:14 docker-entrypoint.sh
+  -rw-rw-r-- 1 keisei keisei    88 Feb  9 21:01 docker-entrypoint.sh~
+  drwxrwxr-x 6 keisei keisei  4096 Feb  9 17:50 friendship
+  drwxr-xr-x 3 keisei keisei  4096 Feb  9 17:51 games
+  -rwxrwxr-x 1 keisei keisei   661 Feb  9 17:50 manage.py
+  drwxrwxr-x 7 keisei keisei  4096 Feb 12 15:13 pong
+  -rw-rw-r-- 1 keisei keisei   115 Feb 10 16:22 requirements.txt
+  -rw-rw-r-- 1 keisei keisei    31 Jan 17 16:56 requirements.txt~
