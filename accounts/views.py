@@ -38,7 +38,7 @@ def generate_qr(request, username):
         user.generate_totp_secret()
 
     totp = pyotp.TOTP(user.totp_secret)
-    otp_uri = totp.provisioning_uri(name=user.username, issuer_name="MyDjangoApp")
+    otp_uri = totp.provisioning_uri(name=user.username, issuer_name="ft_transcendence")
 
     # QRコードを生成
     qr = qrcode.make(otp_uri)
@@ -88,8 +88,8 @@ def totpLogin(request):
     login(request, user)
     request.user.is_login = True
     request.user.save()
-    expiration_time_access = datetime.utcnow() + timedelta(seconds=30)  # 30秒
-    expiration_time_refresh = datetime.utcnow() + timedelta(days=365)  # 1年
+    expiration_time_access = datetime.utcnow() + timedelta(seconds=3000)
+    expiration_time_refresh = datetime.utcnow() + timedelta(days=365)
 
     payload_access = {
         "id": user.id,
@@ -148,8 +148,8 @@ def mylogin(request):
             request.user.is_login = True
             request.user.save()
 
-            expiration_time_access = datetime.utcnow() + timedelta(seconds=30)  # 30秒
-            expiration_time_refresh = datetime.utcnow() + timedelta(days=365)  # 1年
+            expiration_time_access = datetime.utcnow() + timedelta(seconds=3000)
+            expiration_time_refresh = datetime.utcnow() + timedelta(days=365)
 
             payload_access = {
                 "id": user.id,
@@ -246,6 +246,14 @@ def editPassword(request):
             return render(request, "pong/pong.html", { "user": request.user })
         except ValidationError as e:
             return HttpResponseForbidden("\n".join(e))
+    return HttpResponseForbidden()
+    
+def editTOTP(request):
+    if request.method == "POST":
+        user = request.user
+        user.use_totp = not user.use_totp
+        user.save()
+        return HttpResponse()
     return HttpResponseForbidden()
     
 def editAvatar(request):

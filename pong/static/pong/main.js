@@ -270,7 +270,7 @@ function setMypageEventHandler() {
     if (document.querySelector("#mypage-button")) {
 	const mypageButton = document.querySelector("#mypage-button");
 
-	async function mypage() {
+	window.mypage = async function mypage() {
 	    const url = window.location.origin + "/accounts/mypage/";
 	    await fetch(url, { cache: "no-store" })
 		.then((promise) => {
@@ -283,6 +283,7 @@ function setMypageEventHandler() {
 		    setCloseMypageEventHandler();
 		    editUsernameEventHandler();
 		    editPasswordEventHandler();
+				editTOTPEventHandler();
 		    editAvatarEventHandler();
 		    addFriendEventHandler();
 		    history.pushState(text, "", "");
@@ -414,6 +415,41 @@ function editPasswordEventHandler() {
 	}
 	editPasswordForm.button.addEventListener("click", editPassword);
     }
+}
+
+
+
+// edit totp
+function editTOTPEventHandler() {
+	if (document.querySelector("#editTOTPModal")) {
+		const editTOTPForm = {
+			button: document.querySelector("#edit-TOTP-button"),
+			text: document.querySelector("#edit-TOTP-text"),
+		};
+
+		async function editTOTP() {
+			const url = window.location.origin + "/accounts/edit/totp/";
+			const csrftoken = getCookie('csrftoken');
+			try {
+				const promise = await fetch(url, {
+					method: "POST",
+					headers: { "X-CSRFToken": csrftoken,},
+				});
+				if (promise.ok) {
+					document.querySelector("#edit-TOTP-close").click();
+					mypage()
+				}
+				else
+				{
+					console.log('error');
+				}
+			}
+			catch (err) {
+				console.log(err);
+			}
+		}
+		editTOTPForm.button.addEventListener("click", editTOTP);
+	}
 }
 
 

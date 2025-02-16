@@ -71,6 +71,33 @@
 	    </div>
 	  </div>
 	</div>
+	<button type="button" id="edit-TOTP-modal-button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#editTOTPModal"><i class="fas fa-edit me-2"></i>Edit TOTP</button>
+	<div class="modal fade" id="editTOTPModal" tabindex="-1" aria-labelledby="editTOTPModalLabel" aria-hidden="true" style="top: 200px">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-body">
+		<form>
+		  {% csrf_token %}
+		  <div class="mb-3">
+				{% if user.use_totp %}
+				<label for="edit-TOTP" id="edit-TOTP-text" class="form-label" style="color: green;">Currently, TOTP(Time-Based One-Time Password) is enabled at login.</label>
+				{% else %}
+				<label for="edit-TOTP" id="edit-TOTP-text" class="form-label" style="color: red;">Currently, TOTP(Time-Based One-Time Password) is disabled at login.</label>
+				{% endif %}
+		  </div>
+			{% if user.use_totp %}
+		  <input type="button" class="btn btn-dark" id="edit-TOTP-button" value="Disable TOTP"/>
+			{% else %}
+			<input type="button" class="btn btn-dark" id="edit-TOTP-button" value="Enable TOTP"/>
+			{% endif %}
+		</form>
+	      </div>
+	      <div class="modal-footer">
+		<button type="button" id="edit-TOTP-close" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
 	<div class="row" style="margin: 20px;height: 350px;">
           <div class="col-md-6">
             <div class="card mb-4 mb-md-0">
