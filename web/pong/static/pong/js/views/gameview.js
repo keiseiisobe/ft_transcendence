@@ -19,6 +19,7 @@ export class GameView extends View {
   resultMessage = "";
 
     #computerUpdateTime;
+    rightPaddleHitNum = 0;
 
   constructor(context) {
     super(context);
@@ -38,7 +39,7 @@ export class GameView extends View {
     // スコアを生成する
       this.scores = new Scores(context);
       
-      this.#computerUpdateTime = Date.now() - 1000;
+      this.#computerUpdateTime = Date.now() - 600;
   }
 
   /** 更新する */
@@ -65,7 +66,7 @@ export class GameView extends View {
       this.ball.move();
       // パドルを移動する
 
-      if (Date.now() - this.#computerUpdateTime >= 1000) {
+      if (Date.now() - this.#computerUpdateTime >= 600) {
 	  if (this.leftPaddle.y > this.ball.y)
 	      this.leftPaddle.dy = -this.leftPaddle.speed;
 	  else if (this.leftPaddle.y + this.leftPaddle.height < this.ball.y)
@@ -131,7 +132,8 @@ export class GameView extends View {
     if (RpaddleY <= ballY && 
       ballY <= RpaddleY + paddleHeight && 
       ballX + ballSideLen >= RpaddleX) {
-      this.ball.dx = -this.ball.dx;
+	this.ball.dx = -this.ball.dx;
+	this.rightPaddleHitNum++;
     }
   }
 

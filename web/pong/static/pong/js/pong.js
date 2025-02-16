@@ -77,6 +77,8 @@ export class PongGame {
     case "GameView":
         console.log("GameView");
 	if (Date.now() - this.#aiUpdateTime >= 1000) {
+	    let reward = this.gameView.rightPaddleHitNum >= 1 ? 1 : 0;
+	    reward -= this.gameView.scores.leftScore.value > this.gameView.scores.leftScore.preValue ? 1 : 0;
 	    this.aiSocket.send(JSON.stringify({
 		"ball_x": this.gameView.ball.x,
 		"ball_y": this.gameView.ball.y,
@@ -90,15 +92,21 @@ export class PongGame {
 		    ? this.gameView.leftPaddle.y : this.gameView.leftPaddle.preY,
 		"pre_right_paddle_y": this.gameView.rightPaddle.preY == undefined
 		    ? this.gameView.rightPaddle.y : this.gameView.rightPaddle.preY,
-		"reward": this.gameView.scores.leftScore.value > this.gameView.scores.leftScore.preValue
-		    ? -1 : this.gameView.scores.rightScore.value > this.gameView.scores.rightScore.preValue
-		    ? 1 : 0 
+		"reward": reward,
+		// "reward": this.gameView.scores.rightScore.value > this.gameView.scores.rightScore.preValue
+		//     ? 1 : this.gameView.scores.leftScore.value > this.gameView.scores.leftScore.preValue
+		//     ? -1 : 0,
+		"done": this.gameView.scores.rightScore.value > this.gameView.scores.rightScore.preValue ||
+		    this.gameView.scores.leftScore.value > this.gameView.scores.leftScore.preValue
 	    }));
 	    this.gameView.ball.preX = this.gameView.ball.x;
 	    this.gameView.ball.preY = this.gameView.ball.y;
 	    this.gameView.leftPaddle.preY = this.gameView.leftPaddle.y;
 	    this.gameView.rightPaddle.preY = this.gameView.rightPaddle.y;
+	    this.gameView.scores.leftScore.preValue = this.gameView.scores.leftScore.value;
+	    this.gameView.scores.rightScore.preValue = this.gameView.scores.rightScore.value;
 	    this.#aiUpdateTime = Date.now();
+	    this.gameView.rightPaddleHitNum = 0;
 	}
         // 画面をクリアする
         this.#context.clearRect(0, 0, this.#canvas.width, this.#canvas.height);

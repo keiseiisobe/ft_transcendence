@@ -1,6 +1,5 @@
 import tensorflow as tf
 import numpy as np
-import random
 import os
 import json
 from tensorflow.keras import layers
@@ -8,53 +7,73 @@ from channels.generic.websocket import WebsocketConsumer
 from typing import Tuple
 import matplotlib.pyplot as plt
 
-interval = 30
-iteration = np.array([0])
-num_iteration = 3
-returns_sum_arr = np.array([0], dtype=np.float64)
+seed = 42
+tf.random.set_seed(seed)
+np.random.seed(seed)
+
+iteration = 0
+num_iteration = 1000
+loss_arr = np.array([], dtype=np.float64)
+
 
 class AIPongModel(tf.keras.Model):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.hidden = layers.Dense(128, activation="relu")
+        self.hidden1 = layers.Dense(256, activation="relu")
+        self.hidden2 = layers.Dense(512, activation="relu")
+        self.hidden3 = layers.Dense(256, activation="relu")
         self.actor = layers.Dense(3)
-        self.critic = layers.Dense(1)
-    
-    def call(self, inputs: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
-        x = self.hidden(inputs)
-        return self.actor(x), self.critic(x)
+
+    def call(self, inputs: tf.Tensor):
+        x = self.hidden1(inputs)
+        x = self.hidden2(x)
+        x = self.hidden3(x)
+        return self.actor(x)
+
 
 class AIPong:
-    def __init__(self, learning_rate=0.001, gamma=0.99, model_path="ai_opponent.keras", exploration_rate=0.3):
+    def __init__(
+            self,
+            learning_rate=0.001,
+            gamma=0.99,
+            model_path="ai_opponent.keras",
+    ):
         self.model = AIPongModel()
         self.learning_rate = learning_rate
         self.gamma = gamma
-        self.states_memory = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True, clear_after_read=False)
-        self.action_probs_memory = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True, clear_after_read=False)
-        self.values_memory = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True, clear_after_read=False)
-        self.rewards_memory = tf.TensorArray(dtype=tf.int32, size=0, dynamic_size=True, clear_after_read=False)
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
+        self.states_memory = tf.TensorArray(
+            dtype=tf.float32,
+            size=0,
+            dynamic_size=True,
+            clear_after_read=False
+        )
+        self.action_logits_memory = tf.TensorArray(
+            dtype=tf.float32,
+            size=0,
+            dynamic_size=True,
+            clear_after_read=False
+        )
+        self.rewards_memory = tf.TensorArray(
+            dtype=tf.int32,
+            size=0,
+            dynamic_size=True,
+            clear_after_read=False
+        )
+        self.optimizer = tf.keras.optimizers.Adam(
+            learning_rate=self.learning_rate
+        )
         self.model_path = model_path
-        self.exploration_rate = exploration_rate
-        self.eps = np.finfo(np.float32).eps.item()
-        self.huber_loss = tf.keras.losses.Huber(reduction=tf.keras.losses.Reduction.SUM)
-        seed = 42
-        tf.random.set_seed(seed)
-        np.random.seed(seed)
 
     def policy_forward(self, state):
-        state = np.expand_dims(state, axis=0)
-        action_logits, value = self.model(state)
-        action = tf.random.categorical(action_logits, 1)
-        action = action[0][0]
-        action_probs = tf.nn.softmax(action_logits)
-        return action, action_probs, value
+        state = tf.expand_dims(state, axis=0)
+        action_logits = self.model(state)
+        action = tf.random.categorical(action_logits, 1)[0][0]
+        return action, action_logits
 
-    def store_transition(self, state, action_prob, value, reward, i):
-        self.states_memory.write(i, state).mark_used()
-        self.action_probs_memory.write(i, action_prob).mark_used()
-        self.values_memory.write(i, tf.squeeze(value)).mark_used()
-        self.rewards_memory.write(i, reward).mark_used()
+    def store_transition(self, state, action_logits, reward, i):
+        self.states_memory = self.states_memory.write(i, state)
+        self.action_logits_memory = self.action_logits_memory.write(i, action_logits)
+        self.rewards_memory = self.rewards_memory.write(i, reward)
 
     def get_expected_return(self):
         n = tf.shape(self.rewards_memory)[0]
@@ -66,46 +85,70 @@ class AIPong:
             reward = self.rewards_memory[i]
             discounted_sum = reward + self.gamma * discounted_sum
             discounted_sum.set_shape(discounted_sum_shape)
-            returns.write(i, reward * discounted_sum).mark_used()
+            returns = returns.write(i, discounted_sum)
         returns = returns.stack()[::-1]
         # standarlize
-        returns = (
-            returns - tf.math.reduce_mean(returns)) / \
-            (tf.math.reduce_std(returns) + self.eps)
+        # returns = (
+        #     returns - tf.math.reduce_mean(returns)) / \
+        #     (tf.math.reduce_std(returns) + self.eps)
         return returns
 
     def compute_loss(self, returns):
-        advantage = returns - self.values_memory
-        action_log_probs = tf.math.log(self.action_probs_memory)
-        action_loss = -tf.math.reduce_sum(action_log_probs * advantage)
-        critic_loss = self.huber_loss(self.values_memory, returns)
-        return action_loss + critic_loss
-    
+        action_probs = tf.nn.softmax(self.action_logits_memory)
+        action_log_probs = tf.math.log(action_probs)
+        weighted_action_log_probs = tf.multiply(action_log_probs, returns)
+        loss = tf.reduce_mean(weighted_action_log_probs)
+        return loss
+
     def train(self):
         n = self.states_memory.size()
         with tf.GradientTape() as tape:
             for i in tf.range(n):
                 state = self.states_memory.read(i)
                 reward = self.rewards_memory.read(i)
-                action, action_probs, value = self.policy_forward(state)
-                self.store_transition(state, action_probs[0][int(action)], value, reward, i)
-            self.action_probs_memory = self.action_probs_memory.stack()
-            self.values_memory = self.values_memory.stack()
+                action, action_logits = self.policy_forward(state)
+                self.store_transition(
+                    state,
+                    action_logits[0],
+                    reward,
+                    i
+                )
+            self.states_memory = self.states_memory.stack()
+            self.action_logits_memory = self.action_logits_memory.stack()
             self.rewards_memory = self.rewards_memory.stack()
             returns = self.get_expected_return()
-            global returns_sum_arr
-            returns_sum_arr = np.append(returns_sum_arr, tf.math.reduce_sum(returns))
-            self.action_probs_memory, self.values_memory, returns = [
-                tf.expand_dims(x, 1) for x in [self.action_probs_memory, self.values_memory, returns]
+            self.action_logits_memory, returns = [
+                tf.expand_dims(x, 1) for x in [
+                    self.action_logits_memory,
+                    returns
+                ]
             ]
             loss = self.compute_loss(returns)
+        print("returns: ", returns)
+        print("loss: ", loss)
+        global loss_arr
+        loss_arr = np.append(loss_arr, loss)
         grads = tape.gradient(loss, self.model.trainable_variables)
         self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
-        self.states_memory = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True, clear_after_read=False)
-        self.action_probs_memory = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True, clear_after_read=False)
-        self.values_memory = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True, clear_after_read=False)
-        self.rewards_memory = tf.TensorArray(dtype=tf.int32, size=0, dynamic_size=True, clear_after_read=False)
-        
+        self.states_memory = tf.TensorArray(
+            dtype=tf.float32,
+            size=0,
+            dynamic_size=True,
+            clear_after_read=False
+        )
+        self.action_logits_memory = tf.TensorArray(
+            dtype=tf.float32,
+            size=0,
+            dynamic_size=True,
+            clear_after_read=False
+        )
+        self.rewards_memory = tf.TensorArray(
+            dtype=tf.int32,
+            size=0,
+            dynamic_size=True,
+            clear_after_read=False
+        )
+
     def save_model(self):
         self.model.save(self.model_path)
         print(f"Model saved at {self.model_path}")
@@ -116,6 +159,7 @@ class AIPong:
             print(f"Model loaded from {self.model_path}")
         else:
             print("No saved model found!")
+
 
 class AIPongConsumer(WebsocketConsumer):
     def connect(self):
@@ -141,31 +185,29 @@ class AIPongConsumer(WebsocketConsumer):
             data["pre_right_paddle_y"]/height
         ])
         reward = data["reward"]
-        raw_action, action_probs, value = self.ai_agent.policy_forward(state)
-        if np.random.uniform() < self.ai_agent.exploration_rate:
-            raw_action = int(np.random.choice([0, 1, 2], 1))
+        done = data["done"]
+        raw_action, action_logits = self.ai_agent.policy_forward(state)
         action = int(raw_action)
         action = -1 if action == 0 else 0 if action == 1 else 1
         response = json.dumps({"action": action})
         self.send(response)
         self.ai_agent.store_transition(
             state,
-            action_probs[0][raw_action],
-            value,
+            action_logits[0],
             reward,
             self.ai_agent.states_memory.size()
         )
-        global interval
-        if self.ai_agent.rewards_memory.size() % interval == 0:
+        if done:
             self.ai_agent.train()
             self.ai_agent.save_model()
-            # global iteration
-            # global num_iteration
-            # iteration = np.append(iteration, iteration[-1] + interval)
-            # if iteration.size % num_iteration == 0:
-            #     plt.plot(iteration, returns_sum_arr)
-            #     plt.ylabel("Avarage Returns")
-            #     plt.xlabel("Iterations")
-            #     plt.ylim(-2, 2)
-            #     plt.xlim(0)
-            #     plt.savefig("training.pdf")
+            global num_iteration
+            global iteration
+            iteration += 1
+            if iteration % num_iteration == 0:
+                global loss_arr
+                plt.plot(loss_arr)
+                plt.ylabel("Losses")
+                plt.xlabel("Iterations")
+                plt.ylim(-50, 50)
+                plt.xlim(0)
+                plt.savefig("training.pdf")
