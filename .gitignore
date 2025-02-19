@@ -1,5 +1,6 @@
 # database
 data/
+accounts/images/accounts/
 
 # python
 __pycache__/
@@ -60,3 +61,5 @@ db.sqlite3
 .DS_Store
 node_modules/
 .vite/
+threeD/node_modules
+threeD/dist
