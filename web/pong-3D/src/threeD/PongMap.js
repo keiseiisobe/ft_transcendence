@@ -107,9 +107,9 @@ export class PongMap
         directionalLight.position.set(0, 0, 1)
         this.scene.add(directionalLight)
 
-        const poinLight = new THREE.PointLight(0xffffff, 1, 0, 0)
-        poinLight.position.set(0, 0, this.options.depth - 2)
-        this.scene.add(poinLight)
+        const pointLight = new THREE.PointLight(0xffffff, 1, 0, 0)
+        pointLight.position.set(0, 0, this.options.depth - 2)
+        this.scene.add(pointLight)
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.2)
         this.scene.add(ambientLight)
@@ -141,7 +141,7 @@ export class PongMap
             col = this.ball.testCollisionPaddle(this.paddleR)
         if (col.x == 0 && col.y == 0) {
             col = this.ball.testCollisionWalls()
-            if (Math.abs(col.x) > 0 || Math.abs(col.y > 0))
+            if (Math.abs(col.x) > 0 || Math.abs(col.y) > 0)
                 didHitWall = true
         }
         if (Math.abs(col.x) > 0) {

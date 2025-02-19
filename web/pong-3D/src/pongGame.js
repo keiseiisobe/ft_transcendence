@@ -19,17 +19,17 @@ export class PongGame {
 
         this.pongMap.middleText.text = "\n\n\nPress space to start"
 
-        this.gameSate = 0
+        this.gameState = 0
         this.side = Math.random() < 0.5 ? -1 : 1
 
         this.pongMap.onUpdate((pressedKeys, _) => {
-            if (this.gameSate === 0 && pressedKeys[32]) {
+            if (this.gameState === 0 && pressedKeys[32]) {
                 this.pongMap.ball.velocity = new Vector2(this.side, (Math.random() - 0.5)).normalize().multiplyScalar(2)
                 this.pongMap.middleText.visible = false
-                this.gameSate = 1
+                this.gameState = 1
             }
 
-            if (this.gameSate === 2 && (
+            if (this.gameState === 2 && (
                 (this.pongMap.ball.velocity.x < 0 && this.pongMap.ball.position.x < 0) ||
                 (this.pongMap.ball.velocity.x > 0 && this.pongMap.ball.position.x > 0) ||
                 (this.pongMap.ball.velocity.y < 0 && this.pongMap.ball.position.y < 0) ||
@@ -40,19 +40,19 @@ export class PongGame {
                 if (this._onScoreChange) {
                     this._onScoreChange(this.pongMap.scores.scoreLeft, this.pongMap.scores.scoreRight)
                 }
-                if (this.gameSate === 2) {
+                if (this.gameState === 2) {
                     this.pongMap.middleText.text = "\n\n\nPress space"
                     this.pongMap.middleText.visible = true
-                    this.gameSate = 0
+                    this.gameState = 0
                 }
             }
 
-            if (this.gameSate === 3 && pressedKeys[32]) {
+            if (this.gameState === 3 && pressedKeys[32]) {
                 this.pongMap.scores.scoreLeft = 0
                 this.pongMap.scores.scoreRight = 0
                 this.pongMap.middleText.text = "\n\n\nPress space"
                 this.pongMap.middleText.visible = true
-                this.gameSate = 0
+                this.gameState = 0
             }
 
             this.pongMap.paddleR.velocity = 0
@@ -68,14 +68,14 @@ export class PongGame {
                 this.pongMap.scores.scoreLeft += 1
                 this.pongMap.ball.velocity = new Vector2(this.pongMap.ball.realPosition.x, this.pongMap.ball.realPosition.y).multiplyScalar(-10)
                 this.side = -1
-                this.gameSate = 2
+                this.gameState = 2
                 return
             }
             if (didHitWall && normal.x > 0) {
                 this.pongMap.scores.scoreRight += 1
                 this.pongMap.ball.velocity = new Vector2(this.pongMap.ball.realPosition.x, this.pongMap.ball.realPosition.y).multiplyScalar(-10)
                 this.side = 1
-                this.gameSate = 2
+                this.gameState = 2
                 return
             }
             var d = this.pongMap.ball.velocity.clone().normalize()
@@ -96,13 +96,13 @@ export class PongGame {
     leftWin() {
         this.pongMap.middleText.text = "Player1 won!\n Press space"
         this.pongMap.middleText.visible = true
-        this.gameSate = 3
+        this.gameState = 3
     }
  
     rightWin() {
         this.pongMap.middleText.text = "Player2 won!\n Press space"
         this.pongMap.middleText.visible = true
-        this.gameSate = 3
+        this.gameState = 3
     }
 }
 

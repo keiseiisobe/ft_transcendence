@@ -23,7 +23,7 @@ export class Camera {
     }
 
     set position(vec) {
-        this.camera.position.x = vec.x * (this.options.mapSize.x / 2),
+        this.camera.position.x = vec.x * (this.options.mapSize.x / 2)
         this.camera.position.y = vec.y * (this.options.mapSize.y / 2)
         this.camera.lookAt(0, 0, 0)
     }
