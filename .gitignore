@@ -63,3 +63,4 @@ node_modules/
 .vite/
 threeD/node_modules
 threeD/dist
+pyrightconfig.json

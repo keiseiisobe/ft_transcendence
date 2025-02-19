@@ -13,7 +13,17 @@
         <h1 align="center">Pong Game</h1>
     </div>
     <canvas id="canvas" width="550" height="400"></canvas>
-    <script type="module" src="src/main.js" defer></script>
+    <script type="module">
+        import { PongGame } from "./src/pongGame.js";
+
+        const pongGame = new PongGame(document.getElementById("canvas"))
+        pongGame.onScoreChange((l, r) => {
+            if (l >= 3)
+                pongGame.leftWin()
+            if (r >= 3)
+                pongGame.rightWin()
+        })
+    </script>
 </body>
 
 </html>

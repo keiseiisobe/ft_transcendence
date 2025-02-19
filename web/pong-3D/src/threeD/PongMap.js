@@ -7,7 +7,7 @@ import { ScoreText } from './scoreText';
 
 export class PongMap
 {
-    constructor(canvas) {
+    constructor(canvas, fontPaths) {
         this.options = {
             canvas: canvas,
             mapSize: new THREE.Vector2(9.0, 6.0),
@@ -38,10 +38,10 @@ export class PongMap
             this.options,
             0.5,
             this.scene,
-            "src/font/helvetiker_regular.typeface.json",
+            fontPaths.helvetica,
             "hello world",
             new THREE.Vector2(0, 0))
-        this.scores = new ScoreText(this.options, 0.5, this.scene, "src/font/Pong_Score_Regular.json")
+        this.scores = new ScoreText(this.options, 0.5, this.scene, fontPaths.pong)
 
         this.clock = new THREE.Clock()
         
