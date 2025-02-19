@@ -20,7 +20,7 @@ export class PongGame {
     /** インターバルID */
     #intervalId = null;
     /** インターバルの時間 */
-    #INTERVAL_TIME_MS = 1000 / 60;
+    #INTERVAL_TIME_MS = 1;
 
     aiSocket;
     #aiUpdateTime;
@@ -40,7 +40,7 @@ export class PongGame {
     // 表示するビューをメイン画面にする
     this.#viewname = this.#mainView.constructor.name;
 
-    this.#aiUpdateTime = Date.now() - 1000;
+    this.#aiUpdateTime = Date.now() - 100;
     // ゲームを開始する
     this.#start();
   }
@@ -76,26 +76,25 @@ export class PongGame {
         break;
     case "GameView":
         console.log("GameView");
-	if (Date.now() - this.#aiUpdateTime >= 1000) {
+	if (Date.now() - this.#aiUpdateTime >= 100) {
 	    let reward = this.gameView.rightPaddleHitNum >= 1 ? 1 : 0;
 	    reward -= this.gameView.scores.leftScore.value > this.gameView.scores.leftScore.preValue ? 1 : 0;
 	    this.aiSocket.send(JSON.stringify({
 		"ball_x": this.gameView.ball.x,
 		"ball_y": this.gameView.ball.y,
-		"left_paddle_y": this.gameView.leftPaddle.y,
+//		"left_paddle_y": this.gameView.leftPaddle.y,
 		"right_paddle_y": this.gameView.rightPaddle.y,
-		"pre_ball_x": this.gameView.ball.preX == undefined
-		    ? this.gameView.ball.x : this.gameView.ball.preX,
-		"pre_ball_y": this.gameView.ball.preY == undefined
-		    ? this.gameView.ball.y : this.gameView.ball.preY,
-		"pre_left_paddle_y": this.gameView.leftPaddle.preY == undefined
-		    ? this.gameView.leftPaddle.y : this.gameView.leftPaddle.preY,
-		"pre_right_paddle_y": this.gameView.rightPaddle.preY == undefined
-		    ? this.gameView.rightPaddle.y : this.gameView.rightPaddle.preY,
+		"ball_dx": this.gameView.ball.dx,
+		"ball_dy": this.gameView.ball.dy,
+//		"pre_ball_x": this.gameView.ball.preX == undefined
+//		    ? this.gameView.ball.x : this.gameView.ball.preX,
+//		"pre_ball_y": this.gameView.ball.preY == undefined
+//		    ? this.gameView.ball.y : this.gameView.ball.preY,
+//		"pre_left_paddle_y": this.gameView.leftPaddle.preY == undefined
+//		    ? this.gameView.leftPaddle.y : this.gameView.leftPaddle.preY,
+//		"pre_right_paddle_y": this.gameView.rightPaddle.preY == undefined
+//		    ? this.gameView.rightPaddle.y : this.gameView.rightPaddle.preY,
 		"reward": reward,
-		// "reward": this.gameView.scores.rightScore.value > this.gameView.scores.rightScore.preValue
-		//     ? 1 : this.gameView.scores.leftScore.value > this.gameView.scores.leftScore.preValue
-		//     ? -1 : 0,
 		"done": this.gameView.scores.rightScore.value > this.gameView.scores.rightScore.preValue ||
 		    this.gameView.scores.leftScore.value > this.gameView.scores.leftScore.preValue
 	    }));

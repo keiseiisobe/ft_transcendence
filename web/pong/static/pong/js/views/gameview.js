@@ -14,7 +14,7 @@ export class GameView extends View {
   /** スコア */
   scores;
   /** スコア上限 */
-  #maxScore = 100000;
+  #maxScore = 10000;
   /** ゲーム結果 */
   resultMessage = "";
 
@@ -29,17 +29,17 @@ export class GameView extends View {
       context, 
       this.context.canvas.width/2 -10, 
       this.context.canvas.height/2 -10, 
-      3, -3, 20);
+      -2, 2, 20);
 
     // パドルを生成する
-    this.leftPaddle = new Paddle(context, 40, this.context.canvas.height/2 -50, 20, 100, 100);
-    this.rightPaddle = new Paddle(context, this.context.canvas.width -60, this.context.canvas.height/2 -50, 20, 100, 100);
+    this.leftPaddle = new Paddle(context, 40, this.context.canvas.height/2 -50, 20, 100, 50);
+    this.rightPaddle = new Paddle(context, this.context.canvas.width -60, this.context.canvas.height/2 -50, 20, 100, 50);
     // this.rightPaddle = new Paddle(context, this.context.canvas.width -60, 70, 20, 100, 5); //y=100の時にバグる
 
     // スコアを生成する
       this.scores = new Scores(context);
       
-      this.#computerUpdateTime = Date.now() - 600;
+      this.#computerUpdateTime = Date.now() - 100;
   }
 
   /** 更新する */
@@ -66,7 +66,7 @@ export class GameView extends View {
       this.ball.move();
       // パドルを移動する
 
-      if (Date.now() - this.#computerUpdateTime >= 600) {
+      if (Date.now() - this.#computerUpdateTime >= 100) {
 	  if (this.leftPaddle.y > this.ball.y)
 	      this.leftPaddle.dy = -this.leftPaddle.speed;
 	  else if (this.leftPaddle.y + this.leftPaddle.height < this.ball.y)
@@ -108,33 +108,84 @@ export class GameView extends View {
   
   /** ボールとパドルの衝突を確認する */
   #checkCollisionBallAndPaddle() {
-    const ballX = this.ball.x;
-    const ballY = this.ball.y;
-    // const ballDx = this.#ball.dx;
-    // const ballDy = this.#ball.dy;
-    const ballSideLen = this.ball.sideLength;
-    const LpaddleX = this.leftPaddle.x;
-    const LpaddleY = this.leftPaddle.y;
-    const RpaddleX = this.rightPaddle.x;
-    const RpaddleY = this.rightPaddle.y;
-    const paddleWidth = this.leftPaddle.width;
-    const paddleHeight = this.leftPaddle.height;
+      const ballX = this.ball.x;
+      const ballY = this.ball.y;
+      // const ballDx = this.#ball.dx;
+      // const ballDy = this.#ball.dy;
+      const ballSideLen = this.ball.sideLength;
+      const LpaddleX = this.leftPaddle.x;
+      const LpaddleY = this.leftPaddle.y;
+      const RpaddleX = this.rightPaddle.x;
+      const RpaddleY = this.rightPaddle.y;
+      const paddleWidth = this.leftPaddle.width;
+      const paddleHeight = this.leftPaddle.height;
+      const ballButtom = ballY + ballSideLen;
+      const ballRight = ballX + ballSideLen;
+      const RpaddleButtom = RpaddleY + paddleHeight;
+      const RpaddleRight = RpaddleX + paddleWidth;
+      const LpaddleButtom = LpaddleY + paddleHeight;
+      const LpaddleRight = LpaddleX + paddleWidth;
+      const bias = 4;
 
     // ボールとパドルが衝突したらボールの向きを反転する
-    // 左パドルに当たった時
-    if (LpaddleY <= ballY && 
-      ballY <= LpaddleY + paddleHeight && 
-      ballX <= LpaddleX + paddleWidth) {
-      this.ball.dx = -this.ball.dx;
-    }
+      // 左パドルに当たった時
+      if ((LpaddleY <= ballButtom && 
+	   ballY <= LpaddleButtom) && 
+	  (ballX - bias <= LpaddleRight &&
+	   ballX + bias >= LpaddleRight
+	  )) {
+	  this.ball.dx = -this.ball.dx;
+      }
+      // hit at the top of left paddle
+      else if (
+	  ((ballButtom + bias >= LpaddleY &&
+	    ballButtom - bias <= LpaddleY) &&
+	   (ballRight >= LpaddleX &&
+	    ballX <= LpaddleRight
+	   ))
+      ) {
+	  this.ball.dy = -this.ball.dy;
+      }
+      // hit at the buttom of left paddle
+      else if (
+	  ((ballY - bias <= LpaddleButtom &&
+	   ballY + bias >= LpaddleButtom)&&
+	   (ballRight >= LpaddleX &&
+	    ballX <= LpaddleRight
+	   ))
+      ) {
+	  this.ball.dy = -this.ball.dy;
+      }
 
     // 右パドルに当たった時
-    if (RpaddleY <= ballY && 
-      ballY <= RpaddleY + paddleHeight && 
-      ballX + ballSideLen >= RpaddleX) {
+      if ((RpaddleY <= ballButtom && 
+	   ballY <= RpaddleButtom) && 
+	  (ballRight + bias >= RpaddleX &&
+	   ballRight - bias <= RpaddleX
+	  )) {
 	this.ball.dx = -this.ball.dx;
 	this.rightPaddleHitNum++;
-    }
+      }
+      // hit at the top of right paddle
+      else if (
+	  ((ballButtom + bias >= RpaddleY &&
+	    ballButtom - bias <= RpaddleY) &&
+	   (ballRight >= RpaddleX &&
+	    ballX <= RpaddleRight
+	   ))
+      ) {
+	  this.ball.dy = -this.ball.dy;
+      }
+      // hit at the buttom of right paddle
+      else if (
+	  ((ballY - bias <= RpaddleButtom &&
+	   ballY + bias >= RpaddleButtom)&&
+	   (ballRight >= LpaddleX &&
+	    ballX <= LpaddleRight
+	   ))
+      ) {
+	  this.ball.dy = -this.ball.dy;
+      }
   }
 
   /** プレイヤーのキーアクションを実行する */
@@ -195,20 +246,23 @@ export class GameView extends View {
 
   /** ラウンド終了かどうか検証する */
   #isRoundEnd() {
-    const ballX = this.ball.x;
-    const ballDx = this.ball.dx;
-    const ballSideLen = this.ball.sideLength;
+      const ballDx = this.ball.dx;
+      const ballSideLen = this.ball.sideLength;
+      const ballLeft = this.ball.x;
+      const ballRight = this.ball.x + ballSideLen;
+      const leftPaddleLeft = this.leftPaddle.x;
+      const rightPaddleRight = this.rightPaddle.x + this.rightPaddle.width;
 
     // ボールが壁に衝突したか検証する
     let _isRoundEnd = false;
 
-      if(this.context.canvas.width - ballSideLen < ballX + ballDx) { //右player側の壁に当たった時
-	  this.#computerUpdateTime = Date.now() - 500;
+      if(ballLeft > rightPaddleRight) { //右player側の壁に当たった時
+	  this.#computerUpdateTime = Date.now() - 100;
 	  this.scores.leftScore.preValue = this.scores.leftScore.value;
 	  this.scores.leftScore.value += 1;
 	  _isRoundEnd = true;
-    } else if (ballX + ballDx < 0) { //左player側の壁に当たった時
-	this.#computerUpdateTime = Date.now() - 500;
+    } else if (ballRight < leftPaddleLeft) { //左player側の壁に当たった時
+	this.#computerUpdateTime = Date.now() - 100;
 	this.scores.rightScore.preValue = this.scores.rightScore.value;
 	this.scores.rightScore.value += 1;
 	_isRoundEnd = true;
@@ -224,7 +278,9 @@ export class GameView extends View {
     this.leftPaddle.x = 40;
     this.leftPaddle.y =  this.context.canvas.height/2 -50;
     this.rightPaddle.x = this.context.canvas.width -60;
-    this.rightPaddle.y = this.context.canvas.height/2 -50;
+      this.rightPaddle.y = this.context.canvas.height/2 -50;
+
+      this.ball.dx = -2;
   }
 
   #isGameEnd() {
