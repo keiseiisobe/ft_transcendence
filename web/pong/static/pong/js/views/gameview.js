@@ -39,7 +39,7 @@ export class GameView extends View {
     // スコアを生成する
       this.scores = new Scores(context);
       
-      this.#computerUpdateTime = Date.now() - 100;
+      this.#computerUpdateTime = Date.now() - 50;
   }
 
   /** 更新する */
@@ -66,7 +66,7 @@ export class GameView extends View {
       this.ball.move();
       // パドルを移動する
 
-      if (Date.now() - this.#computerUpdateTime >= 100) {
+      if (Date.now() - this.#computerUpdateTime >= 50) {
 	  if (this.leftPaddle.y > this.ball.y)
 	      this.leftPaddle.dy = -this.leftPaddle.speed;
 	  else if (this.leftPaddle.y + this.leftPaddle.height < this.ball.y)
@@ -125,7 +125,7 @@ export class GameView extends View {
       const RpaddleRight = RpaddleX + paddleWidth;
       const LpaddleButtom = LpaddleY + paddleHeight;
       const LpaddleRight = LpaddleX + paddleWidth;
-      const bias = 4;
+      const bias = 7;
 
     // ボールとパドルが衝突したらボールの向きを反転する
       // 左パドルに当たった時
@@ -257,12 +257,12 @@ export class GameView extends View {
     let _isRoundEnd = false;
 
       if(ballLeft > rightPaddleRight) { //右player側の壁に当たった時
-	  this.#computerUpdateTime = Date.now() - 100;
+	  this.#computerUpdateTime = Date.now() - 50;
 	  this.scores.leftScore.preValue = this.scores.leftScore.value;
 	  this.scores.leftScore.value += 1;
 	  _isRoundEnd = true;
     } else if (ballRight < leftPaddleLeft) { //左player側の壁に当たった時
-	this.#computerUpdateTime = Date.now() - 100;
+	this.#computerUpdateTime = Date.now() - 50;
 	this.scores.rightScore.preValue = this.scores.rightScore.value;
 	this.scores.rightScore.value += 1;
 	_isRoundEnd = true;
@@ -280,7 +280,7 @@ export class GameView extends View {
     this.rightPaddle.x = this.context.canvas.width -60;
       this.rightPaddle.y = this.context.canvas.height/2 -50;
 
-      this.ball.dx = -2;
+//      this.ball.dx = -2;
   }
 
   #isGameEnd() {
