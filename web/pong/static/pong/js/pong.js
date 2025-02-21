@@ -22,9 +22,6 @@ export class PongGame {
     /** インターバルの時間 */
     #INTERVAL_TIME_MS = 1;
 
-    aiSocket;
-    #aiUpdateTime;
-
   constructor(canvasId) {
     this.#canvas = document.getElementById(canvasId);
     if (this.#canvas === null) {
@@ -40,7 +37,6 @@ export class PongGame {
     // 表示するビューをメイン画面にする
     this.#viewname = this.#mainView.constructor.name;
 
-    this.#aiUpdateTime = Date.now() - 100;
     // ゲームを開始する
     this.#start();
   }
@@ -51,9 +47,6 @@ export class PongGame {
       this.#run();
     }, this.#INTERVAL_TIME_MS);
 
-      this.aiSocket = new WebSocket(
-	  "ws://" + window.location.host + "/ws/pong/ai_player/"
-      );
   }
 
   /** インターバルを停止する */
@@ -76,28 +69,6 @@ export class PongGame {
         break;
     case "GameView":
         console.log("GameView");
-	if (Date.now() - this.#aiUpdateTime >= 100) {
-	    let reward = this.gameView.rightPaddleHitNum >= 1 ? 1 : 0;
-	    reward -= this.gameView.scores.leftScore.value > this.gameView.scores.leftScore.preValue ? 1 : 0;
-	    this.aiSocket.send(JSON.stringify({
-		"ball_x": this.gameView.ball.x,
-		"ball_y": this.gameView.ball.y,
-		"right_paddle_y": this.gameView.rightPaddle.y,
-		"ball_dx": this.gameView.ball.dx,
-		"ball_dy": this.gameView.ball.dy,
-		"reward": reward,
-		"done": this.gameView.scores.rightScore.value > this.gameView.scores.rightScore.preValue ||
-		    this.gameView.scores.leftScore.value > this.gameView.scores.leftScore.preValue
-	    }));
-	    this.gameView.ball.preX = this.gameView.ball.x;
-	    this.gameView.ball.preY = this.gameView.ball.y;
-	    this.gameView.leftPaddle.preY = this.gameView.leftPaddle.y;
-	    this.gameView.rightPaddle.preY = this.gameView.rightPaddle.y;
-	    this.gameView.scores.leftScore.preValue = this.gameView.scores.leftScore.value;
-	    this.gameView.scores.rightScore.preValue = this.gameView.scores.rightScore.value;
-	    this.#aiUpdateTime = Date.now();
-	    this.gameView.rightPaddleHitNum = 0;
-	}
         // 画面をクリアする
         this.#context.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
         // ゲーム画面を更新する
@@ -145,3 +116,4 @@ export class PongGame {
   }
 
 }
+
