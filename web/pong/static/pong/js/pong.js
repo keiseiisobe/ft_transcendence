@@ -82,18 +82,9 @@ export class PongGame {
 	    this.aiSocket.send(JSON.stringify({
 		"ball_x": this.gameView.ball.x,
 		"ball_y": this.gameView.ball.y,
-//		"left_paddle_y": this.gameView.leftPaddle.y,
 		"right_paddle_y": this.gameView.rightPaddle.y,
 		"ball_dx": this.gameView.ball.dx,
 		"ball_dy": this.gameView.ball.dy,
-//		"pre_ball_x": this.gameView.ball.preX == undefined
-//		    ? this.gameView.ball.x : this.gameView.ball.preX,
-//		"pre_ball_y": this.gameView.ball.preY == undefined
-//		    ? this.gameView.ball.y : this.gameView.ball.preY,
-//		"pre_left_paddle_y": this.gameView.leftPaddle.preY == undefined
-//		    ? this.gameView.leftPaddle.y : this.gameView.leftPaddle.preY,
-//		"pre_right_paddle_y": this.gameView.rightPaddle.preY == undefined
-//		    ? this.gameView.rightPaddle.y : this.gameView.rightPaddle.preY,
 		"reward": reward,
 		"done": this.gameView.scores.rightScore.value > this.gameView.scores.rightScore.preValue ||
 		    this.gameView.scores.leftScore.value > this.gameView.scores.leftScore.preValue

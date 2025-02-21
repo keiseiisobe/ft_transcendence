@@ -14,7 +14,7 @@ export class GameView extends View {
   /** スコア */
   scores;
   /** スコア上限 */
-  #maxScore = 10000;
+  #maxScore = 50000;
   /** ゲーム結果 */
   resultMessage = "";
 
@@ -39,7 +39,7 @@ export class GameView extends View {
     // スコアを生成する
       this.scores = new Scores(context);
       
-      this.#computerUpdateTime = Date.now() - 50;
+      this.#computerUpdateTime = Date.now() - 100;
   }
 
   /** 更新する */
@@ -66,7 +66,7 @@ export class GameView extends View {
       this.ball.move();
       // パドルを移動する
 
-      if (Date.now() - this.#computerUpdateTime >= 50) {
+      if (Date.now() - this.#computerUpdateTime >= 100) {
 	  if (this.leftPaddle.y > this.ball.y)
 	      this.leftPaddle.dy = -this.leftPaddle.speed;
 	  else if (this.leftPaddle.y + this.leftPaddle.height < this.ball.y)
@@ -257,12 +257,12 @@ export class GameView extends View {
     let _isRoundEnd = false;
 
       if(ballLeft > rightPaddleRight) { //右player側の壁に当たった時
-	  this.#computerUpdateTime = Date.now() - 50;
+	  this.#computerUpdateTime = Date.now() - 100;
 	  this.scores.leftScore.preValue = this.scores.leftScore.value;
 	  this.scores.leftScore.value += 1;
 	  _isRoundEnd = true;
     } else if (ballRight < leftPaddleLeft) { //左player側の壁に当たった時
-	this.#computerUpdateTime = Date.now() - 50;
+	this.#computerUpdateTime = Date.now() - 100;
 	this.scores.rightScore.preValue = this.scores.rightScore.value;
 	this.scores.rightScore.value += 1;
 	_isRoundEnd = true;
