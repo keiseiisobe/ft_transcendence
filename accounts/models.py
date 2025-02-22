@@ -29,7 +29,7 @@ class User(AbstractBaseUser):
     password = models.CharField(max_length=300)
     avatar = models.ImageField(upload_to="accounts/images")
     is_login = models.BooleanField(default=False)
-    use_totp = models.BooleanField(default=True)
+    use_totp = models.BooleanField(default=False)
     totp_secret = models.CharField(max_length=32, blank=True, null=True)  # TOTPシークレットを保存
 
     USERNAME_FIELD = "username"
