@@ -1,3 +1,27 @@
+<div class="modal fade" id="totpModal" tabindex="-1" aria-labelledby="totpModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="totpModalLabel">TOTP-Login</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <form id="verification-form">
+                <label for="verification-code" class="form-label">6桁のコードを入力してください:</label>
+                <input type="text" id="verification-code" class="form-control" name="verification_code"
+                       maxlength="6" pattern="[0-9]{6}" inputmode="numeric" required>
+                <div class="form-text">※数字のみ入力してください。</div>
+              </form>
+              <img id="qrCodeImage" src="" alt="Scan this QR code with Google Authenticator" style="max-width:100%; height:auto; display:block; margin:10px auto;">
+          </div>
+          <div class="modal-footer">
+              <button type="submit" class="btn btn-primary" form="verification-form">送信</button>
+              <button type="button" id="totp-close" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+          </div>
+      </div>
+  </div>
+</div>
+
 <div class="container bg-dark d-flex justify-content-center align-items-center min-vh-100">
     <div class="card profile-card" style="width: 90%;height: 90%">
       <input type="button" id="mypage-close" class="btn-close float-right" style="margin: 10px"/>
@@ -88,7 +112,7 @@
 			{% if user.use_totp %}
 		  <input type="button" class="btn btn-dark" id="edit-TOTP-button" value="Disable TOTP"/>
 			{% else %}
-			<input type="button" class="btn btn-dark" id="edit-TOTP-button" value="Enable TOTP"/>
+			<input type="button" class="btn btn-dark" id="edit-TOTP-button2" value="Enable TOTP"/>
 			{% endif %}
 		</form>
 	      </div>

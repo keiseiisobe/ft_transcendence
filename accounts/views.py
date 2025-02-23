@@ -34,8 +34,8 @@ def generate_qr(request, username):
         return HttpResponse("Invalid user", status=400)
 
     # まだTOTPが設定されていない場合、新しいシークレットを生成
-    if not user.totp_secret:
-        user.generate_totp_secret()
+    # if not user.totp_secret:
+    user.generate_totp_secret()
 
     totp = pyotp.TOTP(user.totp_secret)
     otp_uri = totp.provisioning_uri(name=user.username, issuer_name="ft_transcendence")
@@ -251,10 +251,45 @@ def editPassword(request):
 def editTOTP(request):
     if request.method == "POST":
         user = request.user
-        user.use_totp = not user.use_totp
+        user.use_totp = False
+        user.totp_secret = None
         user.save()
         return HttpResponse()
     return HttpResponseForbidden()
+    
+def editTOTP2(request):
+    if request.method == "POST":
+        user = request.user
+        additional_data = {
+            user,
+            'use_totp_login'
+        }
+        additional_data_str = f'{additional_data}'
+        response = additional_data_str
+        return HttpResponse(response)
+    return HttpResponseForbidden()
+    
+def totpLogin2(request):
+    if request.method != "POST":
+        return JsonResponse({"success": False, "message": "無効なリクエスト"}, status=400)
+
+    username = request.POST.get("username")
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return HttpResponse("Invalid user", status=400)
+
+    totp_code = request.POST.get("totp_code")
+    totp_code = int(totp_code)
+
+    if not user.verify_totp(totp_code):
+        return HttpResponseForbidden("Invalid TOTP code")  # 認証失敗
+
+    user.use_totp = True
+    user.save()
+
+    response = HttpResponse("TOTP login success")
+    return response
     
 def editAvatar(request):
     if request.method == "POST":

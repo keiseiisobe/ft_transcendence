@@ -13,8 +13,10 @@ urlpatterns = [
     path('edit/username/', views.editUsername, name="editUsername"),
     path('edit/password/', views.editPassword, name="editPassword"),
     path('edit/totp/', views.editTOTP, name="editTOTP"),
+    path('edit/totp2/', views.editTOTP2, name="editTOTP2"),
     path('edit/avatar/', views.editAvatar, name="editAvatar"),
     path('friend/add/', views.addFriend, name="addFriend"),
     path('generate_qr/<str:username>/', views.generate_qr, name='generate_qr'),
     path('totp-login/', views.totpLogin, name="totpLogin"),
+    path('totp-login2/', views.totpLogin2, name="totpLogin2")
 ]

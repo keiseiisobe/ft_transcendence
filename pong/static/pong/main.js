@@ -143,9 +143,9 @@ function setLoginEventHandler() {
 					document.querySelector("#login-close").click();
 
 					const username = text.match(/<User:\s*(\w+)>/)
-					let qrImage = document.getElementById("qrCodeImage");
-					let qrUrl = `/accounts/generate_qr/${username[1]}/`;
-					qrImage.src = qrUrl;
+					// let qrImage = document.getElementById("qrCodeImage");
+					// let qrUrl = `/accounts/generate_qr/${username[1]}/`;
+					// qrImage.src = qrUrl;
 					setTOTPLoginEventHandler(username[1]);
 
 					let successModal = new bootstrap.Modal(document.getElementById("totpModal"));
@@ -424,6 +424,7 @@ function editTOTPEventHandler() {
 	if (document.querySelector("#editTOTPModal")) {
 		const editTOTPForm = {
 			button: document.querySelector("#edit-TOTP-button"),
+			button2: document.querySelector("#edit-TOTP-button2"),
 			text: document.querySelector("#edit-TOTP-text"),
 		};
 
@@ -448,7 +449,86 @@ function editTOTPEventHandler() {
 				console.log(err);
 			}
 		}
-		editTOTPForm.button.addEventListener("click", editTOTP);
+
+		async function editTOTP2() {
+			const url = window.location.origin + "/accounts/edit/totp2/";
+			const csrftoken = getCookie('csrftoken');
+			try {
+				const response = await fetch(url, {
+					method: "POST",
+					headers: { "X-CSRFToken": csrftoken,},
+				});
+				const text = await response.text();
+				if (response.ok) {
+					document.querySelector("#edit-TOTP-close").click();
+					const username = text.match(/<User:\s*(\w+)>/)
+					let qrImage = document.getElementById("qrCodeImage");
+					let qrUrl = `/accounts/generate_qr/${username[1]}/`;
+					qrImage.src = qrUrl;
+					setTOTPLoginEventHandler2(username[1]);
+					let successModal = new bootstrap.Modal(document.getElementById("totpModal"));
+					successModal.show();
+					// mypage()
+				}
+				else
+				{
+					console.log('error');
+				}
+			}
+			catch (err) {
+				console.log(err);
+			}
+		}
+
+		if (editTOTPForm.button) {
+			editTOTPForm.button.addEventListener("click", editTOTP);
+		}
+		if (editTOTPForm.button2) {
+			editTOTPForm.button2.addEventListener("click", editTOTP2);
+		}
+	}
+}
+
+
+function setTOTPLoginEventHandler2(username) {
+	if (document.querySelector("#totpModal")) {
+		const verificationForm = document.querySelector("#verification-form");
+		verificationForm.addEventListener("submit", function (event) {
+			event.preventDefault(); // デフォルトのフォーム送信を防ぐ
+			const totpCode = document.querySelector("#verification-code").value;
+
+			// サーバーへTOTPコードを送信する（例）
+			verifyTOTP(totpCode);
+		});
+
+		async function verifyTOTP(code) {
+			const url = window.location.origin + "/accounts/totp-login2/";
+			const csrftoken = getCookie('csrftoken');
+			const formData = new FormData();
+			formData.append("username", username);
+			formData.append("totp_code", code);
+
+			try {
+				const response = await fetch(url, {
+					method: "POST",
+					headers: {
+							"X-CSRFToken": csrftoken,},
+					body: formData
+				});
+
+				const text = await response.text();
+				if (response.ok) {
+					console.log("TOTP認証成功");
+					document.querySelector("#totp-close").click();
+					mypage()
+				} else {
+					console.log("TOTP認証失敗");
+					alert("認証に失敗しました。もう一度試してください。");
+				}
+			} catch (err) {
+				console.error(err);
+			}
+		}
 	}
 }
 
