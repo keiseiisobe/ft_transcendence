@@ -8,6 +8,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
   web:
+    container_name: web
     build: ./web
     volumes:
       - ./web:/project
@@ -29,3 +30,10 @@ services:
     ports:
       - 4444:4444
       - 7900:7900
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    ports:
+      - 80:80
+    depends_on:
+      - web
