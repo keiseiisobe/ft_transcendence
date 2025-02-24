@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ブロック崩し</title>
+    <link rel="stylesheet" href="src/css/pong.css" />
+</head>
+
+<body>
+    <div>
+        <h1 align="center">Pong Game</h1>
+    </div>
+    <canvas id="canvas" width="550" height="400"></canvas>
+    <script type="module">
+        import { PongGame } from "./src/pongGame.js";
+
+        const pongGame = new PongGame(document.getElementById("canvas"))
+        pongGame.onScoreChange((l, r) => {
+            if (l >= 3)
+                pongGame.leftWin()
+            if (r >= 3)
+                pongGame.rightWin()
+        })
+    </script>
+</body>
+
+</html>
