@@ -3,10 +3,8 @@ services:
     image: postgres
     volumes:
       - ./data/db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+    env_file:
+      - .env
   web:
     container_name: web
     build: ./web
@@ -16,17 +14,15 @@ services:
       - "8000:8000"
     links:
       - selenium
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+    env_file:
+      - .env
     depends_on:
       - db
       - selenium
   selenium:
     image: selenium/standalone-chrome
-    environment:
-      - SE_VNC_NO_PASSWORD=1
+    env_file:
+      - .env
     ports:
       - 4444:4444
       - 7900:7900
