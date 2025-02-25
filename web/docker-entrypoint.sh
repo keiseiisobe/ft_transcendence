@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 ./wait-for-it.sh db:5432 --timeout=30 --strict -- echo "Postgres is up"
 python manage.py migrate

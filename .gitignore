@@ -54,5 +54,13 @@ flycheck_*.el
 
 # network security
 /network-security.data
+
+ft_transcendence.webarchive
+.venv/
+db.sqlite3
+.DS_Store
+node_modules/
+.vite/
 threeD/node_modules
 threeD/dist
+pyrightconfig.json
