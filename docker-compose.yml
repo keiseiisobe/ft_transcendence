@@ -10,6 +10,7 @@ services:
     build: ./web
     volumes:
       - ./web:/project
+      - uwsgisocket:/var/run/nginx
     ports:
       - "8000:8000"
     links:
@@ -29,8 +30,13 @@ services:
   nginx:
     container_name: nginx
     build: ./nginx
+    volumes:
+      - ./web/assets:/tmp/assets
+      - uwsgisocket:/var/run/nginx
     ports:
-      - '443:443'
-      # - 80:80
+      # - '443:443'
+      - 80:80
     depends_on:
       - web
+volumes:
+    uwsgisocket:
