@@ -17,15 +17,13 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         if avatar:
             user.avatar = avatar
-        else:
-            user.avatar = File(open("accounts/images/gnu.png", "rb"))
         user.save()
         return user
 
 class User(AbstractBaseUser):
     username = models.CharField(max_length=40, unique=True)
     password = models.CharField(max_length=300)
-    avatar = models.ImageField(upload_to="accounts/images")
+    avatar = models.ImageField(upload_to="accounts/images", blank=True)
     is_login = models.BooleanField(default=False)
     USERNAME_FIELD = "username"
     objects = UserManager()

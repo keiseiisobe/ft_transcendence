@@ -1,7 +1,13 @@
 {% if friend_list %}
 {% for friend in friend_list %}
 <li class="list-group-item">
-  <img src="{{ friend.avatar.url }}" class="rounded-circle profile-img mb-3" style="height: 30px;width: 30px;position: relative;top: 7px"/>
+  <img src=
+       {% if friend.avatar %}
+       "{{ friend.avatar.url }}"
+       {% else %}
+       "{% url 'accounts:images' 'gnu.png' %}"
+       {% endif %}
+       class="rounded-circle profile-img mb-3" style="height: 30px;width: 30px;position: relative;top: 7px"/>
   {% if friend.is_login %}
   <span style="color: green;margin-right: 10px">online</span>
   {% else %}
