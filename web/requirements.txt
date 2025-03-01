@@ -5,3 +5,4 @@ django-friendship
 django-rainbowtests
 Pillow
 selenium>=4.8.0
+uwsgi

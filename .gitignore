@@ -64,3 +64,6 @@ node_modules/
 threeD/node_modules
 threeD/dist
 pyrightconfig.json
+
+web/assets
+.env

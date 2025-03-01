@@ -26,8 +26,8 @@ SECRET_KEY = 'django-insecure-%a3+jjm^3z^o+!vbykri7l3tr1!n*559ief$6h52(%v_@0h((3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['https://localhost']
 
 # Application definition
 
@@ -133,6 +133,8 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "pong-3D/dist/",
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, "assets")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
