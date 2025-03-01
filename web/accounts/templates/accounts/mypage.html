@@ -4,7 +4,13 @@
       <div class="card-body text-center">
 	{% if user.is_authenticated %}
 	<div>
-          <img id="avatar" src="{{ user.avatar.url }}" alt="User Profile" class="rounded-circle profile-img mb-3" style="width: 100px;height: 100px">
+          <img id="avatar" src=
+	       {% if user.avatar %}
+	       "{{ user.avatar.url }}"
+	       {% else %}
+	       "{% url 'accounts:images' 'gnu.png' %}"
+	       {% endif %}
+	       alt="User Profile" class="rounded-circle profile-img mb-3" style="width: 100px;height: 100px">
 	  <button type="button" class="btn btn-dark btn-sm rounded-circle navbar-toggle" data-bs-toggle="modal" data-bs-target="#editAvatarModal" style="position: absolute;top: 20%;left: 52%">
             <i class="fas fa-camera"></i>
           </button>
