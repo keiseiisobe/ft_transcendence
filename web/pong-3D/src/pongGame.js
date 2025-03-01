@@ -9,11 +9,31 @@
 //   document.addEventListener("keyup", (event) => {
 //     game.setKeyupKey(event.key);
 //   });
-  
+
+import 'vite/modulepreload-polyfill'; 
 import { Vector2 } from "three";
 import { PongMap } from "./threeD/PongMap.js"
 
-export class PongGame {
+import helvetiker from "./font/helvetiker_regular.json?url"
+import pong_score from "./font/pong_score_regular.json?url"
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+class PongGame {
     constructor(canvas, fontPaths) {
         this.pongMap = new PongMap(canvas, fontPaths)
 
@@ -106,3 +126,44 @@ export class PongGame {
     }
 }
 
+async function gameover(opponent, score_user, score_opponent, result) {
+    const url = window.location.origin + "/pong/gameover/";
+    const csrftoken = getCookie('csrftoken');
+    const formData = new FormData();
+    formData.append("opponent", opponent);
+    formData.append("score_user", score_user);
+    formData.append("score_opponent", score_opponent);
+    formData.append("result", result);
+    await fetch(url, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": csrftoken,
+        },
+        body: formData
+    })
+    .then((promise) => promise.text())
+    .then((text) => {
+        // document.body.innerHTML = text;
+        // setLoginEventHandler();
+        // setSignupEventHandler();
+        // setMypageEventHandler();
+        // setLogoutEventHandler();
+    })
+    .catch((err) => console.log(err));
+}
+
+const pongGame = new PongGame(document.getElementById("canvas"), {
+    helvetica: helvetiker,
+    pong: pong_score
+})
+
+pongGame.onScoreChange((l, r) => {
+    if (l >= 3) {
+        gameover("peer", l, r, 1);
+        pongGame.leftWin()
+    }
+    if (r >= 3) {
+        gameover("computer", l, r, 0);
+        pongGame.rightWin()
+    }
+})

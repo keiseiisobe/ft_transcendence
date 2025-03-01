@@ -13,9 +13,17 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 
+PRODUCTION = 'POSTGRES_NAME'     in os.environ and \
+             'POSTGRES_USER'     in os.environ and \
+             'POSTGRES_PASSWORD' in os.environ
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+DATA_DIR = BASE_DIR.parent / 'data'
+if not os.path.isdir(DATA_DIR):
+    os.makedirs(DATA_DIR)
+SQLITE_PATH = DATA_DIR / 'db.sqlite3'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -24,7 +32,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-%a3+jjm^3z^o+!vbykri7l3tr1!n*559ief$6h52(%v_@0h((3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = not PRODUCTION
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ['https://localhost']
@@ -42,7 +50,8 @@ INSTALLED_APPS = [
     'pong.apps.PongConfig',
     'accounts.apps.AccountsConfig',
     'friendship',
-    'rainbowtests'
+    'rainbowtests',
+    'django_vite'
 ]
 
 MIDDLEWARE = [
@@ -80,7 +89,11 @@ WSGI_APPLICATION = 'games.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    "dev": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": SQLITE_PATH,
+    },
+    "prod": {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('POSTGRES_NAME'),
         'USER': os.environ.get('POSTGRES_USER'),
@@ -90,6 +103,7 @@ DATABASES = {
     }
 }
 
+DATABASES['default'] = DATABASES['prod' if PRODUCTION else 'dev']
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -131,7 +145,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / "pong-3D/dist/",
+    BASE_DIR / "pong-3D/dist/" if PRODUCTION else BASE_DIR / "pong-3D/",
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, "assets")
@@ -151,3 +165,9 @@ AUTHENTICATION_BACKENDS = (
 ASGI_APPLICATION = "games.asgi.application"
 TEST_RUNNER = 'rainbowtests.test.runner.RainbowDiscoverRunner'
 
+
+DJANGO_VITE = {
+    "default": {
+        "dev_mode": not PRODUCTION
+    }
+}

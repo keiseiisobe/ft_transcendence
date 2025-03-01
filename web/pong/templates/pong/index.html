@@ -1,4 +1,5 @@
 <!doctype html>
+{% load django_vite %}
 <html lang="en">
   <head>
     <meta charset="UTF-8"/>
@@ -25,6 +26,7 @@
           height: 100vh;
       }
     </style>
+    {% vite_hmr_client %}
   </head>
   <body>
     {% include 'pong/pong.html' %}
