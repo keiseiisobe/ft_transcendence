@@ -95,15 +95,13 @@ def editPassword(request):
         except ValidationError as e:
             return HttpResponseForbidden("\n".join(e))
     return HttpResponseForbidden()
-    
+
 def editAvatar(request):
     if request.method == "POST":
         avatar = request.FILES.get("avatar", False)
         if avatar == False:
             return HttpResponseForbidden("Avatar cannot be empty.")
-        default = "accounts/images/gnu.png"
-        previous = request.user.avatar.path
-        if previous != default:
+        if request.user.avatar:
             os.remove(request.user.avatar.path)
         request.user.avatar = avatar
         request.user.save()
