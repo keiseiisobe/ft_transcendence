@@ -188,7 +188,7 @@ setMypageEventHandler();
 // close mypage
 function setCloseMypageEventHandler() {
     if (document.querySelector("#mypage-close")) {
-        button = document.querySelector("#mypage-close");
+        const button = document.querySelector("#mypage-close");
 
 
         async function closeMypage() {
