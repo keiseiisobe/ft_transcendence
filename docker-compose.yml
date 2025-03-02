@@ -17,7 +17,7 @@ services:
     volumes:
       - static_assets:/project/assets
       - uwsgisocket:/var/run/nginx
-      - images:/project/accounts/images
+      - data:/data
     links:
       - selenium
     env_file:
@@ -56,7 +56,7 @@ volumes:
     uwsgisocket:
     static_assets:
     db_volume:
-    images:
+    data:
 
 networks:
   ft_transcendence:
