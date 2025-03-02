@@ -20,48 +20,5 @@
     crossorigin="anonymous"></script>
 <link rel="stylesheet" href="{%static 'pong/style.css'%}" />
 <script src="{% static 'pong/main.js' %}"></script>
-<script type="module">
-    import {PongGame} from "{% static 'pongGame-es.js' %}";
-
-    async function gameover(opponent, score_user, score_opponent, result) {
-        const url = window.location.origin + "/pong/gameover/";
-        const csrftoken = getCookie('csrftoken');
-        const formData = new FormData();
-        formData.append("opponent", opponent);
-        formData.append("score_user", score_user);
-        formData.append("score_opponent", score_opponent);
-        formData.append("result", result);
-        await fetch(url, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": csrftoken,
-            },
-            body: formData
-        })
-            .then((promise) => promise.text())
-            .then((text) => {
-                // document.body.innerHTML = text;
-                // setLoginEventHandler();
-                // setSignupEventHandler();
-                // setMypageEventHandler();
-                // setLogoutEventHandler();
-            })
-            .catch((err) => console.log(err));
-    }
-
-    const pongGame = new PongGame(document.getElementById("canvas"), {
-        helvetica: "{% static 'pong/font/helvetiker_regular.typeface.json' %}",
-        pong: "{% static 'pong/font/Pong_Score_Regular.json' %}"
-    })
-
-    pongGame.onScoreChange((l, r) => {
-        if (l >= 3) {
-            gameover("peer", l, r, 1);
-            pongGame.leftWin()
-        }
-        if (r >= 3) {
-            gameover("computer", l, r, 0);
-            pongGame.rightWin()
-        }
-    })
-</script>
+{% load django_vite %}
+{% vite_asset 'src/pongGame.js' %}

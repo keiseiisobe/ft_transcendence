@@ -1,42 +1,63 @@
 services:
   db:
+    container_name: db
     image: postgres
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - db_volume:/var/lib/postgresql/data
     env_file:
       - .env
+    networks:
+      - ft_transcendence
+
   web:
     container_name: web
+    image: web
+    pull_policy: never
     build: ./web
     volumes:
-      - ./web:/project
+      - static_assets:/project/assets
       - uwsgisocket:/var/run/nginx
-    ports:
-      - "8000:8000"
+      - images:/project/accounts/images
     links:
       - selenium
     env_file:
       - .env
+    networks:
+      - ft_transcendence
     depends_on:
       - db
       - selenium
+
   selenium:
+    container_name: selenium
     image: selenium/standalone-chrome
     env_file:
       - .env
     ports:
       - 4444:4444
       - 7900:7900
+    networks:
+      - ft_transcendence
+
   nginx:
     container_name: nginx
     build: ./nginx
     volumes:
-      - ./web/assets:/app/assets
+      - static_assets:/app/assets
       - uwsgisocket:/var/run/nginx
     ports:
       - '443:443'
-      # - 80:80
     depends_on:
       - web
+    networks:
+      - ft_transcendence
+
 volumes:
     uwsgisocket:
+    static_assets:
+    db_volume:
+    images:
+
+networks:
+  ft_transcendence:
+    name: ft_transcendence
