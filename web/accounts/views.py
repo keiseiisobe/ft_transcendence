@@ -64,13 +64,6 @@ def mypage(request):
 def mypageClose(request):
     return render(request, "pong/pong.html", { "user": request.user })
 
-def images(request, filename):
-    try:
-        path = "accounts/images/" + filename
-        return FileResponse(open(path, "rb"))
-    except FileNotFoundError:
-        return HttpResponseNotFound()
-    
 def editUsername(request):
     if request.method == "POST":
         try:

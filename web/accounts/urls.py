@@ -9,7 +9,6 @@ urlpatterns = [
     path('logout/', views.mylogout, name="logout"),
     path('mypage/', views.mypage, name="mypage"),
     path('mypage/close/', views.mypageClose, name="mypageClose"),
-    path('images/<path:filename>', views.images, name="images"),
     path('edit/username/', views.editUsername, name="editUsername"),
     path('edit/password/', views.editPassword, name="editPassword"),
     path('edit/avatar/', views.editAvatar, name="editAvatar"),
