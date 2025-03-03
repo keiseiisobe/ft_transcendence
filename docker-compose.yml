@@ -440,7 +440,7 @@ services:
       #      - ELASTIC_HOSTS=https://es01:9200
       #      - KIBANA_HOSTS=http://kibana:5601
       #      - LOGSTASH_HOSTS=http://logstash01:9600
-      #
+
   logstash01:
     container_name: logstash01
     depends_on:
@@ -475,6 +475,8 @@ services:
       - certs:/usr/share/elastic-agent/certs
       - log-volume:/var/log
       - "./devops/elastic-agent/createILMpolicy.sh:/usr/local/bin/createILMpolicy.sh"
+      - "./devops/elastic-agent/generate_index_lifecycle_policy.sh:/usr/local/bin/generate_index_lifecycle_policy.sh"
+      - "./devops/elastic-agent/generate_snapshot_lifecycle_policy.sh:/usr/local/bin/generate_snapshot_lifecycle_policy.sh"
       #- "./devops/elastic-agent/entrypoint.sh:/usr/share/elastic-agent/entrypoint.sh"
     environment:
       - ELASTICSEARCH_HOST=https://es01:9200
