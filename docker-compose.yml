@@ -326,7 +326,6 @@ services:
       - certs:/usr/share/elasticsearch/config/certs
       - esdata01:/usr/share/elasticsearch/data
       - "./devops/es01/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
-      - ./devops/es01/es-backup/:/mnt/es-backup 
     ports:
       - ${ES_PORT}:9200
     environment:
@@ -347,6 +346,7 @@ services:
       - xpack.security.transport.ssl.verification_mode=certificate
       - xpack.license.self_generated.type=${LICENSE}
       #- xpack.monitoring.collection.enabled=true
+      - path.repo=/usr/share/elasticsearch/archive-backup #change env variable soon
     mem_limit: ${ES_MEM_LIMIT}
     ulimits:
       memlock:
