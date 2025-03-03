@@ -65,69 +65,6 @@ services:
       #      - "7900:7900"
   
 # ==========================================
-# Log management
-# ==========================================
-
-      #  elasticsearch:
-      #    build: ./devops/log-management/elasticsearch
-      #    container_name: elasticsearch
-      #    platform: linux/arm64
-      #    environment:
-      #      - discovery.type=single-node
-      #      - bootstrap.memory_lock=true
-      #      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-      #    env_file:
-      #      - .env
-      #    ports:
-      #      - "9200:9200"
-      #    networks:
-      #      - log-management
-      #    ulimits:
-      #      memlock:
-      #        soft: -1
-      #        hard: -1    
-      #
-      #  logstash:
-      #    build: ./devops/log-management/logstash
-      #    container_name: logstash
-      #    platform: linux/arm64
-      #    env_file:
-      #      - .env
-      #    ports:
-      #      - "9600:9600"
-      #      - "5044"
-      #    networks:
-      #      - log-management
-      #
-      #  kibana:
-      #    build: ./devops/log-management/kibana
-      #    container_name: kibana
-      #    platform: linux/arm64
-      #    #    env_file:
-      #    #      - .env
-      #    ports:
-      #      - "5601:5601"
-      #    networks:
-      #      - log-management
-      #
-      #  filebeat:
-      #    build: ./devops/log-management/filebeat 
-      #    container_name: filebeat
-      #    platform: linux/arm64
-      #    #    volumes:
-      #      #- log-volume:/var/log
-      #    networks:
-      #      - log-management
-      
-      #  elastic-agent:
-      #    build: ./devops/log-management/elastic-agent
-      #    container_name: elastic-agent
-      #    platform: linux/arm64
-      #    env_file:
-      #      - .env
-      #    networks:
-      #      - log-management
-# ==========================================
 # system monitor
 # ==========================================
   prometheus:
@@ -533,7 +470,6 @@ services:
         condition: service_healthy
       kibana:
         condition: service_healthy
-        #image: docker.elastic.co/beats/elastic-agent:${STACK_VERSION}
     build: ./devops/elastic-agent
     volumes:
       - certs:/usr/share/elastic-agent/certs
