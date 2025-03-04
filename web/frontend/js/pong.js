@@ -10,12 +10,18 @@
 //     game.setKeyupKey(event.key);
 //   });
 
-import 'vite/modulepreload-polyfill'; 
+import "vite/modulepreload-polyfill";
+import jQuery from "jquery";
+window.$ = window.jQuery = jQuery;
+import * as bootstrap from "bootstrap";
+
+import "../scss/pong.scss";
+
 import { Vector2 } from "three";
 import { PongMap } from "./threeD/PongMap.js"
 
-import helvetiker from "./font/helvetiker_regular.json?url"
-import pong_score from "./font/pong_score_regular.json?url"
+import helvetiker from "../font/helvetiker_regular.json?url"
+import pong_score from "../font/pong_score_regular.json?url"
 
 function getCookie(name) {
     let cookieValue = null;
@@ -152,18 +158,20 @@ async function gameover(opponent, score_user, score_opponent, result) {
     .catch((err) => console.log(err));
 }
 
-const pongGame = new PongGame(document.getElementById("canvas"), {
-    helvetica: helvetiker,
-    pong: pong_score
-})
+$(function(){
+    const pongGame = new PongGame($("#canvas").get(0), {
+        helvetica: helvetiker,
+        pong: pong_score
+    })
 
-pongGame.onScoreChange((l, r) => {
-    if (l >= 3) {
-        gameover("peer", l, r, 1);
-        pongGame.leftWin()
-    }
-    if (r >= 3) {
-        gameover("computer", l, r, 0);
-        pongGame.rightWin()
-    }
+    pongGame.onScoreChange((l, r) => {
+        if (l >= 3) {
+            gameover("peer", l, r, 1);
+            pongGame.leftWin()
+        }
+        if (r >= 3) {
+            gameover("computer", l, r, 0);
+            pongGame.rightWin()
+        }
+    })
 })
