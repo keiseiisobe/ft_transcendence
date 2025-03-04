@@ -1,0 +1,18 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: https://prometheus:9090
+    isDefault: false
+    basicAuth: false
+    editable: true
+    jsonData:
+      tlsAuth: false
+      tlsAuthWithCACert: false
+      tlsSkipVerify: true
+    secureJsonData:
+      tlsCACert: /usr/share/grafana/certs/ca/ca.crt
+      tlsClientCert: /usr/share/grafana/certs/prometheus/prometheus.crt
+      tlsClientKey: /usr/share/grafana/certs/prometheus/prometheus.key
