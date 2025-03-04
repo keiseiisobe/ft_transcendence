@@ -65,16 +65,16 @@ services:
 # ==========================================
 # system monitor
 # ==========================================
+
   prometheus:
-    #image: prom/prometheus
-    build: ./devops/system-monitor/prometheus
+    image: prom/prometheus
+    #build: ./devops/system-monitor/prometheus
     container_name: prometheus
     platform: linux/arm64
     ports:
       - "9090:9090"
     volumes:
       - certs:/usr/share/prometheus/certs
-      - thanos:/data
       - "./devops/system-monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
       - "./devops/system-monitor/prometheus/web-config.yml:/etc/prometheus/web-config.yml:ro"
       - "./devops/system-monitor/prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml:ro"
@@ -89,6 +89,9 @@ services:
       - "--storage.tsdb.max-block-duration=2h"
     user: root
     restart: always
+    depends_on:
+      - es01
+    mem_limit: ${PROMETHEUS_MEM_LIMIT}
 
   grafana:
     image: grafana/grafana-enterprise
