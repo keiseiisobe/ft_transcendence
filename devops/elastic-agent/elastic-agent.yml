@@ -310,6 +310,23 @@ output_permissions:
             - maintenance
             - monitor
             - read
+    20d0d6a4-2697-4e3e-9c97-5d92180bc0b3:
+      indices:
+        - names:
+            - logs-nginx.access-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-nginx.error-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-nginx.stubstatus-default
+          privileges:
+            - auto_configure
+            - create_doc
 
 agent:
   download:
@@ -795,6 +812,75 @@ inputs:
               storage_limit: 3GB
           agent_config: []
   
+  - id: logfile-nginx-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+    name: nginx-1
+    revision: 1
+    type: logfile
+    use_output: default
+    meta:
+      package:
+        name: nginx
+        version: 1.25.0
+    data_stream:
+      namespace: default
+    package_policy_id: 20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+    streams:
+      - id: logfile-nginx.access-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+        data_stream:
+          dataset: nginx.access
+          type: logs
+        ignore_older: 72h
+        paths:
+          - /var/log/nginx/access.log*
+        tags:
+          - nginx-access
+        exclude_files:
+          - .gz$
+        processors:
+          - add_locale: null
+      - id: logfile-nginx.error-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+        data_stream:
+          dataset: nginx.error
+          type: logs
+        ignore_older: 72h
+        paths:
+          - /var/log/nginx/error.log*
+        tags:
+          - nginx-error
+        exclude_files:
+          - .gz$
+        multiline:
+          pattern: '^\d{4}\/\d{2}\/\d{2} '
+          negate: true
+          match: after
+        processors:
+          - add_locale: null
+  - id: nginx/metrics-nginx-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+    name: nginx-1
+    revision: 1
+    type: nginx/metrics
+    use_output: default
+    meta:
+      package:
+        name: nginx
+        version: 1.25.0
+    data_stream:
+      namespace: default
+    package_policy_id: 20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+    streams:
+      - id: nginx/metrics-nginx.stubstatus-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+        data_stream:
+          dataset: nginx.stubstatus
+          type: metrics
+        metricsets:
+          - stubstatus
+        hosts:
+          - 'http://nginx:80'
+        tags:
+          - nginx-stubstatus
+        period: 10s
+        server_status_path: /nginx_status
+
 signed:
   data: >-
     eyJpZCI6ImYxODE0OThiLTM2NTUtNDZjNy1hNjMxLWVhZTM0YzE1NzdiNiIsImFnZW50Ijp7ImZlYXR1cmVzIjp7fSwicHJvdGVjdGlvbiI6eyJlbmFibGVkIjpmYWxzZSwidW5pbnN0YWxsX3Rva2VuX2hhc2giOiJGS0thY1MyaHA1QUorVnpGYUJZRUZmdm54TTI3bzZxOXovSmlYemFhZ2tFPSIsInNpZ25pbmdfa2V5IjoiTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFOStONTljcVhrckdwbGVoWlJ6UXBzREdFYjRYcGJpL0E3eXVmU3hIekZRckhRNndIMWFxaVdiUEM2SnVMRHhwYWN2VmZZMWJKWktmVmVwUnEwZUpyRVE9PSJ9fSwiaW5wdXRzIjpbeyJpZCI6InByb21ldGhldXMvbWV0cmljcy1wcm9tZXRoZXVzLTNlODA3YjNmLWU4NDYtNGJkOS04YWUwLTFjNzQzYTM1ZDU5ZCIsIm5hbWUiOiJwcm9tZXRoZXVzIiwicmV2aXNpb24iOjEsInR5cGUiOiJwcm9tZXRoZXVzL21ldHJpY3MifSx7ImlkIjoibG9nZmlsZS1zeXN0ZW0tOTcwMTcyODUtOTE3MS00OTA2LTkzM2QtOTM1MDU2ODZjYTRhIiwibmFtZSI6InN5c3RlbSIsInJldmlzaW9uIjoyLCJ0eXBlIjoibG9nZmlsZSJ9LHsiaWQiOiJqb3VybmFsZC1zeXN0ZW0tOTcwMTcyODUtOTE3MS00OTA2LTkzM2QtOTM1MDU2ODZjYTRhIiwibmFtZSI6InN5c3RlbSIsInJldmlzaW9uIjoyLCJ0eXBlIjoiam91cm5hbGQifSx7ImlkIjoid2lubG9nLXN5c3RlbS05NzAxNzI4NS05MTcxLTQ5MDYtOTMzZC05MzUwNTY4NmNhNGEiLCJuYW1lIjoic3lzdGVtIiwicmV2aXNpb24iOjIsInR5cGUiOiJ3aW5sb2cifSx7ImlkIjoic3lzdGVtL21ldHJpY3Mtc3lzdGVtLTk3MDE3Mjg1LTkxNzEtNDkwNi05MzNkLTkzNTA1Njg2Y2E0YSIsIm5hbWUiOiJzeXN0ZW0iLCJyZXZpc2lvbiI6MiwidHlwZSI6InN5c3RlbS9tZXRyaWNzIn0seyJpZCI6ImxvZ2ZpbGUtcG9zdGdyZXNxbC0zOWYxMjRhNS02ODJjLTQ3YTEtODA4My05OGM2NzQ2NjkxYzEiLCJuYW1lIjoicG9zdGdyZXNxbCIsInJldmlzaW9uIjozLCJ0eXBlIjoibG9nZmlsZSJ9LHsiaWQiOiJwb3N0Z3Jlc3FsL21ldHJpY3MtcG9zdGdyZXNxbC0zOWYxMjRhNS02ODJjLTQ3YTEtODA4My05OGM2NzQ2NjkxYzEiLCJuYW1lIjoicG9zdGdyZXNxbCIsInJldmlzaW9uIjozLCJ0eXBlIjoicG9zdGdyZXNxbC9tZXRyaWNzIn1dfQ==
