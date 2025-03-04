@@ -75,6 +75,7 @@ services:
       - "9090:9090"
     volumes:
       - certs:/usr/share/prometheus/certs
+      - thanos:/data/prom
       - "./devops/system-monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
       - "./devops/system-monitor/prometheus/web-config.yml:/etc/prometheus/web-config.yml:ro"
       - "./devops/system-monitor/prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml:ro"
@@ -85,8 +86,9 @@ services:
       - "--storage.tsdb.path=/data/prom"
       - '--web.config.file=/etc/prometheus/web-config.yml'
       - '--web.external-url=https://localhost:9090'
-      - "--storage.tsdb.min-block-duration=2h"
-      - "--storage.tsdb.max-block-duration=2h"
+      - '--storage.tsdb.retention.size=400MB'
+      - '--storage.tsdb.min-block-duration=10m'
+      - '--storage.tsdb.max-block-duration=10m'
     user: root
     restart: always
     depends_on:
@@ -174,8 +176,8 @@ services:
       #  '
   
   thanos-sidecar:
-    build: ./devops/system-monitor/data
-    image: thanosio/thanos:v0.10.0
+    user: root
+    image: thanosio/thanos:v0.37.2
     container_name: thanos-sidecar
     command:
       - "sidecar"
@@ -185,17 +187,39 @@ services:
       - "--prometheus.url=https://prometheus:9090"
       - "--tsdb.path=/data/prom"
       - "--objstore.config-file=/bucket.yml"
+      - |
+        --request.logging-config=
+        http:
+          options:
+            level: DEBUG
+        grpc:
+          config:
+            - service: thanos.Store
+              method: Info
+          options:
+            level: ERROR
+            decision:
+              log_start: false
+              log_end: true
+      - |
+        --prometheus.http-client=
+        basic_auth:
+          username: "elastic"
+          password: "changeme"
+        tls_config:
+          ca_file: "/etc/ssl/certs/ca/ca.crt"
     volumes:
       - certs:/etc/ssl/certs
-      - thanos:/data
-      - ./devops/system-monitor/data/bucket.yml:/bucket.yml
-      - ./devops/system-monitor/data/prometheus-http-config.yml:/etc/thanos/prometheus-http-config.yml
-      - ./devops/system-monitor/data/entrypoint.sh:/usr/local/bin/entrypoint.sh
+      - thanos:/data/prom
+      - ./devops/system-monitor/thanos/bucket.yml:/bucket.yml
     depends_on:
       - prometheus
+      - es01
+    restart: always
 
   thanos-query:
-    image: thanosio/thanos:v0.10.0
+    user: root
+    image: thanosio/thanos:v0.37.2
     container_name: thanos-query
     command:
       - "query"
@@ -211,7 +235,8 @@ services:
       - thanos-store
 
   thanos-store:
-    image: thanosio/thanos:v0.10.0
+    image: thanosio/thanos:v0.37.2
+    user: root
     container_name: thanos-store
     restart: always
     command:
@@ -222,11 +247,12 @@ services:
       - "--objstore.config-file=/bucket.yml"
     volumes:
       - certs:/certs
-      - store:/data
-      - ./devops/system-monitor/data/bucket.yml:/bucket.yml
+      - store:/data/store
+      - ./devops/system-monitor/thanos/bucket.yml:/bucket.yml
 
   compactor:
-    image: thanosio/thanos:v0.10.0
+    user: root
+    image: thanosio/thanos:v0.37.2
     container_name: compactor
     command:
       - "compact"
@@ -236,10 +262,38 @@ services:
       - "--http-address=0.0.0.0:10902"
     volumes:
       - compact:/tmp
-      - ./devops/system-monitor/data/bucket.yml:/bucket.yml
+      - ./devops/system-monitor/thanos/bucket.yml:/bucket.yml
     depends_on:
       - thanos-sidecar
       - thanos-store
+
+  thanos-receiver:
+    user: root
+    image: thanosio/thanos:v0.37.2
+    container_name: thanos-receiver
+    command:
+      - "receive"
+      - "--grpc-address=0.0.0.0:10907"
+      - "--http-address=0.0.0.0:10908"
+      - "--remote-write.address=0.0.0.0:19291"
+      - "--receive.local-endpoint=thanos-receiver:10907"
+      - "--receive.hashrings-file=/etc/thanos/hashrings.json"
+      - "--objstore.config-file=/bucket.yml"
+      - "--label=cluster=\"my-cluster\""
+      - "--label=replica=\"0\""
+      - "--tsdb.path=/data/receive"
+      - "--tsdb.min-block-duration=30m"  # 30分ごとにフラッシュ
+      - "--tsdb.max-block-duration=30m"
+    volumes:
+      - store:/data/store
+      - receive:/data/receive
+      - ./devops/system-monitor/thanos/bucket.yml:/bucket.yml
+      - ./devops/system-monitor/thanos/hashrings.json:/etc/thanos/hashrings.json
+    ports:
+      - "19291"  # Prometheus の remote_write で使うポート
+    depends_on:
+      - thanos-store
+      - compactor
 
   setup:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
@@ -526,9 +580,14 @@ volumes:
     driver: local
   log-volume:
     driver: local
-  thanos: {}
-  store: {}
-  compact: {}
+  thanos: 
+    driver: local
+  store: 
+    driver: local
+  compact: 
+    driver: local
+  receive: 
+    driver: local
   uwsgisocket:
   static_assets:
   db_volume:
