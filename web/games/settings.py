@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'friendship',
     'rainbowtests',
-    'django_vite'
+    'django_vite',
+    'elasticapm.contrib.django'
 ]
 
 MIDDLEWARE = [
@@ -170,4 +171,8 @@ DJANGO_VITE = {
     "default": {
         "dev_mode": not PRODUCTION
     }
+}
+
+ELASTIC_APM = {
+    "SERVICE_NAME": "pong-backend",
 }

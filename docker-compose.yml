@@ -31,13 +31,9 @@ services:
       #      - selenium
     env_file:
       - .env
-  selenium:
-    image: selenium/standalone-chrome
-    env_file:
-      - .env
-    ports:
-      - 4444:4444
-      - 7900:7900
+    environment:
+      - ELASTIC_APM_SERVICE_NAME=pong
+      - ELASTIC_APM_SERVER_URL=http://apm-server:8200
   nginx:
     container_name: nginx
     build: ./nginx
@@ -487,12 +483,26 @@ services:
       - KIBANA_CA=certs/ca/ca.crt
     command: ["sh", "/usr/share/elastic-agent/entrypoint.sh"]
 
+  apm-server:
+    container_name: apm-server
+    image: docker.elastic.co/apm/apm-server:${STACK_VERSION}
+    depends_on:
+      es01:
+        condition: service_healthy
+    user: root
+    volumes:
+      - certs:/usr/share/apm-server/certs
+      - "./devops/apm-server/apm-server.yml:/usr/share/apm-server/apm-server.yml:ro"
+    ports:
+      - "8200:8200"
+
   adminer:
     # build: ./requirements/adminer
     image: adminer
     container_name: adminer
     ports:
       - "8080:8080"
+
 volumes:
   certs:
     driver: local
