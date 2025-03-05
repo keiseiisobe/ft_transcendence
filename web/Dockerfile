@@ -28,7 +28,6 @@ RUN npm install
 RUN npm run build
 
 COPY accounts ./accounts
-COPY friendship ./friendship
 COPY games ./games
 COPY pong ./pong
 COPY __init__.py manage.py .

@@ -1,51 +1,46 @@
-from django.db import DataError
+import os
+
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.password_validation import validate_password
-from django.urls import reverse_lazy
-from django.http import HttpResponse, JsonResponse, FileResponse, HttpResponseNotFound, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseNotFound, HttpResponseForbidden
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from friendship.models import Friend, Follow
+from django.views.decorators.http import require_http_methods
+
+from friendship.models import Follow
 from friendship.exceptions import AlreadyExistsError
-from pong.models import MatchHistory
-import json, os
+
+from accounts.forms import UserCreationForm
 
 # Create your views here.
 
+@require_http_methods(["POST"])
 def mysignup(request):
-    if request.method == "POST":
-        try :
-            User = get_user_model()
-            username = request.POST["username"]
-            password = request.POST["password"]
-            avatar = request.FILES.get("avatar", False)
-            if avatar:
-                User.objects.create_user(username=username, password=password, avatar=avatar)
-            else:
-                User.objects.create_user(username=username, password=password)
-        except ValidationError as e:
-            return HttpResponseForbidden("\n".join(e))
-        except DataError as e:
-            return HttpResponseForbidden(e)
-        return HttpResponse()
+    form_data = {
+        "username": request.POST.get("username", None),
+        "password1": request.POST.get("password1", None),
+        "password2": request.POST.get("password2", None),
+        "avatar": request.FILES.get("avatar", None)
+    }
+    print(form_data)
+    form = UserCreationForm(data=form_data, files=request.FILES)
+    if not form.is_valid():
+        return HttpResponseBadRequest() # TODO : return error description
+    form.save()
+    return HttpResponse()
 
+@require_http_methods(["POST"])
 def mylogin(request):
-    if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            request.user.is_login = True
-            request.user.save()
-            return render(request, "pong/header.html", { "user": request.user })
-        else:
-            return HttpResponseNotFound("Username or password is incorrect")
+    username = request.POST["username"]
+    password = request.POST["password"]
+    user = authenticate(request, username=username, password=password)
+    if user is None:
+        return HttpResponseBadRequest() # TODO : return error description
+    login(request, user)
+    return render(request, "pong/header.html", { "user": request.user })
         
 def mylogout(request):
-    request.user.is_login = False;
-    request.user.save()
     logout(request)
     return render(request, "pong/header.html", { "user": request.user })
 
