@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
-from accounts.forms import UserCreationForm
+from accounts.forms import UserChangeUsernameForm, UserCreationForm
 
 # Create your tests here.
 
@@ -130,4 +130,72 @@ class CreationFormValidationTests(TestCase):
         form_data["username"] = 'THOMAS'
 
         form2 = UserCreationForm(data=form_data)
+        self.assertFalse(form2.is_valid())
+
+class ChangeUsernameFormTests(TestCase):
+    def setUp(self):
+        form_data = {
+            "username": "thomas",
+            "password1": "12345",
+            "password2": "12345",
+        }
+        form = UserCreationForm(data=form_data)
+        self.assertTrue(form.is_valid())
+        self.user = form.save()
+        self.assertEqual(self.user.username, "thomas")
+
+    def test_user_change_username_form(self):
+        form_data = {
+            "username": "patrick",
+        }
+        form = UserChangeUsernameForm(data=form_data, instance=self.user)
+        self.assertTrue(form.is_valid())
+        self.user = form.save()
+        self.assertEqual(self.user.username, "patrick")
+
+        form_data = {
+            "username": "thomas",
+        }
+        form = UserChangeUsernameForm(data=form_data, instance=self.user)
+        self.assertTrue(form.is_valid())
+        self.user = form.save()
+        self.assertEqual(self.user.username, "thomas")
+
+    def test_username_must_not_contain_japanese(self):
+        form_data = {
+            "username": "トーマス",
+        }
+        form = UserChangeUsernameForm(data=form_data, instance=self.user)
+        self.assertFalse(form.is_valid())
+
+    def test_username_must_be_unique(self):
+        form1_data = {
+            "username": "patrick",
+            "password1": "12345",
+            "password2": "12345",
+        }
+        form1 = UserCreationForm(data=form1_data)
+        self.assertTrue(form1.is_valid())
+        form1.save()
+
+        form2_data = {
+            "username": "patrick",
+        }
+        form2 = UserChangeUsernameForm(data=form2_data, instance=self.user)
+        self.assertFalse(form2.is_valid())
+
+    def test_username_must_be_unique_case_insensitive(self):
+        form1_data = {
+            "username": "patrick",
+            "password1": "12345",
+            "password2": "12345",
+        }
+        form1 = UserCreationForm(data=form1_data)
+        self.assertTrue(form1.is_valid())
+        form1.save()
+
+        form2_data = {
+            "username": "PATRICK",
+        }
+        form2 = UserChangeUsernameForm(data=form2_data, instance=self.user)
         self.assertFalse(form2.is_valid())

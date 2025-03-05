@@ -11,7 +11,7 @@ from django.views.decorators.http import require_http_methods
 from friendship.models import Follow
 from friendship.exceptions import AlreadyExistsError
 
-from accounts.forms import UserCreationForm
+from accounts.forms import UserChangeUsernameForm, UserCreationForm
 
 # Create your views here.
 
@@ -23,7 +23,6 @@ def mysignup(request):
         "password2": request.POST.get("password2", None),
         "avatar": request.FILES.get("avatar", None)
     }
-    print(form_data)
     form = UserCreationForm(data=form_data, files=request.FILES)
     if not form.is_valid():
         return HttpResponseBadRequest() # TODO : return error description
@@ -59,17 +58,16 @@ def mypage(request):
 def mypageClose(request):
     return render(request, "pong/pong.html", { "user": request.user })
 
+@require_http_methods(["POST"])
 def editUsername(request):
-    if request.method == "POST":
-        try:
-            username = request.POST["username"]
-            request.user.username = username
-            request.user.clean()
-            request.user.save()
-            return HttpResponse()
-        except ValidationError as e:
-            return HttpResponseForbidden("\n".join(e))
-    return HttpResponseForbidden()
+    form_data = {
+        "username": request.POST.get("username", None),
+    }
+    form = UserChangeUsernameForm(data=form_data, instance=request.user)
+    if not form.is_valid():
+        return HttpResponseBadRequest() # TODO : return error description
+    form.save()
+    return HttpResponse()
     
 def editPassword(request):
     if request.method == "POST":
