@@ -19,6 +19,7 @@ PRODUCTION = 'POSTGRES_NAME'     in os.environ and \
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+FRONTEND_DIR = BASE_DIR / 'frontend'
 
 DATA_DIR = BASE_DIR.parent / 'data'
 if not os.path.isdir(DATA_DIR):
@@ -145,7 +146,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / "pong-3D/dist/" if PRODUCTION else BASE_DIR / "pong-3D/",
+    FRONTEND_DIR / "dist/" if PRODUCTION else FRONTEND_DIR
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, "assets")

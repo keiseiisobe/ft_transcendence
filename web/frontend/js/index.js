@@ -1,3 +1,11 @@
+import "vite/modulepreload-polyfill";
+import jQuery from "jquery";
+window.$ = window.jQuery = jQuery;
+import * as bootstrap from "bootstrap";
+
+import "../scss/index.scss";
+import "~fontawesome/js/all.js"
+
 // csrftoken
 function getCookie(name) {
     let cookieValue = null;

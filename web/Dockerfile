@@ -22,14 +22,15 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 RUN pip install psycopg2 uwsgi
 
-COPY pong-3D ./pong-3D
-RUN npm --prefix pong-3D install
-RUN npm --prefix pong-3D run build
+COPY frontend ./frontend
+COPY package.json package-lock.json vite.config.js .
+RUN npm install
+RUN npm run build
 
 COPY accounts ./accounts
 COPY friendship ./friendship
 COPY games ./games
 COPY pong ./pong
-COPY manage.py .
+COPY __init__.py manage.py .
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
