@@ -15,7 +15,7 @@ export default {
         manifest: "manifest.json",
         rollupOptions: {
             input: {
-                index: 'frontend/js/index.js',
+                base: 'frontend/js/base.js',
                 pong: 'frontend/js/pong.js'
             }
         }

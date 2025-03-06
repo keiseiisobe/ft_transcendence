@@ -1,6 +1,8 @@
-$font-family-sans-serif: "SpaceType", sans-serif;
+$font-family-sans-serif: 'SpaceType', sans-serif;
+
 @import "~bootstrap/scss/bootstrap";
 @import "https://fonts.cdnfonts.com/css/spacetype";
+
 // $fa-font-path: "../webfonts";
 // @import "~fontawesome/scss/fontawesome";
 // @import "~fontawesome/scss/solid";
@@ -10,6 +12,5 @@ $font-family-sans-serif: "SpaceType", sans-serif;
 }
 
 .navbar-brand {
-    margin: 20px 100px 20px 400px;
     font-size: 50px;
 }

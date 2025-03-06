@@ -1,13 +1,4 @@
-<!doctype html>
-<html lang="en">
-    {% load django_vite %}
-    <head>
-        <meta charset="UTF-8" />
-        {% vite_hmr_client %}
-        {% vite_asset 'js/index.js' %}
-        <title>Pong Game</title>
-    </head>
-  <body>
-    {% include 'pong/pong.html' %}
-  </body>
-</html>
+{% extends "pong/base.html" %}
+{% block content %}
+    Hello, {{ user.username|default:"Guest" }}!
+{% endblock content %}
