@@ -11,6 +11,16 @@ providers:
       path:
         /var/lib/grafana/dashboards/node-exporter.json
 
+  - name: 'Nginx'
+    folder: Services         
+    type: file
+    disableDeletion: false    
+    updateIntervalSeconds: 10  
+    allowUiUpdates: false       
+    options:
+      path:
+        /var/lib/grafana/dashboards/nginx-exporter.json
+
   - name: 'elasticsearch'         
     folder: Services           
     type: file                  
