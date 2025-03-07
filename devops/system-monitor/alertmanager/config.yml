@@ -1,0 +1,34 @@
+global: # Global変数
+  resolve_timeout: 5m # この時間Prometheusから何も送信されなければ回復アラートを送信する
+route:
+  receiver: "prometheusalert" # default receiver : アラートがいずれにも分離されない場合、これがアラートを処理する
+  # group_by: ['alertname', 'instance', 'severity', 'channel']
+  # group_wait: 10s # この時間同じグループのアラートを待機し、まとめる
+  # group_interval:  1d # 同じグループのアラートの送信間隔
+  # repeat_interval: 30s # 同じアラートの送信感覚
+
+  # routes:
+  #   - matchers: # チャンネル名で分岐処理
+  #     - channel = task-infrastructure
+  #     receiver: 'CPU-load-alert' # receiverを選択
+  #     routes:
+  #       - matchers: # 特定のアラート名で分岐処理(group_waitなどを個別に設定するため)
+  #         - alertname = HighDiskUsage
+  #         receiver: 'CPU-load-alert'
+  #         # High Disk Usageは1,2日で解決しない可能性があるのでインターバルを長めに設定する
+  #         group_wait: 10s 
+  #         group_interval:  30d
+  #         repeat_interval: 30s
+
+receivers: # Define Each Receiver
+  - name: "prometheusalert" # general-channel(任意)というSlackチャンネルにアラートを送信する
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/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'
+        channel: '#prometheusalert' # Channel Name (なくてもいい, わかりやすくするために書いている
+        # 使用可能な変数等を用いてアラートメッセージを作成
+        #title: '{{ if eq .Status "firing" }}[FIRING]{{else}}[RESOLVED]{{end}} 
+        #           {{ .GroupLabels.alertname }}'
+        #text: '{{ if eq .Status "firing" }}{{ .CommonAnnotations.firing_text }}{{else}}
+        #        {{ .CommonAnnotations.resolved_text }}{{end}}'
+        send_resolved: true # 回復したら回復アラートを送信(boolean)
+

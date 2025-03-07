@@ -24,6 +24,8 @@ from friendship.signals import (
     friendship_request_viewed,
 )
 
+from django_prometheus.models import ExportModelOperationsMixin
+
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
 
 CACHE_TYPES = {
@@ -79,7 +81,7 @@ def bust_cache(type, user_pk):
     cache.delete_many(keys)
 
 
-class FriendshipRequest(models.Model):
+class FriendshipRequest(ExportModelOperationsMixin('friendship-request'), models.Model):
     """Model to represent friendship requests"""
 
     from_user = models.ForeignKey(
@@ -160,7 +162,7 @@ class FriendshipRequest(models.Model):
         return True
 
 
-class FriendshipManager(models.Manager):
+class FriendshipManager(ExportModelOperationsMixin('friendship-manager'), models.Manager):
     """Friendship manager"""
 
     def friends(self, user):
@@ -365,7 +367,7 @@ class FriendshipManager(models.Manager):
         return qs
 
 
-class Friend(models.Model):
+class Friend(ExportModelOperationsMixin('friend'), models.Model):
     """Model to represent Friendships"""
 
     to_user = models.ForeignKey(AUTH_USER_MODEL, models.CASCADE, related_name="friends")
@@ -391,7 +393,7 @@ class Friend(models.Model):
         super().save(*args, **kwargs)
 
 
-class FollowingManager(models.Manager):
+class FollowingManager(ExportModelOperationsMixin('following-manager'), models.Manager):
     """Following manager"""
 
     def followers(self, user):
@@ -464,7 +466,7 @@ class FollowingManager(models.Manager):
             return Follow.objects.filter(follower=follower, followee=followee).exists()
 
 
-class Follow(models.Model):
+class Follow(ExportModelOperationsMixin('follow'), models.Model):
     """Model to represent Following relationships"""
 
     follower = models.ForeignKey(
@@ -492,7 +494,7 @@ class Follow(models.Model):
         super().save(*args, **kwargs)
 
 
-class BlockManager(models.Manager):
+class BlockManager(ExportModelOperationsMixin('block-manager'), models.Manager):
     """Following manager"""
 
     def blocked(self, user):
@@ -569,7 +571,7 @@ class BlockManager(models.Manager):
         ).exists()
 
 
-class Block(models.Model):
+class Block(ExportModelOperationsMixin('block'), models.Model):
     """Model to represent Following relationships"""
 
     blocker = models.ForeignKey(
@@ -595,3 +597,4 @@ class Block(models.Model):
         if self.blocker == self.blocked:
             raise ValidationError("Users cannot block themselves.")
         super().save(*args, **kwargs)
+

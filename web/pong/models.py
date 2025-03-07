@@ -1,8 +1,9 @@
 from django.db import models
 from accounts.models import User
+from django_prometheus.models import ExportModelOperationsMixin
 
 # Create your models here.
-class MatchHistory(models.Model):
+class MatchHistory(ExportModelOperationsMixin('match-histry'), models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     opponent = models.CharField(max_length=10)
     score_user = models.IntegerField()

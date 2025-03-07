@@ -730,129 +730,129 @@ inputs:
           - 'postgres://postgres:postgres@db:5432?sslmode=disable'
         period: 10s
 
-      - id: b2e4a52b-7693-4ae2-954f-c5292cd992d0
-        name: apm-agent
-        revision: 2
-        type: apm
-        use_output: default
-        meta:
-          package:
-            name: apm
-            version: 8.17.2
-        data_stream:
-          namespace: default
-        package_policy_id: b2e4a52b-7693-4ae2-954f-c5292cd992d0
-        apm-server:
-          agent:
-            config:
-              elasticsearch:
-                api_key: 'lValVpUBIK-8_z6QKfTe:-VziPu7JREeF_dZBnxrGJg'
-          auth:
-            anonymous:
-              enabled: true
-              allow_agent:
-                - rum-js
-                - js-base
-                - iOS/swift
-              allow_service: null
-              rate_limit:
-                event_limit: 300
-                ip_limit: 1000
-            api_key:
-              enabled: false
-              limit: 100
-            secret_token: null
-          capture_personal_data: true
-          idle_timeout: 45s
-          default_service_environment: null
-          expvar.enabled: false
-          pprof.enabled: false
-          host: 'apm-server:8200'
-          max_connections: 0
-          max_event_size: 307200
-          max_header_size: 1048576
-          read_timeout: 3600s
-          response_headers: null
-          java_attacher:
-            enabled: false
-            discovery-rules: null
-            download-agent-version: null
-          rum:
-            enabled: true
-            allow_headers: null
-            allow_origins:
-              - '*'
-            exclude_from_grouping: ^/webpack
-            library_pattern: node_modules|bower_components|~
-            response_headers: null
-            source_mapping:
-              metadata: []
-              elasticsearch:
-                api_key: 'tFalVpUBIK-8_z6QLfTK:x8HntrT0QFyr9YM6BBHD1g'
-          shutdown_timeout: 30s
-          ssl:
-            enabled: false
-            certificate: null
-            key: null
-            key_passphrase: null
-            supported_protocols:
-              - TLSv1.2
-              - TLSv1.3
-            cipher_suites: null
-            curve_types: null
-          write_timeout: 30s
-          sampling:
-            tail:
-              enabled: false
-              interval: 1m
-              policies:
-                - sample_rate: 0.1
-              storage_limit: 3GB
-          agent_config: []
-  
-  - id: logfile-nginx-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
-    name: nginx
-    revision: 1
-    type: logfile
-    use_output: logstash_output
+  - id: b2e4a52b-7693-4ae2-954f-c5292cd992d0
+    name: apm-agent
+    revision: 2
+    type: apm
+    use_output: default
     meta:
       package:
-        name: nginx
-        version: 1.25.0
+        name: apm
+        version: 8.17.2
     data_stream:
       namespace: default
-    package_policy_id: 20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
-    streams:
-      - id: logfile-nginx.access-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
-        data_stream:
-          dataset: nginx.access
-          type: logs
-        ignore_older: 72h
-        paths:
-          - /var/log/nginx/access.log*
-        tags:
-          - nginx-access
-        exclude_files:
-          - .gz$
-        processors:
-          - add_locale: null
-      - id: logfile-nginx.error-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
-        data_stream:
-          dataset: nginx.error
-          type: logs
-        ignore_older: 72h
-        paths:
-          - /var/log/nginx/error.log*
-        tags:
-          - nginx-error
-        exclude_files:
-          - .gz$
-        multiline:
-          pattern: '^\d{4}\/\d{2}\/\d{2} '
-          negate: true
-          match: after
-        processors:
-          - add_locale: null
+    package_policy_id: b2e4a52b-7693-4ae2-954f-c5292cd992d0
+    apm-server:
+      agent:
+        config:
+          elasticsearch:
+            api_key: 'lValVpUBIK-8_z6QKfTe:-VziPu7JREeF_dZBnxrGJg'
+      auth:
+        anonymous:
+          enabled: true
+          allow_agent:
+            - rum-js
+            - js-base
+            - iOS/swift
+          allow_service: null
+          rate_limit:
+            event_limit: 300
+            ip_limit: 1000
+        api_key:
+          enabled: false
+          limit: 100
+        secret_token: null
+      capture_personal_data: true
+      idle_timeout: 45s
+      default_service_environment: null
+      expvar.enabled: false
+      pprof.enabled: false
+      host: 'apm-server:8200'
+      max_connections: 0
+      max_event_size: 307200
+      max_header_size: 1048576
+      read_timeout: 3600s
+      response_headers: null
+      java_attacher:
+        enabled: false
+        discovery-rules: null
+        download-agent-version: null
+      rum:
+        enabled: true
+        allow_headers: null
+        allow_origins:
+          - '*'
+        exclude_from_grouping: ^/webpack
+        library_pattern: node_modules|bower_components|~
+        response_headers: null
+        source_mapping:
+          metadata: []
+          elasticsearch:
+            api_key: 'tFalVpUBIK-8_z6QLfTK:x8HntrT0QFyr9YM6BBHD1g'
+      shutdown_timeout: 30s
+      ssl:
+        enabled: false
+        certificate: null
+        key: null
+        key_passphrase: null
+        supported_protocols:
+          - TLSv1.2
+          - TLSv1.3
+        cipher_suites: null
+        curve_types: null
+      write_timeout: 30s
+      sampling:
+        tail:
+          enabled: false
+          interval: 1m
+          policies:
+            - sample_rate: 0.1
+          storage_limit: 3GB
+      agent_config: []
+ 
+ - id: logfile-nginx-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+   name: nginx
+   revision: 1
+   type: logfile
+   use_output: logstash_output
+   meta:
+     package:
+       name: nginx
+       version: 1.25.0
+   data_stream:
+     namespace: default
+   package_policy_id: 20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+   streams:
+     - id: logfile-nginx.access-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+       data_stream:
+         dataset: nginx.access
+         type: logs
+       ignore_older: 72h
+       paths:
+         - /var/log/nginx/access.log*
+       tags:
+         - nginx-access
+       exclude_files:
+         - .gz$
+       processors:
+         - add_locale: null
+     - id: logfile-nginx.error-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+       data_stream:
+         dataset: nginx.error
+         type: logs
+       ignore_older: 72h
+       paths:
+         - /var/log/nginx/error.log*
+       tags:
+         - nginx-error
+       exclude_files:
+         - .gz$
+       multiline:
+         pattern: '^\d{4}\/\d{2}\/\d{2} '
+         negate: true
+         match: after
+       processors:
+         - add_locale: null
 
   - id: nginx/metrics-nginx-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
     name: nginx-1

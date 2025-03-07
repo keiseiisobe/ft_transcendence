@@ -138,7 +138,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "group(nginx_up{instance=~\"$instance\"}) by (cluster, instance, job, replica)",
+          "expr": "nginx_up{instance=~\"$instance\"}",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,

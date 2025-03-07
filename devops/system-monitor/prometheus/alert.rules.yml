@@ -1,0 +1,33 @@
+groups:
+  - name: DiskUsage
+    rules:
+    - alert: System-HighDiskUsage
+      expr: node_load1 > 0.8
+      for: 1m # Duration : if exprs continues this time, send alert
+
+
+      #  - name: Instance Down # Alert Name (任意)
+      #    rules:
+      #      - alert: HighDiskUsage # Alert Name (任意)(.GroupLabels.alertnameという変数名でAlert Managerから参照できる)
+      #        expr: up == 0 # PromQL : サーバーの死活状況に関するクエリ
+      #        for: 1m # Duration : exprsがこの時間続いたらアラートを送信
+      #        labels: # Alert Managerのreceiverを決定するときに使用するラベル
+      #          severity: critical # アラートの重要度
+      #          channel: prometheusalert # 送信するチャンネルなどを指定する
+      #        annotations: # Alert Txt : 事象発生時や回復時のテキスト
+      #          firing_text: "Instance {{ $labels.instance }} down" # .CommonAnnotations.firing_textでAlert Managerから参照できる
+      #          resolved_text: "Instance {{ $labels.instance }} up" # 同様に.CommonAnnotations.resolved_textでAlert Managerから参照できる
+      #  # 以下も同様
+      #  #
+      #  - name: High Disk Usage 
+      #    rules:
+      #      - alert: HighDiskUsage # > 90%
+      #        expr: 100 - ((node_filesystem_avail_bytes{mountpoint="/"} * 100) / node_filesystem_size_bytes{mountpoint="/"}) > 90
+      #        for: 1m 
+      #        labels:
+      #          severity: critical
+      #          channel: prometheusalert
+      #        annotations:
+      #          firing_text: "Instance {{ $labels.instance }} used more than 90% of Disk"
+      #          resolved_text: "Instance {{ $labels.instance }} up"
+

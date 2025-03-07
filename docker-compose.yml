@@ -135,7 +135,7 @@ services:
 
   elasticsearch_exporter:
     container_name: elasticsearch_exporter
-    build: ./devops/system-monitor/elasticsearch_exporter
+    image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
     depends_on:
       - es01
     volumes:

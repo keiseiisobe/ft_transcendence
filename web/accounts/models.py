@@ -5,10 +5,11 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.files import File
 from django.contrib.auth.validators import ASCIIUsernameValidator
+from django_prometheus.models import ExportModelOperationsMixin
 
 # Create your models here.
 
-class UserManager(BaseUserManager):
+class UserManager(ExportModelOperationsMixin('user-manager'), BaseUserManager):
     def create_user(self, username, password=None, avatar=None):
         User = get_user_model()
         user = User(username=username)
@@ -20,7 +21,7 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
-class User(AbstractBaseUser):
+class User(ExportModelOperationsMixin('user'), AbstractBaseUser):
     username = models.CharField(max_length=40, unique=True)
     password = models.CharField(max_length=300)
     avatar = models.ImageField(upload_to="accounts/images", blank=True)
