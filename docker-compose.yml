@@ -154,6 +154,23 @@ services:
     ports:
       - "9114"
 
+  nginx-exporter:
+    container_name: nginx-exporter
+    image: nginx/nginx-prometheus-exporter:1.4.0
+    ports:
+      - "9113"
+    depends_on:
+      - nginx
+      - prometheus
+    volumes:
+      - certs:/usr/share/prometheus/certs
+    networks:
+      default:
+        ipv4_address: 192.168.100.253
+    command:
+      - '--nginx.scrape-uri=http://nginx:80/nginx_status'
+      - '--log.level=debug'
+
   alertmanager: # Alerting for Prometheus
     image: prom/alertmanager
   #build: ./devops/system-monitor/alertmanager
@@ -360,6 +377,7 @@ services:
         until curl -s --cacert config/certs/ca/ca.crt https://es01:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
         echo "Setting kibana_system password";
         until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://es01:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
+        sleep 10;
         echo "All done!";
       '
     healthcheck:
