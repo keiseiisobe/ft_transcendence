@@ -16,3 +16,20 @@ datasources:
       tlsCACert: /usr/share/grafana/certs/ca/ca.crt
       tlsClientCert: /usr/share/grafana/certs/prometheus/prometheus.crt
       tlsClientKey: /usr/share/grafana/certs/prometheus/prometheus.key
+
+  - name: Thanos
+    type: prometheus
+    access: proxy
+    url: http://thanos-query:10904
+    isDefault: true
+    basicAuth: false
+    editable: true
+    jsonData:
+      tlsAuth: false
+      tlsAuthWithCACert: false
+      tlsSkipVerify: true
+    secureJsonData:
+      tlsCACert: /usr/share/grafana/certs/ca/ca.crt
+      tlsClientCert: /usr/share/grafana/certs/prometheus/prometheus.crt
+      tlsClientKey: /usr/share/grafana/certs/prometheus/prometheus.key
+
