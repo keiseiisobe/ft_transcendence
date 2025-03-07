@@ -16,7 +16,7 @@ outputs:
   logstash_output:
     type: logstash
     hosts:
-      - "http://logstash01:5044" 
+      - "logstash01:5044" 
 
 output_permissions:
   default:
@@ -649,7 +649,7 @@ inputs:
     name: postgresql
     revision: 3
     type: logfile
-    use_output: default
+    use_output: logstash_output
     meta:
       package:
         name: postgresql
@@ -675,8 +675,6 @@ inputs:
         tags:
           - postgresql-log
         allow_deprecated_use: true
-        #use_output: logstash_output
-        use_output: default
 
   - id: postgresql/metrics-postgresql-39f124a5-682c-47a1-8083-98c6746691c1
     name: postgresql
@@ -813,10 +811,10 @@ inputs:
           agent_config: []
   
   - id: logfile-nginx-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
-    name: nginx-1
+    name: nginx
     revision: 1
     type: logfile
-    use_output: default
+    use_output: logstash_output
     meta:
       package:
         name: nginx
@@ -855,6 +853,7 @@ inputs:
           match: after
         processors:
           - add_locale: null
+
   - id: nginx/metrics-nginx-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
     name: nginx-1
     revision: 1
