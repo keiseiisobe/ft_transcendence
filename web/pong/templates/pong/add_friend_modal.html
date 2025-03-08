@@ -1,0 +1,16 @@
+{% extends "pong/modal_base.html" %}
+{% block modal-id %}"add-friend-modal"{% endblock modal-id %}
+{% block modal-header %}{% endblock modal-header %}
+{% block modal-body %}
+<form>
+    <div class="mb-3">
+        <label for="requested-friend" class="form-label">Friend's name</label>
+        <input type="text" class="form-control" id="requested-friend" required/>
+    </div>
+    <p class="add-friend-error-message" style="color: red;"></p>
+    <input type="button" class="btn btn-dark" id="add-friend-button" value="Make friends"/>
+{% endblock modal-body %}
+{% block modal-footer %}
+    <button type="button" id="add-friend-close" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+</form>
+{% endblock modal-footer %}

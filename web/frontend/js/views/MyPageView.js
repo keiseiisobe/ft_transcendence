@@ -2,13 +2,13 @@ import ViewBase from "./ViewBase"
 
 export default class extends ViewBase {
     constructor() {
-        super("/pong", "/pong/ssr/index")
+        super("/pong/mypage", "/pong/ssr/mypage")
     }
 
     async render() {
         var res = await super.render()
         if (res == 0) {
-            console.log("Index view rendered")
+            console.log("Mypage view rendered")
             if (this.modal)
                 return await this.modal.render(false)
             return 0 // did render normaly
@@ -19,13 +19,13 @@ export default class extends ViewBase {
 
     async init() {
         await super.init()
-        console.log("Index view initialized")
+        console.log("Mypage view initialized")
         if (this.modal)
             await this.modal.init()
     }
 
     clean() {
         super.clean()
-        console.log("Index view cleaned")
+        console.log("Mypage view cleaned")
     }
 }

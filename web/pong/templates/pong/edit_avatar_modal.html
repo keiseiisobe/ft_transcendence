@@ -1,0 +1,16 @@
+{% extends "pong/modal_base.html" %}
+{% block modal-id %}"edit-avatar-modal"{% endblock modal-id %}
+{% block modal-header %}{% endblock modal-header %}
+{% block modal-body %}
+<form enctype="multipart/form-data">
+    <div class="mb-3">
+        <input type="file" class="form-control" accept="image/*" id="edit-avatar" required/>
+    </div>
+    <p class="edit-avatar-error-message" style="color: red;"></p>
+    <input type="button" class="btn btn-dark" id="edit-avatar-button" value="Edit avatar"/>
+{% endblock modal-body %}
+{% block modal-footer %}
+    <button type="button" id="edit-avatar-close" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+</form>
+</form>
+{% endblock modal-footer %}

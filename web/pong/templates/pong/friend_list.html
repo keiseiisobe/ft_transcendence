@@ -1,0 +1,39 @@
+{% load static %}
+<div class="card mb-4 mb-md-0">
+    <div class="card-body">
+        <p class="mb-4">
+            Friends
+            <button type="button" id="add-friend-modal-button" class="btn btn-dark btn-sm rounded-circle navbar-toggle" data-bs-toggle="modal" data-bs-target="#addFriendModal" style="position: absolute;left: 350px">
+                <i class="fas fa-user-plus"></i>
+            </button>
+        </p>
+        <div class="card" style="max-height: 245px;overflow-y: auto">
+            <ul class="list-group" id="friend-list" style="text-align: start">
+                {% if friend_list %}
+                {% for friend in friend_list %}
+                <li class="list-group-item">
+                    <img src=
+                        {% if friend.avatar %}
+                        "{{ friend.avatar.url }}"
+                        {% else %}
+                        "{% static 'accounts/gnu.png' %}"
+                        {% endif %}
+                        class="rounded-circle profile-img mb-3" style="height: 30px;width: 30px;position: relative;top: 7px"/>
+                    {% if friend.is_login %}
+                    <span style="color: green;margin-right: 10px">online</span>
+                    {% else %}
+                    <span style="color: #808080;margin-right: 10px">offline</span>
+                    {% endif %}
+                    <span>{{ friend.username }}</span>
+                </li>
+                {% endfor %}
+                {% else %}
+                <div style="text-align: center;margin: 10px">
+                    <p>You have no friends yet.</p>
+                    <p>Click the button above, and make friends!</p>
+                </div>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>

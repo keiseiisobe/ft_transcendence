@@ -7,7 +7,8 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("login", views.login, name="login"),
     path("signup", views.signup, name="signup"),
+    path("mypage", views.mypage, name="mypage"),
 
-    path("dev/login-modal", views.login_modal, name="login-modal"), # TODO : remove
-    path("dev/signup-modal", views.signup_modal, name="signup-modal") # TODO : remove
+    path("ssr/index", views.ssr_index, name="ssr-index"),
+    path("ssr/mypage", views.ssr_mypage, name="ssr-mypage")
 ]

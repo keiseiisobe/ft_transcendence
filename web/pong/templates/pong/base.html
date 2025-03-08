@@ -1,22 +1,21 @@
+{% load static %}
+{% load django_vite %}
 <!DOCTYPE html>
 <html lang="en">
-    {% load static %}
-    {% load django_vite %}
     <head>
         <meta charset="UTF-8" />
         {% vite_hmr_client %}
-        {% csrf_token %}
         {% vite_asset 'js/base.js' %}
         <title>{% block title %}Pong Game{% endblock title %}</title>
     </head>
 
     <body>
         <nav class="navbar navbar-dark bg-dark p-4">
-            <a class="navbar-brand">Pong Game</a>
-            <div class="navbar-nav d-flex flex-row gap-3">
+            <a class="navbar-brand" href="{% url 'pong:index' %}">Pong Game</a>
+            <div class="navbar-nav d-flex flex-row gap-3" id="navbar-btns">
                 {% if user.is_authenticated %}
-                <button type="button" class="nav-item btn btn-dark" id="my-page-btn">My Page</button>
-                <button type="button" class="nav-item btn btn-dark" id="logout-btn">Logout</button>
+                <a class="nav-item btn btn-dark" href="{% url 'pong:mypage' %}">My Page</a>
+                <a class="nav-item btn btn-dark" href="{% url 'accounts:logout' %}">Logout</a>
                 {% else %}
                 <a class="nav-item btn btn-dark" href="{% url 'pong:login' %}">Login</a>
                 <a class="nav-item btn btn-dark" href="{% url 'pong:signup' %}">Signup</a>
@@ -25,12 +24,12 @@
         </nav>
         <div id="content" class="p-4">{% block content %}{% endblock content %}</div>
         <div id="modal">
-            {% if login_modal %}
             {% include 'pong/login_modal.html' %}
-            {% endif %}
-            {% if signup_modal %}
             {% include 'pong/signup_modal.html' %}
-            {% endif %}
+            {% include 'pong/edit_avatar_modal.html' %}
+            {% include 'pong/edit_password_modal.html' %}
+            {% include 'pong/edit_usename_modal.html' %}
+            {% include 'pong/add_friend_modal.html' %}
         </div>
     </body>
 </html>
