@@ -123,21 +123,25 @@ export default class extends ViewBase {
 
     async init() {
         await super.init()
-        this.#pongGame = new PongGame($("#canvas").get(0), {
-            helvetica: helvetiker,
-            pong: pong_score
-        })
+        try {
+            this.#pongGame = new PongGame($("#canvas").get(0), {
+                helvetica: helvetiker,
+                pong: pong_score
+            })
 
-        this.#pongGame.onScoreChange((l, r) => {
-            if (l >= 3) {
-                this.gameover("peer", l, r, 1);
-                this.#pongGame.leftWin()
-            }
-            if (r >= 3) {
-                this.gameover("computer", l, r, 0);
-                this.#pongGame.rightWin()
-            }
-        })
+            this.#pongGame.onScoreChange((l, r) => {
+                if (l >= 3) {
+                    this.gameover("peer", l, r, 1);
+                    this.#pongGame.leftWin()
+                }
+                if (r >= 3) {
+                    this.gameover("computer", l, r, 0);
+                    this.#pongGame.rightWin()
+                }
+            })
+        } catch (error) {
+            console.error(error)
+        }
         console.log("Index view initialized")
         if (this.modal)
             await this.modal.init()
@@ -145,7 +149,8 @@ export default class extends ViewBase {
 
     clean() {
         super.clean()
-        this.#pongGame.clean()
+        if (this.#pongGame)
+            this.#pongGame.clean()
         console.log("Index view cleaned")
     }
 

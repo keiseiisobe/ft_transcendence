@@ -40,7 +40,7 @@ def mylogin(request):
     login(request, user)
     request.user.is_login = True
     request.user.save()
-    for user in Follow.objects.following(request.user):
+    for user in Follow.objects.followers(request.user):
         bust_cache("following", user.pk)
     return JsonResponse({ "message": "OK" })
 
@@ -49,7 +49,7 @@ def mylogin(request):
 def mylogout(request):
     request.user.is_login = False;
     request.user.save()
-    for user in Follow.objects.following(request.user):
+    for user in Follow.objects.followers(request.user):
         bust_cache("following", user.pk)
     logout(request)
     return JsonResponse({ "message": "OK" })
@@ -73,9 +73,7 @@ def editPassword(request):
         password = request.POST["password"]
         validate_password(password=password)
         request.user.set_password(password)
-        request.user.save()
-        logout(request)
-        return JsonResponse({ "message": "OK" })
+        return mylogout(request)
     except ValidationError as e:
         return JsonResponse({ "message": e.messages }, status=400) # Todo better error description
 
@@ -96,13 +94,12 @@ def editAvatar(request):
 def addFriend(request):
     try:
         friendname = request.POST["friendname"]
-        User = get_user_model()
-        friend = User.objects.get(username=friendname)
+        friend = get_user_model().objects.get(username=friendname)
         Follow.objects.add_follower(request.user, friend)
         request.user.save()
         return JsonResponse({ "message": "OK" })
     except ObjectDoesNotExist:
-        return JsonResponse({ "message": "No such user." }, status=400)
+        return JsonResponse({ "message": "No such user." }, status=404)
     except AlreadyExistsError:
         return JsonResponse({ "message": "You have already requested friendship." }, status=400)
     except ValidationError as e:
