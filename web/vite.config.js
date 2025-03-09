@@ -16,7 +16,6 @@ export default {
         rollupOptions: {
             input: {
                 base: 'frontend/js/base.js',
-                pong: 'frontend/js/pong.js'
             }
         }
     }
