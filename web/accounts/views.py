@@ -9,7 +9,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, Http
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
 
-from friendship.models import Follow
+from friendship.models import Follow, bust_cache
 from friendship.exceptions import AlreadyExistsError
 
 from accounts.forms import UserChangeUsernameForm, UserCreationForm
@@ -38,11 +38,19 @@ def mylogin(request):
     if user is None:
         return HttpResponseBadRequest() # TODO : return error description
     login(request, user)
+    request.user.is_login = True
+    request.user.save()
+    for user in Follow.objects.following(request.user):
+        bust_cache("following", user.pk)
     return JsonResponse({ "message": "OK" })
 
 @login_required
 @require_http_methods(["POST"])
 def mylogout(request):
+    request.user.is_login = False;
+    request.user.save()
+    for user in Follow.objects.following(request.user):
+        bust_cache("following", user.pk)
     logout(request)
     return JsonResponse({ "message": "OK" })
 

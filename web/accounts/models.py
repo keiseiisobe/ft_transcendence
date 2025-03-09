@@ -40,6 +40,7 @@ class User(AbstractUser):
     last_name = None
     email = None
     avatar = models.ImageField(upload_to="images", blank=True)
+    is_login = models.BooleanField(default=False) # type: ignore
 
     EMAIL_FIELD = None
     REQUIRED_FIELDS = []
