@@ -98,6 +98,10 @@ class PongGame {
         this.pongMap.middleText.visible = true
         this.gameState = 3
     }
+
+    clean() {
+        this.pongMap.cleanUpScene()
+    }
 }
 
 export default class extends ViewBase {
@@ -141,6 +145,7 @@ export default class extends ViewBase {
 
     clean() {
         super.clean()
+        this.#pongGame.clean()
         console.log("Index view cleaned")
     }
 
