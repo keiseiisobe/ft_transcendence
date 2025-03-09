@@ -39,7 +39,8 @@ function setSignupEventHandler() {
             const csrftoken = getCookie('csrftoken');
             const formData = new FormData();
             formData.append("username", signupForm.username.value);
-            formData.append("password", signupForm.password.value);
+            formData.append("password1", signupForm.password.value);
+            formData.append("password2", signupForm.password.value);
             formData.append("avatar", signupForm.avatar.files[0]);
             try {
                 const promise = await fetch(url, {
@@ -55,11 +56,15 @@ function setSignupEventHandler() {
                     document.querySelector("#signup-close").click();
                     document.querySelector("#login-modal-button").click();
                 }
-                else // (promise.status == 403)
+                else if (promise.status == 400)
                 {
-                    const text = await promise.text();
                     let message = document.querySelector(".signup-error-message");
-                    message.textContent = text;
+                    message.textContent = "bad input";
+                }
+                else
+                {
+                    let message = document.querySelector(".signup-error-message");
+                    message.textContent = "unknown error";
                 }
             }
             catch (err) {
@@ -110,10 +115,15 @@ function setLoginEventHandler() {
                     setMypageEventHandler();
                     history.replaceState(document.body.innerHTML, "", "");
                 }
-                else // (promise.status == 404)
+                else if (promise.status == 400)
                 {
                     let message = document.querySelector(".login-error-message");
-                    message.textContent = text;
+                    message.textContent = "wrong password";
+                }
+                else
+                {
+                    let message = document.querySelector(".login-error-message");
+                    message.textContent = "unknown error";
                 }
             }
             catch (err) {
@@ -248,11 +258,10 @@ function editUsernameEventHandler() {
                     editUsernameForm.message.textContent = "";
                     history.replaceState(document.body.innerHTML, "", "");
                 }
-                else // (promise.status == 403)
-                {
-                    const text = await promise.text();
-                    editUsernameForm.message.textContent = text;
-                }
+                else if (promise.status == 400)
+                    editUsernameForm.message.textContent = "bad username";
+                else
+                    editUsernameForm.message.textContent = "unknown error";
             }
             catch (err) {
                 console.log(err);
