@@ -14,7 +14,7 @@ export class PongMap
             depth: 0.2,
             distancePaddleFromWall: 0.2,
             cameraFOV: 90,
-            cameraDistance: 4,
+            cameraDistance: 3.5,
             paddleSize: new THREE.Vector2(0.2, 0.9),
             ballSize: 0.2,
             cameraMoveMult: 0.07,

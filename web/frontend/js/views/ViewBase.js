@@ -32,7 +32,7 @@ export default class {
         });
         if (promise.ok) {
             const data = await promise.json()
-            $("#content").html(data.content)
+            this.#html_content = data.content 
         } else if (promise.status == 401) {
             if (await window.switchToView(new IndexView(), new LoginModal()) == 0)
                 window.pushState("/pong/login")
@@ -44,6 +44,11 @@ export default class {
         return 0 // did render normally
     }
 
+    applyRendered() {
+        $("#content").html(this.#html_content)
+        console.log("view base rendered applied")
+    }
+
     async init() {
         console.log("view base initialized")
     }
@@ -53,6 +58,8 @@ export default class {
     }
 
 // private:
+    #html_content = null
+
     #__modal__ = null
 
     #ssr_endpoint = null

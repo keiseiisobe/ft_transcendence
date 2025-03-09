@@ -3,9 +3,9 @@
     <div class="card-body">
         <p class="mb-4">
             Friends
-            <button type="button" id="add-friend-modal-button" class="btn btn-dark btn-sm rounded-circle navbar-toggle" data-bs-toggle="modal" data-bs-target="#addFriendModal" style="position: absolute;left: 350px">
+            <a href="{% url 'pong:add_friend'%}" class="btn btn-dark btn-sm rounded-circle navbar-toggle" style="position: absolute;left: 350px">
                 <i class="fas fa-user-plus"></i>
-            </button>
+            </a>
         </p>
         <div class="card" style="max-height: 245px;overflow-y: auto">
             <ul class="list-group" id="friend-list" style="text-align: start">

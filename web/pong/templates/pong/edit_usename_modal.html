@@ -2,15 +2,13 @@
 {% block modal-id %}"edit-username-modal"{% endblock modal-id %}
 {% block modal-header %}{% endblock modal-header %}
 {% block modal-body %}
-<form>
+<form id="edit-username-form" novalidate>
     <div class="mb-3">
-        <label for="edit-username" class="form-label">Username</label>
-        <input type="text" class="form-control" id="edit-username" required/>
+        <label for="edit-username-form-username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="edit-username-form-username" required/>
     </div>
-    <p class="edit-username-error-message" style="color: red;"></p>
-    <input type="button" class="btn btn-dark" id="edit-username-button" value="Edit username"/>
 {% endblock modal-body %}
 {% block modal-footer %}
-    <button type="button" id="edit-username-close" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <button type="submit" class="btn btn-dark btn-primary">OK</button>
 </form>
 {% endblock modal-footer %}

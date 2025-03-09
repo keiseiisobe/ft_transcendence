@@ -11,6 +11,10 @@ export default class {
         return 0 // did render normaly
     }
 
+    applyRendered() {
+        console.log("modal base rendered applied")
+    }
+
     init() {
         this.modal = new bootstrap.Modal(document.getElementById(this.modalId))
         this.modal.show()
