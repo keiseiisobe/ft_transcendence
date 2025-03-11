@@ -1,0 +1,14 @@
+{% extends "pong/modal_base.html" %}
+{% block modal-id %}"edit-avatar-modal"{% endblock modal-id %}
+{% block modal-header %}{% endblock modal-header %}
+{% block modal-body %}
+<form id="edit-avatar-form" novalidate>
+    <div class="mb-3">
+        <label for="edit-avatar-form-avatar" class="form-label">Avatar</label>
+        <input type="file" class="form-control" accept="image/*" id="edit-avatar-form-avatar" required/>
+    </div>
+{% endblock modal-body %}
+{% block modal-footer %}
+    <button type="submit" class="btn btn-dark btn-primary">OK</button>
+</form>
+{% endblock modal-footer %}

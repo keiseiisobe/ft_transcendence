@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseNotFound, HttpResponseForbidden
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
@@ -27,7 +28,7 @@ def mysignup(request):
     if not form.is_valid():
         return HttpResponseBadRequest() # TODO : return error description
     form.save()
-    return HttpResponse()
+    return JsonResponse({ "message": "OK" })
 
 @require_http_methods(["POST"])
 def mylogin(request):
@@ -39,33 +40,21 @@ def mylogin(request):
     login(request, user)
     request.user.is_login = True
     request.user.save()
-    for user in Follow.objects.following(request.user):
+    for user in Follow.objects.followers(request.user):
         bust_cache("following", user.pk)
-    return render(request, "pong/header.html", { "user": request.user })
-        
+    return JsonResponse({ "message": "OK" })
+
+@login_required
+@require_http_methods(["POST"])
 def mylogout(request):
     request.user.is_login = False;
     request.user.save()
-    for user in Follow.objects.following(request.user):
+    for user in Follow.objects.followers(request.user):
         bust_cache("following", user.pk)
     logout(request)
-    return render(request, "pong/header.html", { "user": request.user })
+    return JsonResponse({ "message": "OK" })
 
-def mypage(request):
-    friendList = Follow.objects.following(request.user)
-    wins = request.user.matchhistory_set.filter(result=1).count()
-    loses = request.user.matchhistory_set.filter(result=0).count()
-    matches = request.user.matchhistory_set.all().order_by("-id")
-    return render(request, "accounts/mypage.html",
-                  { "user": request.user,
-                    "friend_list": friendList,
-                    "wins": wins,
-                    "loses": loses,
-                    "matches": matches })
-
-def mypageClose(request):
-    return render(request, "pong/pong.html", { "user": request.user })
-
+@login_required
 @require_http_methods(["POST"])
 def editUsername(request):
     form_data = {
@@ -75,47 +64,43 @@ def editUsername(request):
     if not form.is_valid():
         return HttpResponseBadRequest() # TODO : return error description
     form.save()
-    return HttpResponse()
+    return JsonResponse({ "message": "OK" })
     
+@login_required
+@require_http_methods(["POST"])
 def editPassword(request):
-    if request.method == "POST":
-        try:
-            password = request.POST["password"]
-            validate_password(password=password)
-            request.user.set_password(password)
-            request.user.save()
-            logout(request)
-            return render(request, "pong/pong.html", { "user": request.user })
-        except ValidationError as e:
-            return HttpResponseForbidden("\n".join(e))
-    return HttpResponseForbidden()
+    try:
+        password = request.POST["password"]
+        validate_password(password=password)
+        request.user.set_password(password)
+        return mylogout(request)
+    except ValidationError as e:
+        return JsonResponse({ "message": e.messages }, status=400) # Todo better error description
 
+@login_required
+@require_http_methods(["POST"])
 def editAvatar(request):
-    if request.method == "POST":
-        avatar = request.FILES.get("avatar", False)
-        if avatar == False:
-            return HttpResponseForbidden("Avatar cannot be empty.")
-        if request.user.avatar:
-            os.remove(request.user.avatar.path)
-        request.user.avatar = avatar
-        request.user.save()
-        return JsonResponse({ "url": request.user.avatar.url })
-    return HttpResponseForbidden()
+    avatar = request.FILES.get("avatar", False)
+    if avatar == False:
+        return JsonResponse({ "message": "Avatar cannot be empty." }, status=400)
+    if request.user.avatar:
+        os.remove(request.user.avatar.path)
+    request.user.avatar = avatar
+    request.user.save()
+    return JsonResponse({ "message": "OK" })
     
+@login_required
+@require_http_methods(["POST"])
 def addFriend(request):
-    if request.method == "POST":
-        try:
-            friendname = request.POST["friendname"]
-            User = get_user_model()
-            friend = User.objects.get(username=friendname)
-            Follow.objects.add_follower(request.user, friend)
-            request.user.save()
-            friendList = Follow.objects.following(request.user)
-            return render(request, "accounts/friends.html", { "friend_list": friendList })
-        except ObjectDoesNotExist:
-            return HttpResponseNotFound("No such user.")
-        except AlreadyExistsError as e:
-            return HttpResponseForbidden("You have already requested friendship.")
-        except ValidationError as e:
-            return HttpResponseForbidden("\n".join(e))
-    return HttpResponseForbidden()
+    try:
+        friendname = request.POST["friendname"]
+        friend = get_user_model().objects.get(username=friendname)
+        Follow.objects.add_follower(request.user, friend)
+        request.user.save()
+        return JsonResponse({ "message": "OK" })
+    except ObjectDoesNotExist:
+        return JsonResponse({ "message": "No such user." }, status=404)
+    except AlreadyExistsError:
+        return JsonResponse({ "message": "You have already requested friendship." }, status=400)
+    except ValidationError as e:
+        return JsonResponse({ "message": e.messages }, status=400)

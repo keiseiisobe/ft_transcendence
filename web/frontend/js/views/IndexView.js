@@ -1,43 +1,11 @@
-// import { PongGame } from "./pong.js";
-// 
-// const game = new PongGame("canvas");
-// 
-// document.addEventListener("keydown", (event) => {
-//     game.setKeydownKey(event.key);
-//   });
-//   
-//   document.addEventListener("keyup", (event) => {
-//     game.setKeyupKey(event.key);
-//   });
-
-import "vite/modulepreload-polyfill";
-import jQuery from "jquery";
-window.$ = window.jQuery = jQuery;
-import * as bootstrap from "bootstrap";
-
-import "../scss/pong.scss";
+import Cookies from "js-cookie"
+import ViewBase from "./ViewBase"
 
 import { Vector2 } from "three";
-import { PongMap } from "./threeD/PongMap.js"
+import { PongMap } from "../threeD/PongMap.js"
 
-import helvetiker from "../font/helvetiker_regular.json?url"
-import pong_score from "../font/pong_score_regular.json?url"
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
+import helvetiker from "../../font/helvetiker_regular.json?url"
+import pong_score from "../../font/pong_score_regular.json?url"
 
 class PongGame {
     constructor(canvas, fontPaths) {
@@ -130,48 +98,81 @@ class PongGame {
         this.pongMap.middleText.visible = true
         this.gameState = 3
     }
+
+    clean() {
+        this.pongMap.cleanUpScene()
+    }
 }
 
-async function gameover(opponent, score_user, score_opponent, result) {
-    const url = window.location.origin + "/pong/gameover/";
-    const csrftoken = getCookie('csrftoken');
-    const formData = new FormData();
-    formData.append("opponent", opponent);
-    formData.append("score_user", score_user);
-    formData.append("score_opponent", score_opponent);
-    formData.append("result", result);
-    await fetch(url, {
-        method: "POST",
-        headers: {
-            "X-CSRFToken": csrftoken,
-        },
-        body: formData
-    })
-    .then((promise) => promise.text())
-    .then((text) => {
-        // document.body.innerHTML = text;
-        // setLoginEventHandler();
-        // setSignupEventHandler();
-        // setMypageEventHandler();
-        // setLogoutEventHandler();
-    })
-    .catch((err) => console.log(err));
+export default class extends ViewBase {
+    constructor() {
+        super("/pong", "/pong/ssr/index")
+    }
+
+    async render() {
+        var res = await super.render()
+        if (res == 0) {
+            console.log("Index view rendered")
+            if (this.modal)
+                return await this.modal.render(false)
+            return 0 // did render normaly
+        } else {
+            return res
+        }
+    }
+
+    async init() {
+        await super.init()
+        try {
+            this.#pongGame = new PongGame($("#canvas").get(0), {
+                helvetica: helvetiker,
+                pong: pong_score
+            })
+
+            this.#pongGame.onScoreChange((l, r) => {
+                if (l >= 3) {
+                    this.gameover("peer", l, r, 1);
+                    this.#pongGame.leftWin()
+                }
+                if (r >= 3) {
+                    this.gameover("computer", l, r, 0);
+                    this.#pongGame.rightWin()
+                }
+            })
+        } catch (error) {
+            console.error(error)
+        }
+        console.log("Index view initialized")
+        if (this.modal)
+            await this.modal.init()
+    }
+
+    clean() {
+        super.clean()
+        if (this.#pongGame)
+            this.#pongGame.clean()
+        console.log("Index view cleaned")
+    }
+
+    async gameover(opponent, score_user, score_opponent, result) {
+        const url = window.location.origin + "/pong/gameover/";
+        const formData = new FormData();
+        formData.append("opponent", opponent);
+        formData.append("score_user", score_user);
+        formData.append("score_opponent", score_opponent);
+        formData.append("result", result);
+        try {
+            const promise = await fetch(url, {
+                method: "POST",
+                headers: { "X-CSRFToken": Cookies.get("csrftoken") },
+                body: formData
+            })
+            if (!promise.ok)
+                throw promise
+        } catch (error) {
+            console.error(error)
+        }
 }
-
-$(function(){
-    const pongGame = new PongGame($("#canvas").get(0), {
-        helvetica: helvetiker,
-        pong: pong_score
-    })
-
-    pongGame.onScoreChange((l, r) => {
-        if (l >= 3) {
-            gameover("peer", l, r, 1);
-            pongGame.leftWin()
-        }
-        if (r >= 3) {
-            gameover("computer", l, r, 0);
-            pongGame.rightWin()
-        }
-    })
-})
+// private:
+    #pongGame
+}

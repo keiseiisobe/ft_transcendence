@@ -1,0 +1,20 @@
+{% load static %}
+<div class="card-body text-center">
+    <div>
+        <img id="avatar" src={% if user.avatar %}"{{ user.avatar.url }}"{% else %}"{% static 'accounts/gnu.png' %}"{% endif %} alt="User Profile" class="rounded-circle profile-img mb-3" style="width: 100px;height: 100px">
+        <a href="{% url 'pong:edit_avatar' %}" class="btn btn-dark btn-sm rounded-circle navbar-toggle" style="position: absolute;top: 27%;left: 53%">
+            <i class="fas fa-camera"></i>
+        </a>
+    </div>
+    <h3 id="username" class="card-title mb-2">{{ user.get_username }}</h3>
+    <a href="{% url 'pong:edit_username' %}" class="btn btn-light"><i class="fas fa-edit me-2"></i>Edit username</a>
+    <a href="{% url 'pong:edit_password' %}" class="btn btn-light"><i class="fas fa-edit me-2"></i>Edit password</a>
+    <div class="row" style="margin: 20px;height: 350px;">
+        <div class="col-md-6">
+            {% include 'pong/match_history.html' %}
+        </div>
+        <div class="col-md-6" style="max-height: 100%">
+            {% include 'pong/friend_list.html' %}
+        </div>
+    </div>
+</div>

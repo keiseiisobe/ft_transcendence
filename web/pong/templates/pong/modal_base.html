@@ -1,0 +1,22 @@
+<div
+    class="modal fade"
+    id={% block modal-id %}"modal-id"{% endblock modal-id %}
+    tabindex="-1"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                {% block modal-header %}
+                <h1 class="modal-title fs-5">{% block modal-title %}Title{% endblock modal-title %}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                {% endblock modal-header %}
+            </div>
+            <div class="modal-body">
+                {% block modal-body %}{% endblock modal-body %}
+            </div>
+            <div class="modal-footer">
+                {% block modal-footer %}{% endblock modal-footer %}
+            </div>
+        </div>
+    </div>
+</div>

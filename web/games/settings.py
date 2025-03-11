@@ -36,7 +36,9 @@ SECRET_KEY = 'django-insecure-%a3+jjm^3z^o+!vbykri7l3tr1!n*559ief$6h52(%v_@0h((3
 DEBUG = not PRODUCTION
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
 CSRF_TRUSTED_ORIGINS = ['https://localhost']
+# CSRF_USE_SESSIONS = True
 
 # Application definition
 
@@ -132,6 +134,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = "accounts.User"
 
+LOGIN_URL = "/pong/login"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

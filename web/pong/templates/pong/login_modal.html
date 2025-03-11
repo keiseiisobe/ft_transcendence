@@ -1,0 +1,18 @@
+{% extends "pong/modal_base.html" %}
+{% block modal-id %}"login-modal"{% endblock modal-id %}
+{% block modal-title %}Login{% endblock modal-title %}
+{% block modal-body %}
+<form id="login-form" novalidate>
+    <div class="mb-3">
+        <label for="login-form-username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="login-form-username" required/>
+    </div>
+    <div class="mb-3">
+        <label for="login-form-password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="login-form-password" minlength="5" required/>
+    </div>
+{% endblock modal-body %}
+{% block modal-footer %}
+    <button class="btn btn-dark btn-primary" type="submit">Login</button>
+</form>
+{% endblock modal-footer %}

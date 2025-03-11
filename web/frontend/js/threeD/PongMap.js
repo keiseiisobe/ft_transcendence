@@ -14,7 +14,7 @@ export class PongMap
             depth: 0.2,
             distancePaddleFromWall: 0.2,
             cameraFOV: 90,
-            cameraDistance: 4,
+            cameraDistance: 3.5,
             paddleSize: new THREE.Vector2(0.2, 0.9),
             ballSize: 0.2,
             cameraMoveMult: 0.07,
@@ -63,6 +63,25 @@ export class PongMap
         this.onCollision_ = f
     }
 
+    cleanUpScene() {
+        this.scene.traverse((object) => {
+            if (object.geometry) object.geometry.dispose();
+            if (object.material) {
+                if (Array.isArray(object.material)) {
+                    object.material.forEach((material) => material.dispose());
+                } else {
+                    object.material.dispose();
+                }
+            }
+            if (object.texture) object.texture.dispose();
+        });
+
+        while (this.scene.children.length > 0) {
+            this.scene.remove(this.scene.children[0]);
+        }
+
+        this.renderer.dispose();
+    }
 // private:
     #addStaticObjects() {
         const planeGeo = new THREE.PlaneGeometry()
