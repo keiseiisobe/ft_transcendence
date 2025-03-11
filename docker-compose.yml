@@ -192,48 +192,6 @@ services:
       #  envsubst '$$SLACK_CHANNEL_NAME'< /usr/share/alertmanager/config.yml > /usr/share/alertmanager/config.yml
       #  '
   
-  thanos-sidecar:
-    user: root
-    image: thanosio/thanos:v0.37.2
-    container_name: thanos-sidecar
-    command:
-      - "sidecar"
-      - "--debug.name=thanos-sidecar"
-      - "--grpc-address=0.0.0.0:10901"
-      - "--http-address=0.0.0.0:10902"
-      - "--prometheus.url=https://prometheus:9090"
-      - "--tsdb.path=/data/prom"
-      - "--objstore.config-file=/bucket.yml"
-      - |
-        --request.logging-config=
-        http:
-          options:
-            level: DEBUG
-        grpc:
-          config:
-            - service: thanos.Store
-              method: Info
-          options:
-            level: ERROR
-            decision:
-              log_start: false
-              log_end: true
-      - |
-        --prometheus.http-client=
-        basic_auth:
-          username: "elastic"
-          password: "changeme"
-        tls_config:
-          ca_file: "/etc/ssl/certs/ca/ca.crt"
-    volumes:
-      - certs:/etc/ssl/certs
-      - thanos:/data/prom
-      - ./devops/system-monitor/thanos/bucket.yml:/bucket.yml
-    depends_on:
-      - prometheus
-      - es01
-    restart: always
-
   thanos-query:
     user: root
     image: thanosio/thanos:v0.37.2
@@ -243,12 +201,11 @@ services:
       - "--grpc-address=0.0.0.0:10903"
       - "--http-address=0.0.0.0:10904"
       - "--query.replica-label=prometheus"
-      - "--store=thanos-sidecar:10901"
       - "--store=thanos-store:10905"
+      - "--store=thanos-receiver:10907"
     ports:
       - 10904:10904
     depends_on:
-      - thanos-sidecar
       - thanos-store
 
   thanos-store:
@@ -281,7 +238,6 @@ services:
       - compact:/tmp
       - ./devops/system-monitor/thanos/bucket.yml:/bucket.yml
     depends_on:
-      - thanos-sidecar
       - thanos-store
 
   thanos-receiver:
@@ -553,7 +509,6 @@ services:
     volumes:
       - certs:/usr/share/elastic-agent/certs
       - log-volume:/var/log
-      - "./devops/elastic-agent/createILMpolicy.sh:/usr/local/bin/createILMpolicy.sh"
       - "./devops/elastic-agent/generate_index_lifecycle_policy.sh:/usr/local/bin/generate_index_lifecycle_policy.sh"
       - "./devops/elastic-agent/generate_snapshot_lifecycle_policy.sh:/usr/local/bin/generate_snapshot_lifecycle_policy.sh"
       #- "./devops/elastic-agent/entrypoint.sh:/usr/share/elastic-agent/entrypoint.sh"
