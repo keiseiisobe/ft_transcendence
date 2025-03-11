@@ -52,12 +52,6 @@ scrape_configs:
       - targets: 
         - 'grafana:3000'
 
-  - job_name: 'thanos-sidecar'
-    scrape_interval: 5s
-    static_configs:
-      - targets:
-        - "thanos-sidecar:10902"
-
   - job_name: 'thanos-store'
     scrape_interval: 5s
     static_configs:
@@ -69,11 +63,6 @@ scrape_configs:
     static_configs:
       - targets:
         - "thanos-query:10904"
-          #ca_file: /usr/share/prometheus/certs/ca/ca.crt
-          #cert_file: /usr/share/prometheus/certs/prometheus/prometheus.crt
-          #key_file: /usr/share/prometheus/certs/prometheus/prometheus.key
-  #client_auth_type: "RequireAndVerifyClientCert"
-  #client_ca_file: /usr/share/prometheus/certs/ca/ca.crt
 
 remote_write:
   - url: "http://thanos-receiver:19291/api/v1/receive"
