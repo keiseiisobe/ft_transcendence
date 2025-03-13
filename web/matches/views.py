@@ -16,11 +16,20 @@ def matches_details(request, id:int):
     pass
 
 @require_http_methods(["POST"])
-def tournament_new(request):
+def tournaments_new(request):
     pass
 
+@require_http_methods(["GET"])
+def tournaments_details(request, id:int):
+    pass
 
+@require_http_methods(["GET"])
+def tournaments_next_match(request, id:int):
+    pass
 
+@require_http_methods(["GET"])
+def tournaments_results(request, id:int):
+    pass
 
 
 
