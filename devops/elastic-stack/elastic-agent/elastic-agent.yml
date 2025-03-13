@@ -16,7 +16,7 @@ outputs:
   logstash_output:
     type: logstash
     hosts:
-      - "logstash01:5044" 
+      - "logstash:5044" 
 
 output_permissions:
   default:

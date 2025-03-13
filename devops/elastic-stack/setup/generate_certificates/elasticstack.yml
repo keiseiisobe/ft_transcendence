@@ -1,0 +1,16 @@
+instances:
+  - name: es01
+    dns:
+      - es01
+  - name: kibana
+    dns:
+      - kibana
+  - name: logstash
+    dns:
+      - logstash
+  - name: elastic-agent
+    dns:
+      - elastic-agent
+  - name: apm-server
+    dns:
+      - apm-server

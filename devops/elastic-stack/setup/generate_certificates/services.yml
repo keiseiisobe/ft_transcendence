@@ -1,0 +1,60 @@
+certificates:
+  - name: nginx
+    cn: nginx
+    san:
+      - nginx
+  - name: prometheus
+    cn: prometheus
+    san:
+      - prometheus
+  - name: grafana
+    cn: grafana
+    san:
+      - grafana
+  - name: node-exporter
+    cn: node-exporter
+    san:
+      - node-exporter
+  - name: postgres-exporter
+    cn: postgres-exporter
+    san:
+      - postgres-exporter
+  - name: elasticsearch-exporter
+    cn: elasticsearch-exporter
+    san:
+      - elasticsearch-exporter
+  - name: nginx-exporter
+    cn: nginx-exporter
+    san:
+      - nginx-exporter
+  - name: kibana-prometheus-exporter
+    cn: kibana-prometheus-exporter
+    san:
+      - kibana-prometheus-exporter
+  - name: logstash-exporter
+    cn: logstash-exporter
+    san:
+      - logstash-exporter
+
+      #  - name: 1
+      #    cn: 1
+      #    san:
+      #      - DNS:1
+      #
+      #  - name: 1
+      #    cn: 1
+      #    san:
+      #      - DNS:1
+      #
+      #  - name: 1
+      #    cn: 1
+      #    san:
+      #      - DNS:1
+      #
+      #
+      #  - name: logstash-exporter
+      #    dns:
+      #      - logstash-exporter
+      #      - localhost
+      #    ip:
+      #      - 127.0.0.1

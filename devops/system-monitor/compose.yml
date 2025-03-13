@@ -1,0 +1,205 @@
+# ==========================================
+# system monitor
+# ==========================================
+services:
+  prometheus:
+    image: prom/prometheus
+    #build: ./prometheus
+    container_name: prometheus
+    platform: linux/arm64
+    ports:
+      - "9090:9090"
+    volumes:
+      - thanos:/data/prom
+      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+      - "./prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml:ro"
+      - log-volume:/prometheus/query.log
+      #- certs:/usr/share/prometheus/certs
+      #- "./prometheus/web-config.yml:/etc/prometheus/web-config.yml:ro"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--log.level=debug'
+      - "--storage.tsdb.path=/data/prom"
+      - '--web.external-url=https://localhost:9090'
+      - '--storage.tsdb.retention.size=400MB'
+      - '--storage.tsdb.min-block-duration=10m'
+      - '--storage.tsdb.max-block-duration=10m'
+      #- '--web.config.file=/etc/prometheus/web-config.yml'
+    user: root
+    restart: always
+    depends_on:
+      - es01
+    mem_limit: ${PROMETHEUS_MEM_LIMIT}
+
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    platform: linux/arm64
+    ports:
+      - "3000:3000"
+    volumes:
+      #- certs:/usr/share/grafana/certs
+      - "./grafana/defaults.ini:/usr/share/grafana/conf/defaults.ini:ro"
+      - "./grafana/prometheus-datasource.yml:/etc/grafana/provisioning/datasources/prometheus-datasource.yml:ro"
+      - './grafana/dashboard-settings:/etc/grafana/provisioning/dashboards:ro'
+      - './grafana/dashboards:/var/lib/grafana/dashboards:ro'
+      #- log-volume:/var/log
+      - thanos:/data/prom 
+      #- certs:/usr/local/share/ca-certificates
+    user: root
+
+  node-exporter:
+    image: prom/node-exporter
+    container_name: node-exporter
+    platform: linux/arm64
+    ports:
+      - "9100"
+      #volumes:
+      #  - "/run/udev:/run/udev:ro"
+      #user: root
+    command:
+    - "--no-collector.diskstats"
+
+  postgres-exporter:
+    container_name: postgres-exporter
+    image: quay.io/prometheuscommunity/postgres-exporter
+    platform: linux/arm64
+    env_file:
+      - ../../.env
+    ports:
+      - "9187"
+
+  elasticsearch_exporter:
+    container_name: elasticsearch_exporter
+    image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
+    depends_on:
+      - es01
+    volumes:
+      - certs:/usr/share/prometheus/certs
+    user: root
+    environment:
+      - ES_USERNAME=elastic
+      - ES_PASSWORD=changeme
+    command:
+      - '--es.uri=https://es01:9200'
+      - '--es.ca=/usr/share/prometheus/certs/ca/ca.crt'
+      #- '--es.client-private-key=/usr/share/prometheus/certs/es01/es01.key'
+      #- '--es.client-cert=/usr/share/prometheus/certs/es01/es01.crt'
+      - '--es.all'
+      - '--log.level=debug'
+    ports:
+      - "9114"
+
+  nginx-exporter:
+    container_name: nginx-exporter
+    image: nginx/nginx-prometheus-exporter:1.4.0
+    ports:
+      - "9113"
+    depends_on:
+      - nginx
+      - prometheus
+    volumes:
+      - certs:/usr/share/prometheus/certs
+    networks:
+      default:
+        ipv4_address: 192.168.100.253
+    command:
+      - '--nginx.scrape-uri=http://nginx:80/nginx_status'
+      - '--log.level=debug'
+
+  alertmanager: # Alerting for Prometheus
+    image: prom/alertmanager
+  #build: ./alertmanager
+    container_name: alertmanager
+    hostname: alertmanager
+    env_file:
+      - ../../.env
+    ports:
+      - "9093:9093"
+    restart: always
+    volumes:
+      - "./alertmanager/config.yml:/etc/alertmanager/alertmanager.yml:ro"
+      #- ./alertmanager/alerts:/usr/share/alertmanager/alerts
+      #- ./alertmanager/templates:/usr/share/alertmanager/templates
+      #- ./alertmanager/data:/alertmanager
+      #command: >
+      #  bash -c '
+      #  envsubst '$$SLACK_WEBHOOK_URL'< /usr/share/alertmanager/config.yml > /usr/share/alertmanager/config.yml
+      #  envsubst '$$SLACK_CHANNEL_NAME'< /usr/share/alertmanager/config.yml > /usr/share/alertmanager/config.yml
+      #  '
+  
+  thanos-query:
+    user: root
+    image: thanosio/thanos:v0.37.2
+    container_name: thanos-query
+    command:
+      - "query"
+      - "--grpc-address=0.0.0.0:10903"
+      - "--http-address=0.0.0.0:10904"
+      - "--query.replica-label=prometheus"
+      - "--store=thanos-store:10905"
+      - "--store=thanos-receiver:10907"
+    ports:
+      - 10904:10904
+    depends_on:
+      - thanos-store
+
+  thanos-store:
+    image: thanosio/thanos:v0.37.2
+    user: root
+    container_name: thanos-store
+    restart: always
+    command:
+      - "store"
+      - "--grpc-address=0.0.0.0:10905"
+      - "--http-address=0.0.0.0:10906"
+      - "--data-dir=/data/store"
+      - "--objstore.config-file=/bucket.yml"
+    volumes:
+      - certs:/certs
+      - store:/data/store
+      - ./thanos/bucket.yml:/bucket.yml
+
+  compactor:
+    user: root
+    image: thanosio/thanos:v0.37.2
+    container_name: compactor
+    command:
+      - "compact"
+      - "--wait"
+      - "--data-dir=/tmp/thanos-compact"
+      - "--objstore.config-file=/bucket.yml"
+      - "--http-address=0.0.0.0:10902"
+    volumes:
+      - compact:/tmp
+      - ./thanos/bucket.yml:/bucket.yml
+    depends_on:
+      - thanos-store
+
+  thanos-receiver:
+    user: root
+    image: thanosio/thanos:v0.37.2
+    container_name: thanos-receiver
+    command:
+      - "receive"
+      - "--grpc-address=0.0.0.0:10907"
+      - "--http-address=0.0.0.0:10908"
+      - "--remote-write.address=0.0.0.0:19291"
+      - "--receive.local-endpoint=thanos-receiver:10907"
+      - "--receive.hashrings-file=/etc/thanos/hashrings.json"
+      - "--objstore.config-file=/bucket.yml"
+      - "--label=cluster=\"my-cluster\""
+      - "--label=replica=\"0\""
+      - "--tsdb.path=/data/receive"
+      - "--tsdb.min-block-duration=30m"  # 30分ごとにフラッシュ
+      - "--tsdb.max-block-duration=30m"
+    volumes:
+      - store:/data/store
+      - receive:/data/receive
+      - ./thanos/bucket.yml:/bucket.yml
+      - ./thanos/hashrings.json:/etc/thanos/hashrings.json
+    ports:
+      - "19291"  # Prometheus の remote_write で使うポート
+    depends_on:
+      - thanos-store
+      - compactor
