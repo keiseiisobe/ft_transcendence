@@ -104,3 +104,12 @@ def addFriend(request):
         return JsonResponse({ "message": "You have already requested friendship." }, status=400)
     except ValidationError as e:
         return JsonResponse({ "message": e.messages }, status=400)
+
+@require_http_methods(["GET"])
+def user(request):
+    if request.user.is_authenticated:
+        return JsonResponse({
+            "username": request.user.username
+        })
+    else:
+        return JsonResponse({"message": "not authenticated"}, status=400)

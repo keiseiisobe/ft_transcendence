@@ -1,8 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as UserAdminBase
 
-from pong.admin import MatchHistoryInline
-
 from .forms import UserCreationForm, UserChangeForm
 from .models import User
 
@@ -23,4 +21,3 @@ class UserAdmin(UserAdminBase):
     )
     search_fields = ("username",)
     ordering = ("username",)
-    inlines = [MatchHistoryInline]

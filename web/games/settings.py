@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'pong',
     'friendship',
     'rainbowtests',
-    'django_vite'
+    'django_vite',
+    'matches'
 ]
 
 MIDDLEWARE = [

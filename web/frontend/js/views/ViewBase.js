@@ -57,6 +57,9 @@ export default class {
         this.modal = null
     }
 
+    refresh() {
+    }
+
 // private:
     #html_content = null
 
