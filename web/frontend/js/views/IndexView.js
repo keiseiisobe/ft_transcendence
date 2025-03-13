@@ -2,6 +2,69 @@ import ViewBase from "./ViewBase"
 import PongGame from "../pongGame/PongGame"
 import Cookies from 'js-cookie'
 
+async function getMatch(id) {
+    const response = await fetch(`/matches/${id}`, {
+        method: "GET",
+        headers: { "X-CSRFToken": Cookies.get("csrftoken") }
+    })
+    if (response.ok) {
+        return await response.json()
+    }
+    else if (response.status === 404) {
+        return null
+    }
+    else {
+        throw new Error(`error while fetching match ${id}`)
+    }
+}
+
+async function getTournament(id) {
+    const tournamentResponse = await fetch(`/matches/tournaments/${id}`, {
+        method: "GET",
+        headers: { "X-CSRFToken": Cookies.get("csrftoken") }
+    })
+    if (tournamentResponse.ok) {
+        const tournament = await tournamentResponse.json()
+        tournament.next_match = async function () {
+            const nextMatchResponse = await fetch(`/matches/tournaments/${this.id}/next-match`, {
+                method: "GET",
+                headers: { "X-CSRFToken": Cookies.get("csrftoken") }
+            })
+            if (nextMatchResponse.ok) {
+                return await response.json()
+            }
+            else if (nextMatchResponse.status === 404) {
+                return null
+            }
+            else {
+                throw new Error(`error while fetching next match for tournament ${this.id}`)
+            }
+        }
+        tournament.results = async function () {
+            const resultsResponse = await fetch(`/matches/tournaments/${this.id}/results`, {
+                method: "GET",
+                headers: { "X-CSRFToken": Cookies.get("csrftoken") }
+            })
+            if (resultsResponse.ok) {
+                return await response.json()
+            }
+            else if (resultsResponse.status === 404) {
+                return null
+            }
+            else {
+                throw new Error(`error while fetching results for tournament ${this.id}`)
+            }
+        }
+    }
+    else if (tournamentResponse.status === 404) {
+        return null
+    }
+    else {
+        throw new Error(`error while fetching tournament ${id}`)
+    }
+}
+
+
 export default class extends ViewBase {
     constructor() {
         super("/pong", "/pong/ssr/index")
@@ -23,152 +86,23 @@ export default class extends ViewBase {
         await super.init()
         this.#pongGame = new PongGame($("#canvas").get(0))
         
-        const matchId = localStorage.getItem("matchId");
         const tournamentId = localStorage.getItem("tournamentId");
-        
+        if (tournamentId) {
+            this.#tournament = getTournament(tournamentId)
+            if (this.#tournament == null) {
+                localStorage.removeItem("tournamentId")
+            }
+        }
+
+        const matchId = localStorage.getItem("matchId");
         if (matchId) {
-            try {
-                const res = await fetch(`/matches/score?matchId=${matchId}`, {
-                    method: "GET",
-                    headers: { "Content-Type": "application/json" }
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    
-                    // Set the appropriate round end handler based on whether this is a tournament match
-                    if (tournamentId) {
-                        this.#pongGame.onRoundEnd(this.#onRoundEndTournament.bind(this));
-                        
-                        // Show who's playing with start button
-                        $("#floating-menu").html(/*html*/`
-                            <div class="container next-match">
-                                <h3 class="mb-3 menu-title">Current Match</h3>
-                                <hr>
-                                <div class="d-flex justify-content-around align-items-center mb-4">
-                                    <div class="text-center">
-                                        <h4>${data.player1Name}</h4>
-                                    </div>
-                                    <div class="text-center">
-                                        <h3>VS</h3>
-                                    </div>
-                                    <div class="text-center">
-                                        <h4>${data.player2Name}</h4>
-                                    </div>
-                                </div>
-                                <div class="text-center">
-                                    <button class="btn btn-primary btn-custom" id="start-match-btn">Start Match</button>
-                                </div>
-                            </div>
-                        `);
-                        
-                        // Add button click event
-                        $("#start-match-btn").on("click", () => {
-                            $("#floating-menu").html("");
-                            this.#pongGame.start_round({
-                                scoreLeft: data.scoreLeft,
-                                scoreRight: data.scoreRight,
-                                side: Math.random() < 0.5 ? -1 : 1
-                            });
-                        });
-                    } else {
-                        this.#pongGame.onRoundEnd(this.#onRoundEndPvP.bind(this));
-                        this.#pongGame.start_round({
-                            scoreLeft: data.scoreLeft,
-                            scoreRight: data.scoreRight,
-                            side: Math.random() < 0.5 ? -1 : 1
-                        });
-                    }
-                } else {
-                    if (res.status === 404) {
-                        localStorage.removeItem("matchId");
-                        localStorage.removeItem("tournamentId");
-                    }
-                    this.#rootMenu();
-                }
-            } catch (error) {
-                console.error("Failed to fetch match score:", error);
-                this.#rootMenu();
+            this.#match = getMatch(matchId)
+            if (this.#match == null) {
+                localStorage.removeItem("matchId")
             }
+            // TODO : if there is a tournament, check if the match is linked to the tournament (error if not)
         }
-        else if (tournamentId) {
-            // No match ID but tournament ID exists - try to get the next match
-            try {
-                const nextMatchResponse = await fetch(`/matches/next-tournament-match?tournamentId=${tournamentId}`, {
-                    method: "GET",
-                    headers: { "Content-Type": "application/json" }
-                });
-                
-                if (nextMatchResponse.ok) {
-                    const nextMatchData = await nextMatchResponse.json();
-                    
-                    if (nextMatchData.tournamentFinished) {
-                        // Tournament is complete
-                        localStorage.removeItem("tournamentId");
-                        
-                        $("#floating-menu").html(/*html*/`
-                            <div class="container tournament-over">
-                                <h3 class="mb-3 menu-title">Tournament Complete</h3>
-                                <hr>
-                                <p>Winner: ${nextMatchData.tournamentWinner}</p>
-                                <p>Final Rankings:</p>
-                                <ol>
-                                    ${nextMatchData.rankings.map(player => `<li>${player.nickname} (${player.wins} wins)</li>`).join('')}
-                                </ol>
-                                <button class="btn btn-primary btn-custom" id="return-btn">Return to Menu</button>
-                            </div>
-                        `);
-                        $("#return-btn").on("click", () => { this.#rootMenu(); });
-                    } else {
-                        // Show who's playing in this match
-                        localStorage.setItem("matchId", nextMatchData.matchId);
-                        this.#pongGame.onRoundEnd(this.#onRoundEndTournament.bind(this));
-                        
-                        $("#floating-menu").html(/*html*/`
-                            <div class="container next-match">
-                                <h3 class="mb-3 menu-title">Next Match</h3>
-                                <hr>
-                                <div class="d-flex justify-content-around align-items-center mb-4">
-                                    <div class="text-center">
-                                        <h4>${nextMatchData.player1}</h4>
-                                    </div>
-                                    <div class="text-center">
-                                        <h3>VS</h3>
-                                    </div>
-                                    <div class="text-center">
-                                        <h4>${nextMatchData.player2}</h4>
-                                    </div>
-                                </div>
-                                <div class="text-center">
-                                    <button class="btn btn-primary btn-custom" id="start-match-btn">Start Match</button>
-                                </div>
-                            </div>
-                        `);
-                        
-                        // Add button click event
-                        $("#start-match-btn").on("click", () => {
-                            $("#floating-menu").html("");
-                            this.#pongGame.start_round({
-                                scoreLeft: nextMatchData.scorePlayer1,
-                                scoreRight: nextMatchData.scorePlayer2,
-                                side: Math.random() < 0.5 ? -1 : 1
-                            });
-                        });
-                    }
-                } else {
-                    // Failed to get next tournament match
-                    localStorage.removeItem("tournamentId");
-                    this.#rootMenu();
-                }
-            } catch (error) {
-                console.error("Failed to fetch next tournament match:", error);
-                localStorage.removeItem("tournamentId");
-                this.#rootMenu();
-            }
-        }
-        else {
-            this.#rootMenu();
-        }
-        
+         
         console.log("Index view initialized")
         if (this.modal)
             await this.modal.init()
@@ -188,6 +122,8 @@ export default class extends ViewBase {
 
 // private:
     #pongGame
+    #tournament = null
+    #match = null
 
     #rootMenu() {
         $("#floating-menu").html(/*html*/`
@@ -673,5 +609,33 @@ export default class extends ViewBase {
         const username = loginDivVisible ? $(`#username-${playerNum}`, `#${formId}`).val() : null;
         const password = loginDivVisible ? $(`#password-${playerNum}`, `#${formId}`).val() : null;
         return { nickname, type, username, password };
+    }
+
+
+    #showRootMenu() {
+
+    }
+
+    #showTournamentResults() {
+
+    }
+
+    async #startNewRound() {
+        if (this.#match) {
+            this.#pongGame.start_round(this.#match);
+        }
+        else if (this.#tournament) {
+            this.#match = await this.#tournament.nextMatch()
+            if (this.#match) {
+                // TODO : anounce next match
+                this.#pongGame.start_round(this.#match);
+            }
+            else {
+                this.#showTournamentResults()
+            }
+        }
+        else {
+            this.#showRootMenu()
+        }
     }
 }
