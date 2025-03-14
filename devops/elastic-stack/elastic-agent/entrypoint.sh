@@ -18,15 +18,6 @@ sh /usr/local/bin/generate_snapshot_lifecycle_policy.sh
 #index lifecycle policy
 sh /usr/local/bin/generate_index_lifecycle_policy.sh
 
-# import the dashboard into kibana
-echo "\nimport the dashboard into kibana"
-curl \
-  -X POST http://kibana:5601/api/saved_objects/_import?createNewCopies=true \
-  -u elastic:changeme \
-  -H "kbn-xsrf: true" \
-  --form file=@/usr/share/elastic-agent/nginx_dashboard.ndjson
-
-rm -f /usr/share/elastic-agent/nginx_dashboard.ndjson
 
 response=$(curl -s --cacert /usr/share/elastic-agent/certs/ca/ca.crt -u elastic:changeme  -X POST "https://es01:9200/_security/api_key" -H "Content-Type: application/json" -u "elastic:changeme" -d '{"name": "my_api_key", "role_descriptors": {"standalone_agent": {"cluster": ["monitor", "manage_api_key", "manage_own_api_key", "manage_index_templates"],"index": [{"names": ["*"],"privileges": ["all"]}]}}}')
 

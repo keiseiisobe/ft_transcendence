@@ -1,5 +1,6 @@
 #!/bin/bash
 
+workdir="usr/share/elasticsearch"
 if [ "${CERTS_CREATED:-false}" = "true" ]; then
   echo "Certificates already created"
   # 環境変数がtrueの場合は終了

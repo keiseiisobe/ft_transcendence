@@ -8,12 +8,8 @@ services:
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
       - "./setup/generate_certificates/elasticstack.yml:/usr/share/elasticsearch/elasticstack-certificates.yml"
-      - "./setup/generate_certificates/elasticstack.sh:/usr/share/elasticsearch/elasticstack.sh"
-      - "./setup/setup-kibana-dashboard.sh:/usr/share/elasticsearch/setup-kibana-dashboard.sh"
-      #      - "./setup/generate_certificates/services.yml:/usr/share/elasticsearch/service-certificates.yml"
-      #      - "./setup/generate_certificates/services.sh:/usr/share/elasticsearch/services.sh"
     healthcheck:
-      test: ["CMD-SHELL", "/usr/share/elasticsearch/healthcheck.sh"]
+      test: ["CMD-SHELL", "/usr/share/scripts/healthcheck.sh"]
       interval: 2s
       timeout: 5s
       retries: 120
