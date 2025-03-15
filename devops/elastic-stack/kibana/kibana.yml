@@ -7,3 +7,8 @@ server.host: "0.0.0.0"
 server.shutdownTimeout: "5s"
 elasticsearch.hosts: [ "https://es01:9200" ]
 monitoring.ui.container.elasticsearch.enabled: false
+
+server.ssl.enabled: true
+server.ssl.certificate: /usr/share/kibana/config/certs/kibana.crt
+server.ssl.key: /usr/share/kibana/config/certs/kibana.key
+elasticsearch.ssl.certificateAuthorities: [ "/usr/share/kibana/config/certs/ca.crt" ]
