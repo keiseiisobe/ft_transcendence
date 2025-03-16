@@ -1,303 +1,163 @@
 import json
-from django.http import JsonResponse
+from django.db.transaction import non_atomic_requests
+from django.http import JsonResponse, request
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate
 
+from accounts.models import User
+from .models import Match, Tournament
+
 # Create your views here.
+
+class MyValidationError(BaseException):
+    def __init__(self, desc) -> None:
+        self.dict = desc
+
+def validate_player(request, input:dict, auth_cache:dict[tuple[str,str], User|None]) -> dict:
+    output = {}
+    output['type'] = input['type']
+    output['nickname'] = input['nickname']
+    if input['type'] == 0: # user
+        if input['isLoggedUser']:
+            output['user'] = request.user
+        else:
+            if (input["username"], input["password"]) not in auth_cache:
+                auth_cache[(input["username"], input["password"])] = authenticate(username=input["username"], password=input["password"])
+            output['user'] = auth_cache[(input["username"], input["password"])]
+        if output['user'] is None:
+            raise MyValidationError({ "credentials": True })
+    return output
+
+def validate_match_players(request, p1, p2, auth_cache:dict[tuple[str,str], User|None]) -> tuple[dict, dict]:
+    validation_errors = {}
+    if p1['nickname'] == p2['nickname']:
+        validation_errors.setdefault("players", {}).setdefault("1", {}).update({ "nickname": True })
+        validation_errors.setdefault("players", {}).setdefault("2", {}).update({ "nickname": True })
+    try:
+        vp1 = validate_player(request, p1, auth_cache)
+    except MyValidationError as e:
+        validation_errors.setdefault("players", {}).setdefault("1", {}).update(e.dict)
+        vp1 = None
+    try:
+        vp2 = validate_player(request, p2, auth_cache)
+    except MyValidationError as e:
+        validation_errors.setdefault("players", {}).setdefault("2", {}).update(e.dict)
+        vp2 = None
+    if vp1 is not None and vp2 is not None:
+        if vp1.get('user', None) is not None and vp2.get('user', None) is not None and vp1['user'] == vp2['user']:
+            validation_errors.setdefault("players", {}).setdefault("1", {}).update({ "credentials": True })
+            validation_errors.setdefault("players", {}).setdefault("2", {}).update({ "credentials": True })
+    if len(validation_errors.get("players", {})) > 0:
+        raise MyValidationError(validation_errors)
+    return (vp1, vp2) # pyright: ignore
 
 @require_http_methods(["POST"])
 def matches_new(request):
-    pass
+    try:
+        data = json.loads(request.body)
+        if len(data['players']) != 2:
+            raise ValueError("bad input")
 
-@require_http_methods(["GET", "POST"])
-def matches_details(request, id:int):
-    pass
+        p1, p2 = validate_match_players(request, data['players'][0], data['players'][1], {})
+        match = Match.objects.create(p1, p2)
+        return JsonResponse(match.dict())
+
+    except MyValidationError as e:
+        return JsonResponse(e.dict, status=400)
+
+    except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
+        return JsonResponse({"message": str(e)}, status=400)
+
+@require_http_methods(["GET", "PATCH"])
+def matches_details(request, match_id:int):
+    try:
+        match = Match.objects.get_ongoing_match(id=match_id)
+        if request.method == "GET":
+            return JsonResponse(match.dict())
+        elif request.method == "PATCH":
+            match.patch(json.loads(request.body))
+            return JsonResponse({"message": "OK"})
+    except json.JSONDecodeError:
+        return JsonResponse({"message": "json decode error"}, status=400)
+    except Match.DoesNotExist: #pyright: ignore
+        return JsonResponse({"error": "Match not found"}, status=404)
 
 @require_http_methods(["POST"])
 def tournaments_new(request):
-    pass
-
-@require_http_methods(["GET"])
-def tournaments_details(request, id:int):
-    pass
-
-@require_http_methods(["GET"])
-def tournaments_next_match(request, id:int):
-    pass
-
-@require_http_methods(["GET"])
-def tournaments_results(request, id:int):
-    pass
-
-
-
-
-
-
-
-@require_http_methods(["POST"])
-def new_match(request):
     try:
         data = json.loads(request.body)
-        players = data["players"]
+        if len(data['players']) != 4:
+            raise ValueError("bad input")
+
+        validation_errors = {}
+        players:list[tuple[str, dict, str, dict]] = [
+            ("1", data['players'][0], "2", data['players'][1]),
+            ("3", data['players'][2], "4", data['players'][3]),
+            ("1", data['players'][0], "3", data['players'][2]),
+            ("2", data['players'][1], "4", data['players'][3]),
+            ("1", data['players'][0], "4", data['players'][3]),
+            ("2", data['players'][1], "3", data['players'][2])
+        ]
+        match_players:list[tuple[dict, dict]] = []
+        cache = {}
+        for n1, p1, n2, p2 in players:
+            try:
+                match_players.append(validate_match_players(request, p1, p2, cache))
+            except MyValidationError as e:
+                validation_errors.setdefault("players", {}).setdefault(n1, {}).update(e.dict.get("players", {}).get("1", {}))
+                validation_errors.setdefault("players", {}).setdefault(n2, {}).update(e.dict.get("players", {}).get("2", {}))
+
+        if len(validation_errors.get("players", {})) > 0:
+            return JsonResponse(validation_errors, status=400)
         
-        # Ensure exactly 2 players for a match
-        if len(players) != 2:
-            return JsonResponse({"message": "Match requires exactly 2 players"}, status=400)
-            
-        p1 = players[0]
-        p2 = players[1]
-    except (json.JSONDecodeError, KeyError) as e:
-        return JsonResponse({"message": f"invalid request data: {e}"}, status=400)
+        tournament = Tournament.objects.create(match_players) #pyright: ignore
+        return JsonResponse({"id": tournament.id})
 
-    def validate_player(pdata, label):
-        if pdata["type"] == "loggedInUser":
-            if request.user.is_authenticated and not pdata.get("username"):
-                return request.user
-            user = authenticate(username=pdata.get("username"), password=pdata.get("password"))
-            if not user:
-                return JsonResponse({"invalidUser": label}, status=400)
-            return user
-        return None
-
-    user_p1 = validate_player(p1, 0)
-    if isinstance(user_p1, JsonResponse):
-        return user_p1
-    user_p2 = validate_player(p2, 1)
-    if isinstance(user_p2, JsonResponse):
-        return user_p2
-
-    from .models import Match
-    match = Match.objects.create(
-        p1_type=0 if user_p1 else 1,  # 0=User,1=Guest
-        p1_nickname=p1["nickname"][:10],
-        p1_user=user_p1,
-        p1_score=0,
-        p2_type=0 if user_p2 else 1,
-        p2_nickname=p2["nickname"][:10],
-        p2_user=user_p2,
-        p2_score=0
-    )
-
-    return JsonResponse({
-        "matchId": match.id,
-        "scorePlayer1": match.p1_score,
-        "scorePlayer2": match.p2_score
-    })
+    except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
+        return JsonResponse({"message": str(e)}, status=400)
 
 @require_http_methods(["GET"])
-def get_match_score(request):
-    match_id = request.GET.get('matchId')
-    
-    if not match_id:
-        return JsonResponse({"error": "Match ID is required"}, status=400)
-    
-    try:
-        from .models import Match
-        match = Match.objects.get(id=match_id)
-        
-        if match.is_finished:
-            return JsonResponse({"error": "Match is finished"}, status=404)
-        
-        return JsonResponse({
-            "scoreLeft": match.p1_score,
-            "scoreRight": match.p2_score,
-            "player1Name": match.p1_nickname,
-            "player2Name": match.p2_nickname
-        })
-    except Match.DoesNotExist:
-        return JsonResponse({"error": "Match not found"}, status=404)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+def tournaments_details(_, tournament_id:int):
+    tournament = Tournament.objects.get_ongoing_tournament(id=tournament_id)
+    if tournament is None:
+        return JsonResponse({"message": "no ongoing tournament foud for this id"}, status=404)
+    else:
+        return JsonResponse(tournament.dict())
 
-@require_http_methods(["POST"])
-def update_match_score(request):
-    try:
-        data = json.loads(request.body)
-        match_id = data.get("matchId")
-        new_score_left = data.get("scoreLeft")
-        new_score_right = data.get("scoreRight")
-        
-        if not match_id or new_score_left is None or new_score_right is None:
-            return JsonResponse({"error": "Invalid request data"}, status=400)
-        
-        from .models import Match
-        match = Match.objects.get(id=match_id)
-        
-        if new_score_left > match.p1_score:
-            match.p1_score = new_score_left
-        elif new_score_right > match.p2_score:
-            match.p2_score = new_score_right
-        
-        match_finished = match.p1_score >= 3 or match.p2_score >= 3
-        if match_finished:
-            match.is_finished = True
-        
-        match.save()
-        
-        if match_finished:
-            return JsonResponse({
-                "matchFinished": True,
-                "winner": "left" if match.p1_score >= 3 else "right",
-                "winnerNickname": match.p1_nickname if match.p1_score >= 3 else match.p2_nickname,
-                "finalScore": {
-                    "scoreLeft": match.p1_score,
-                    "scoreRight": match.p2_score
-                },
-                "players": {
-                    "left": match.p1_nickname,
-                    "right": match.p2_nickname
-                }
-            })
+@require_http_methods(["GET"])
+def tournaments_next_match(_, tournament_id:int):
+    tournament = Tournament.objects.get_ongoing_tournament(id=tournament_id)
+    if tournament is None:
+        return JsonResponse({"message": "no ongoing tournament foud for this id"}, status=404)
+    else:
+        match = tournament.next_match()
+        if match is None:
+            return JsonResponse({"message": "no match left for this tournament"}, status=404)
+        return JsonResponse(match.dict())
+
+@require_http_methods(["GET"])
+def tournaments_results(_, tournament_id:int):
+    tournament = Tournament.objects.get(id=tournament_id)
+    if tournament is None:
+        return JsonResponse({"message": "no tournament found for this id"})
+    if tournament.is_finished == False:
+        return JsonResponse({"message": "tournament not finished"}, status=400)
+
+    scores:dict[str,int] = {}
+    for match in tournament.matches.all():
+        if match.p1_score > match.p2_score:
+            scores[match.p1_nickname] = scores.get(match.p1_nickname, 0) + 1
+            scores[match.p2_nickname] = scores.get(match.p2_nickname, 0)
         else:
-            return JsonResponse({
-                "matchFinished": False,
-                "scoreLeft": match.p1_score,
-                "scoreRight": match.p2_score
-            })
-        
-    except Match.DoesNotExist:
-        return JsonResponse({"error": "Match not found"}, status=404)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
-
-@require_http_methods(["POST"])
-def new_tournament(request):
-    try:
-        data = json.loads(request.body)
-        players = data["players"]
-        
-        # Ensure exactly 4 players for a tournament
-        if len(players) != 4:
-            return JsonResponse({"message": "Tournament requires exactly 4 players"}, status=400)
-            
-    except (json.JSONDecodeError, KeyError) as e:
-        return JsonResponse({"message": f"invalid request data: {e}"}, status=400)
-
-    def validate_player(pdata, index):
-        if pdata["type"] == "loggedInUser":
-            if request.user.is_authenticated and not pdata.get("username"):
-                return request.user
-            user = authenticate(username=pdata.get("username"), password=pdata.get("password"))
-            if not user:
-                return JsonResponse({"invalidUser": index}, status=400)
-            return user
-        return None
-
-    # Validate all players
-    validated_users = []
-    for i, player in enumerate(players):
-        user = validate_player(player, i)
-        if isinstance(user, JsonResponse):
-            return user
-        validated_users.append(user)
-
-    from .models import Tournament, Match
-    # Create tournament
-    tournament = Tournament.objects.create()
+            scores[match.p2_nickname] = scores.get(match.p2_nickname, 0) + 1
+            scores[match.p1_nickname] = scores.get(match.p1_nickname, 0)
     
-    # Create matches for round-robin tournament (everyone plays against everyone once)
-    first_match = None
-    for i in range(len(players)):
-        for j in range(i + 1, len(players)):
-            # Player i vs Player j
-            p1, p2 = players[i], players[j]
-            user_p1, user_p2 = validated_users[i], validated_users[j]
-            
-            match = Match.objects.create(
-                p1_type=0 if user_p1 else 1,  # 0=User,1=Guest
-                p1_nickname=p1["nickname"][:10],
-                p1_user=user_p1,
-                p1_score=0,
-                p2_type=0 if user_p2 else 1,
-                p2_nickname=p2["nickname"][:10],
-                p2_user=user_p2,
-                p2_score=0,
-                tournament=tournament
-            )
-            
-            if first_match is None:
-                first_match = match
-
-    return JsonResponse({
-        "tournamentId": tournament.id,
-        "matchId": first_match.id,
-        "scorePlayer1": first_match.p1_score,
-        "scorePlayer2": first_match.p2_score
-    })
-
-@require_http_methods(["GET"])
-def next_tournament_match(request):
-    tournament_id = request.GET.get('tournamentId')
-    
-    if not tournament_id:
-        return JsonResponse({"error": "Tournament ID is required"}, status=400)
-    
-    try:
-        from .models import Tournament, Match
-        from django.db.models import Q
-        
-        tournament = Tournament.objects.get(id=tournament_id)
-        matches = Match.objects.filter(tournament=tournament)
-        
-        # Check if all matches are finished
-        if tournament.is_finished:
-            # Calculate tournament rankings
-            player_stats = {}
-            
-            # Collect all player nicknames
-            for match in matches:
-                if match.p1_nickname not in player_stats:
-                    player_stats[match.p1_nickname] = {"wins": 0, "points": 0}
-                if match.p2_nickname not in player_stats:
-                    player_stats[match.p2_nickname] = {"wins": 0, "points": 0}
-                
-                # Count wins and points
-                if match.is_finished:
-                    if match.p1_score > match.p2_score:
-                        player_stats[match.p1_nickname]["wins"] += 1
-                    else:
-                        player_stats[match.p2_nickname]["wins"] += 1
-                    
-                    player_stats[match.p1_nickname]["points"] += match.p1_score
-                    player_stats[match.p2_nickname]["points"] += match.p2_score
-            
-            # Convert to sorted list (by wins, then by points)
-            rankings = [
-                {"nickname": nickname, "wins": stats["wins"], "points": stats["points"]}
-                for nickname, stats in player_stats.items()
-            ]
-            rankings.sort(key=lambda x: (x["wins"], x["points"]), reverse=True)
-            
-            tournament_winner = rankings[0]["nickname"] if rankings else "Unknown"
-            
-            return JsonResponse({
-                "tournamentFinished": True,
-                "tournamentWinner": tournament_winner,
-                "rankings": rankings
-            })
-        else:
-            # Find next unfinished match
-            next_match = matches.filter(is_finished=False).first()
-            
-            if not next_match:
-                # This shouldn't happen if tournament.is_finished is reliable
-                return JsonResponse({
-                    "error": "Tournament state inconsistent - no matches available"
-                }, status=500)
-                
-            return JsonResponse({
-                "tournamentFinished": False,
-                "matchId": next_match.id,
-                "scorePlayer1": next_match.p1_score,
-                "scorePlayer2": next_match.p2_score,
-                "player1": next_match.p1_nickname,
-                "player2": next_match.p2_nickname
-            })
-            
-    except Tournament.DoesNotExist:
-        return JsonResponse({"error": "Tournament not found"}, status=404)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+    results = {
+        "winner": "",
+        "rankings": [ { "nickname": nickname, "wins": wins } for nickname, wins in scores.items() ]
+    }
+    results["rankings"].sort(key=lambda x: x['nickname'])
+    results["winner"] = results["rankings"][0]['nickname']
+    return JsonResponse(results)

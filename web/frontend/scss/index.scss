@@ -10,7 +10,7 @@ canvas {
     display: block;
 }
 
- .container {
+.container {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -21,7 +21,10 @@ canvas {
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.container.root-menu {
+.container.root-menu,
+.container.match-anouncement,
+.container.match-results,
+.container.tournament-result {
     max-width: 400px;
 }
 

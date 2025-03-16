@@ -7,6 +7,7 @@ export default class PongGame {
         this.pongMap.onUpdate(this.#onUpdate.bind(this));
         this.pongMap.onCollision(this.#onCollision.bind(this));
         this.idle()
+        this.side = null
     }
 
     idle() {
@@ -17,19 +18,26 @@ export default class PongGame {
         this.gameState = 0 // iddle
     }
 
-    start_round(desc) {
-        this.pongMap.scores.scoreLeft = desc.scoreLeft
-        this.pongMap.scores.scoreRight = desc.scoreRight
-        this.pongMap.middleText.text = "\n\n\nPress a key";
+    start_round(match) {
+        this.pongMap.scores.scoreLeft = match.p1_score
+        this.pongMap.scores.scoreRight = match.p2_score
+        this.pongMap.middleText.text = "\n\n\nPress a space";
         this.pongMap.middleText.visible = true;
         this.pongMap.scores.visible = true
-        window.addEventListener("keydown", () => {
-            this.pongMap.middleText.visible = false;
-            this.pongMap.ball.velocity = new Vector2(desc.side, (Math.random() - 0.5)).normalize().multiplyScalar(2)
-            this.gameState = 1 /*running*/
-        }, { once: true })
-    }
 
+        const listener = (e) => {
+            if (e.keyCode == 32) {
+                this.pongMap.middleText.visible = false;
+                if ((match.p1_score === 0 && match.p2_score === 0) || this.side == null)
+                    this.side = Math.random() < 0.5 ? -1 : 1
+                this.pongMap.ball.velocity = new Vector2(this.side, (Math.random() - 0.5)).normalize().multiplyScalar(2)
+                this.gameState = 1 /*running*/
+            } else {
+                window.addEventListener("keydown", listener, { once: true })
+            }
+        }
+        window.addEventListener("keydown", listener, { once: true })
+    }
 
     onRoundEnd(f) {
         this._onRoundEnd = f;
@@ -54,18 +62,22 @@ export default class PongGame {
             if (pressedKeys[75]) this.pongMap.paddleR.velocity -= 1;
         }
 
-        if (this.gameState === 2 /*resetting*/ && (
+        if (this.gameState === 2 || this.gameState === 3 /*resetting*/ && (
             (this.pongMap.ball.velocity.x < 0 && this.pongMap.ball.position.x < 0) ||
             (this.pongMap.ball.velocity.x > 0 && this.pongMap.ball.position.x > 0) ||
             (this.pongMap.ball.velocity.y < 0 && this.pongMap.ball.position.y < 0) ||
             (this.pongMap.ball.velocity.y > 0 && this.pongMap.ball.position.y > 0)))
         {
+            const stateSave = this.gameState // idle will reset to 0
             this.idle()
-            if (this._onRoundEnd)
-                this._onRoundEnd({
-                    scoreLeft: this.pongMap.scores.scoreLeft,
-                    scoreRight: this.pongMap.scores.scoreRight
-                })
+            if (this._onRoundEnd) {
+                if (stateSave === 2) { // left won
+                    this._onRoundEnd({winner: 1})
+                }
+                else if ((stateSave === 3)) { // right won
+                    this._onRoundEnd({winner: 2})
+                }
+            }
         }
     }
 
@@ -73,13 +85,15 @@ export default class PongGame {
         if (didHitWall && normal.x < 0) {
             this.pongMap.scores.scoreLeft += 1;
             this.pongMap.ball.velocity = new Vector2(this.pongMap.ball.realPosition.x, this.pongMap.ball.realPosition.y).multiplyScalar(-10)
-            this.gameState = 2 // resetting
+            this.gameState = 2 // resetting left win
+            this.side = -1 // next side is right
             return;
         }
         if (didHitWall && normal.x > 0) {
             this.pongMap.scores.scoreRight += 1;
             this.pongMap.ball.velocity = new Vector2(this.pongMap.ball.realPosition.x, this.pongMap.ball.realPosition.y).multiplyScalar(-10)
-            this.gameState = 2 // resetting
+            this.gameState = 3 // resetting right win
+            this.side = 1 // next side is left
             return;
         }
         var d = this.pongMap.ball.velocity.clone().normalize();
