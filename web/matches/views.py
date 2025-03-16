@@ -158,6 +158,6 @@ def tournaments_results(_, tournament_id:int):
         "winner": "",
         "rankings": [ { "nickname": nickname, "wins": wins } for nickname, wins in scores.items() ]
     }
-    results["rankings"].sort(key=lambda x: x['nickname'])
+    results["rankings"].sort(reverse=True, key=lambda x: x['wins'])
     results["winner"] = results["rankings"][0]['nickname']
     return JsonResponse(results)

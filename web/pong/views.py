@@ -14,17 +14,17 @@ from django.db import models
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def index(request):
-    return render(request, "pong/index.html", request)
+    return render(request, "pong/index.html")
 
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def login(request):
-    return render(request, "pong/index.html", request)
+    return render(request, "pong/index.html")
 
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def signup(request):
-    return render(request, "pong/index.html", request)
+    return render(request, "pong/index.html")
 
 def myPageContext(request):
     friendList = Follow.objects.following(request.user)
