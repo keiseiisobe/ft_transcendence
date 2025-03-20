@@ -19,6 +19,7 @@ PRODUCTION = 'POSTGRES_NAME'     in os.environ and \
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+FRONTEND_DIR = BASE_DIR / 'frontend'
 
 DATA_DIR = BASE_DIR.parent / 'data'
 if not os.path.isdir(DATA_DIR):
@@ -33,9 +34,10 @@ SECRET_KEY = 'django-insecure-%a3+jjm^3z^o+!vbykri7l3tr1!n*559ief$6h52(%v_@0h((3
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = not PRODUCTION
-
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'web']
+
 CSRF_TRUSTED_ORIGINS = ['https://localhost']
+# CSRF_USE_SESSIONS = True
 
 # Application definition
 
@@ -47,8 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'pong.apps.PongConfig',
-    'accounts.apps.AccountsConfig',
+    'accounts',
+    'pong',
     'friendship',
     'rainbowtests',
     'django_vite',
@@ -88,26 +90,29 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'games.wsgi.application'
 
+ASGI_APPLICATION = "games.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "dev": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": SQLITE_PATH,
-    },
-    "prod": {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_NAME'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': 'db',
-        'PORT': 5432,
+if PRODUCTION:
+    DATABASES = {
+        "default": {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('POSTGRES_NAME'),
+            'USER': os.environ.get('POSTGRES_USER'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+            'HOST': 'db',
+            'PORT': 5432,
+        }
     }
-}
-
-DATABASES['default'] = DATABASES['prod' if PRODUCTION else 'dev']
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": SQLITE_PATH,
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -130,13 +135,16 @@ AUTH_PASSWORD_VALIDATORS = [
 #    },
 ]
 
+AUTH_USER_MODEL = "accounts.User"
+
+LOGIN_URL = "/pong/login"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tokyo'
 
 USE_I18N = True
 
@@ -149,26 +157,22 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / "pong-3D/dist/" if PRODUCTION else BASE_DIR / "pong-3D/",
+    FRONTEND_DIR / "dist/" if PRODUCTION else FRONTEND_DIR
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, "assets")
+STATIC_ROOT = BASE_DIR / "assets"
+
+# User uploaded files (profile picture)
+MEDIA_URL = 'media/'
+
+MEDIA_ROOT = DATA_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = '/pong/'
-LOGOUT_REDIRECT_URL = '/pong/'
-
-AUTH_USER_MODEL = "accounts.User"
-AUTHENTICATION_BACKENDS = (
-        'django.contrib.auth.backends.ModelBackend',
-    )
-ASGI_APPLICATION = "games.asgi.application"
 TEST_RUNNER = 'rainbowtests.test.runner.RainbowDiscoverRunner'
-
 
 DJANGO_VITE = {
     "default": {

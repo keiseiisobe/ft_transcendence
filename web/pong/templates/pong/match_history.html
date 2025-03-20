@@ -1,0 +1,41 @@
+<div class="card mb-4 mb-md-0">
+    <div class="card-body">
+        <p class="mb-4">Match Stats</p>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <p style="color: green;">WINS</p>
+                    <p>{{ wins }}</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <p style="color: red;">LOSES</p>
+                    <p>{{ loses }}</p>
+                </div>
+            </div>
+        </div>
+        <p class="mb-4" style="margin: 15px">Match History</p>
+        <div class="card" style="max-height: 100px;overflow-y: auto">
+            <ul class="list-group" style="text-align: start;font-size: 12px">
+                {% if matches %}
+                {% for match in matches %}
+                <li class="list-group-item">
+                    {{ match.date }} : You
+                    {% if match.result == 1 %}
+                    <span style="color: green;">win</span>
+                    {% else %}
+                    <span style="color: red;">lose</span>
+                    {% endif %}
+                    against {{ match.opponent }} ({{ match.score_user }}:{{ match.score_opponent }})
+                </li>
+                {% endfor %}
+                {% else %}
+                <div style="text-align: center;margin: 10px">
+                    <p>You have no match history yet.</p>
+                </div>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>

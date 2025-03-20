@@ -11,6 +11,7 @@ services:
       - .env
     volumes:
       - log-volume:/var/log
+      - db_volume:/var/lib/postgresql/data
       - "./db/postgresql.conf:/etc/postgresql/postgresql.conf"
       - "./db/init-pg-stat-statements.sql:/docker-entrypoint-initdb.d/init-pg-stat-statements.sql"
     ports:
@@ -19,13 +20,12 @@ services:
 
   web:
     container_name: web
-    platform: linux/arm64
     build: ./web
     pull_policy: never
     volumes:
       - static_assets:/project/assets
       - uwsgisocket:/var/run/nginx
-      - images:/project/accounts/images
+      - data:/data
     ports:
       - "8000:8000"
     depends_on:
@@ -45,6 +45,7 @@ services:
     volumes:
       - static_assets:/app/assets
       - uwsgisocket:/var/run/nginx
+      - data:/data
       - log-volume:/var/log
     ports:
       - '443:443'
@@ -94,7 +95,7 @@ volumes:
   uwsgisocket:
   static_assets:
   db_volume:
-  images:
+  data:
 
 networks:
   default:
@@ -105,5 +106,3 @@ networks:
         - subnet: 192.168.100.0/24
   system-monitor:
     driver: bridge
-
-    

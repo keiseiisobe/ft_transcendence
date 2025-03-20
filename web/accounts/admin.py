@@ -1,7 +1,26 @@
 from django.contrib import admin
-from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin as UserAdminBase
+
+from pong.admin import MatchHistoryInline
+
+from .forms import UserCreationForm, UserChangeForm
+from .models import User
 
 # Register your models here.
 
-CustomUser = get_user_model()
-admin.site.register(CustomUser)
+@admin.register(User)
+class UserAdmin(UserAdminBase):
+    add_form = UserCreationForm
+    form = UserChangeForm
+    model = User
+    list_display = ("username", "is_staff", "is_active",)
+    list_filter = ("username", "is_staff", "is_active",)
+    fieldsets = (
+        (None, {"fields": ("username", "password", "avatar", "is_staff", "is_active")}),
+    )
+    add_fieldsets = (
+        (None, { "fields": ( "username", "password1", "password2", "avatar", "is_staff", "is_active")}),
+    )
+    search_fields = ("username",)
+    ordering = ("username",)
+    inlines = [MatchHistoryInline]
