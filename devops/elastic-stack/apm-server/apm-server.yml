@@ -187,7 +187,7 @@ apm-server:
         # Authentication credentials - either API key or username/password.
         #api_key: "id:api_key"
         #username: "elastic"
-        #password: "changeme"
+        #password: "${ELASTIC_PASSWORD}"
 
       # Index pattern in which to search for source maps, when fetching source maps from Elasticsearch.
       #index_pattern: "apm-*-sourcemap*"
@@ -216,7 +216,7 @@ apm-server:
       # Authentication credentials - either API key or username/password.
       #api_key: "id:api_key"
       #username: "elastic"
-      #password: "changeme"
+      #password: "${ELASTIC_PASSWORD}"
 
   #kibana:
     # Required when `apm-server.agent.config.elasticsearch` is not set AND `output.elasticsearch`
@@ -231,7 +231,7 @@ apm-server:
     # Optional protocol and basic auth credentials.
     #protocol: "https"
     #username: "elastic"
-    #password: "changeme"
+    #password: "${ELASTIC_PASSWORD}"
 
     # Optional authentication with an API key
     #api_key: "id:api_key"
@@ -336,7 +336,7 @@ output.elasticsearch:
   # Authentication credentials - either API key or username/password.
   #api_key: "id:api_key"
   username: "elastic"
-  password: "changeme"
+  password: "${ELASTIC_PASSWORD}"
 
   # Optional HTTP Path.
   #path: "/elasticsearch"
@@ -719,7 +719,7 @@ output.elasticsearch:
   #kerberos.username: elastic
 
   # Password of the Kerberos user. It is used when auth_type is set to password.
-  #kerberos.password: changeme
+  #kerberos.password: ${ELASTIC_PASSWORD}
 
   # Kerberos realm.
   #kerberos.realm: ELASTIC
@@ -865,7 +865,7 @@ output.elasticsearch:
   # Authentication credentials - either API key or username/password.
   #api_key: "id:api_key"
   #username: "elastic"
-  #password: "changeme"
+  #password: "${ELASTIC_PASSWORD}"
 
   # Array of hosts to connect to.
   # Scheme and port can be left out and will be set to the default (`http` and `9200`).

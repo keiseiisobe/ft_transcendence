@@ -14,7 +14,6 @@ services:
       - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
       - "./prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml:ro"
       - log-volume:/prometheus/query.log
-      #- certs:/usr/share/prometheus/certs
       #- "./prometheus/web-config.yml:/etc/prometheus/web-config.yml:ro"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -24,7 +23,6 @@ services:
       - '--storage.tsdb.retention.size=400MB'
       - '--storage.tsdb.min-block-duration=10m'
       - '--storage.tsdb.max-block-duration=10m'
-      #- '--web.config.file=/etc/prometheus/web-config.yml'
     user: root
     restart: always
     depends_on:
@@ -38,14 +36,11 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      #- certs:/usr/share/grafana/certs
       - "./grafana/defaults.ini:/usr/share/grafana/conf/defaults.ini:ro"
       - "./grafana/prometheus-datasource.yml:/etc/grafana/provisioning/datasources/prometheus-datasource.yml:ro"
       - './grafana/dashboard-settings:/etc/grafana/provisioning/dashboards:ro'
       - './grafana/dashboards:/var/lib/grafana/dashboards:ro'
-      #- log-volume:/var/log
       - thanos:/data/prom 
-      #- certs:/usr/local/share/ca-certificates
     user: root
 
   node-exporter:
@@ -54,9 +49,6 @@ services:
     platform: linux/arm64
     ports:
       - "9100"
-      #volumes:
-      #  - "/run/udev:/run/udev:ro"
-      #user: root
     command:
     - "--no-collector.diskstats"
 
@@ -69,24 +61,17 @@ services:
     ports:
       - "9187"
 
-  elasticsearch_exporter:
-    container_name: elasticsearch_exporter
-    image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
+  elasticsearch-exporter:
+    container_name: elasticsearch-exporter
+    #image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
+    build: ./elasticsearch-exporter
     depends_on:
       - es01
     volumes:
-      - certs:/usr/share/prometheus/certs
+      - certs:/certs
     user: root
-    environment:
-      - ES_USERNAME=elastic
-      - ES_PASSWORD=changeme
-    command:
-      - '--es.uri=https://es01:9200'
-      - '--es.ca=/usr/share/prometheus/certs/ca/ca.crt'
-      #- '--es.client-private-key=/usr/share/prometheus/certs/es01/es01.key'
-      #- '--es.client-cert=/usr/share/prometheus/certs/es01/es01.crt'
-      - '--es.all'
-      - '--log.level=debug'
+    env_file:
+      - ../../.env
     ports:
       - "9114"
 
@@ -98,8 +83,6 @@ services:
     depends_on:
       - nginx
       - prometheus
-    volumes:
-      - certs:/usr/share/prometheus/certs
     networks:
       default:
         ipv4_address: 192.168.100.253
@@ -107,7 +90,7 @@ services:
       - '--nginx.scrape-uri=http://nginx:80/nginx_status'
       - '--log.level=debug'
 
-  alertmanager: # Alerting for Prometheus
+  alertmanager:
     image: prom/alertmanager
   #build: ./alertmanager
     container_name: alertmanager
@@ -119,14 +102,6 @@ services:
     restart: always
     volumes:
       - "./alertmanager/config.yml:/etc/alertmanager/alertmanager.yml:ro"
-      #- ./alertmanager/alerts:/usr/share/alertmanager/alerts
-      #- ./alertmanager/templates:/usr/share/alertmanager/templates
-      #- ./alertmanager/data:/alertmanager
-      #command: >
-      #  bash -c '
-      #  envsubst '$$SLACK_WEBHOOK_URL'< /usr/share/alertmanager/config.yml > /usr/share/alertmanager/config.yml
-      #  envsubst '$$SLACK_CHANNEL_NAME'< /usr/share/alertmanager/config.yml > /usr/share/alertmanager/config.yml
-      #  '
   
   thanos-query:
     user: root
@@ -156,7 +131,6 @@ services:
       - "--data-dir=/data/store"
       - "--objstore.config-file=/bucket.yml"
     volumes:
-      - certs:/certs
       - store:/data/store
       - ./thanos/bucket.yml:/bucket.yml
 

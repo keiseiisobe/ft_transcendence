@@ -12,8 +12,4 @@ datasources:
       tlsAuth: false
       tlsAuthWithCACert: false
       tlsSkipVerify: true
-      #secureJsonData:
-      #  tlsCACert: /usr/share/grafana/certs/ca/ca.crt
-      #  tlsClientCert: /usr/share/grafana/certs/prometheus/prometheus.crt
-      #  tlsClientKey: /usr/share/grafana/certs/prometheus/prometheus.key
 

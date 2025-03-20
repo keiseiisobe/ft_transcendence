@@ -1,9 +1,9 @@
 curl -X PUT "https://es01:9200/_slm/policy/archive_snapshot" \
-  --cacert /usr/share/elastic-agent/certs/ca/ca.crt \
-  -u elastic:changeme \
+  --cacert config/certs/ca/ca.crt \
+  -u elastic:${ELASTIC_PASSWORD} \
   -H "Content-Type: application/json" \
   -d '{
-	"schedule": "0 47 15 * * ?", 
+	"schedule": "0 0 0 * * ?", 
     "name": "<archive-snap-{now/d}>", 
     "repository": "archive-backup", 
     "config": { 
@@ -11,7 +11,7 @@ curl -X PUT "https://es01:9200/_slm/policy/archive_snapshot" \
       "include_global_state": false
     },
     "retention": { 
-      "expire_after": "1h", 
+      "expire_after": "30d", 
       "min_count": 5, 
       "max_count": 50 
     }

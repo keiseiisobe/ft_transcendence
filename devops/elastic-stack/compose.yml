@@ -2,7 +2,7 @@ services:
   setup:
     build: ./setup
     container_name: setup
-    user: root
+    #user: root
     env_file:
       - ../../.env
     volumes:
@@ -10,6 +10,7 @@ services:
       - "./setup/generate_certificates/elasticstack.yml:/usr/share/elasticsearch/elasticstack-certificates.yml"
     healthcheck:
       test: ["CMD-SHELL", "/usr/share/scripts/healthcheck.sh"]
+      start_period: 30s
       interval: 2s
       timeout: 5s
       retries: 120
@@ -39,13 +40,8 @@ services:
       - xpack.security.http.ssl.key=certs/es01/es01.key
       - xpack.security.http.ssl.certificate=certs/es01/es01.crt
       - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
-      #- xpack.security.transport.ssl.enabled=false
-      #- xpack.security.transport.ssl.key=certs/es01/es01.key
-      #- xpack.security.transport.ssl.certificate=certs/es01/es01.crt
-      #- xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
-      #- xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.security.http.ssl.client_authentication=optional
       - xpack.license.self_generated.type=${LICENSE}
-      #- xpack.monitoring.collection.enabled=true
       - path.repo=/usr/share/elasticsearch/archive-backup #change env variable soon
     mem_limit: ${ES_MEM_LIMIT}
     ulimits:
@@ -56,7 +52,7 @@ services:
       test:
         [
           "CMD-SHELL",
-      "curl -fsSL --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt -u elastic:changeme https://es01:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'",
+      "curl -fsSL --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt -u elastic:${ELASTIC_PASSWORD} https://es01:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'",
         ]
       interval: 3s
       timeout: 5s
@@ -85,15 +81,16 @@ services:
       - XPACK_SECURITY_ENCRYPTIONKEY=${ENCRYPTION_KEY}
       - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${ENCRYPTION_KEY}
       - XPACK_REPORTING_ENCRYPTIONKEY=${ENCRYPTION_KEY}
+      - KBN_PATH_CONF=/usr/share/kibana/config /usr/share/kibana/bin/kibana
     mem_limit: ${KB_MEM_LIMIT}
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+          "curl -s --cacert /usr/share/kibana/config/certs/ca.crt -u elastic:${ELASTIC_PASSWORD} -I https://kibana:5601 | grep -q 'HTTP/1.1 302 Found'",
         ]
       interval: 10s
-      timeout: 10s
+      timeout: 5s
       retries: 120
 
       #  metricbeat01:
@@ -159,12 +156,7 @@ services:
       - ELASTIC_USER=elastic
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - ELASTIC_HOSTS=https://es01:9200
-    command:
-      - "logstash"
-      - "-f"
-      - "/usr/share/logstash/pipeline/elastic-agent_pipeline.conf" 
-      #- "--log.level=debug"
-      #- "--config.test_and_exit"
+    command: ["logstash", "-f", "/usr/share/logstash/pipeline/elastic-agent_pipeline.conf" ]
     restart: always
 
   elastic-agent:
@@ -175,12 +167,11 @@ services:
       kibana:
         condition: service_healthy
     build: ./elastic-agent
+    env_file:
+      - ../../.env
     volumes:
-      - certs:/usr/share/elastic-agent/certs
+      - certs:/certs
       - log-volume:/var/log
-      - "./elastic-agent/generate_index_lifecycle_policy.sh:/usr/local/bin/generate_index_lifecycle_policy.sh"
-      - "./elastic-agent/generate_snapshot_lifecycle_policy.sh:/usr/local/bin/generate_snapshot_lifecycle_policy.sh"
-      #- "./elastic-agent/entrypoint.sh:/usr/share/elastic-agent/entrypoint.sh"
     environment:
       - ELASTICSEARCH_HOST=https://es01:9200
       - ELASTICSEARCH_USERNAME=elastic
@@ -199,6 +190,8 @@ services:
       es01:
         condition: service_healthy
     user: root
+    env_file:
+      - ../../.env
     volumes:
       - certs:/usr/share/apm-server/certs
       - "./apm-server/apm-server.yml:/usr/share/apm-server/apm-server.yml:ro"

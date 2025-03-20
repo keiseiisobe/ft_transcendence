@@ -5,11 +5,10 @@ curl -XPOST -u kousuzuk:kousuzuk42! -H "Content-Type: application/json" -d '{
   "password":"Kisobe4242!!",
   "OrgId": 2
 }' http://grafana:3000/api/admin/users
-curl -X POST -u kousuzuk:kousuzuk42! -H "Accept: application/json" -H "Content-Type: application/json" -d '
+curl -X PATCH -u kousuzuk:kousuzuk42! -H "Accept: application/json" -H "Content-Type: application/json" -d '
 {
-  "loginOrEmail":"kisobe",
   "role":"Editor"
-}' http://grafana:3000/api/orgs/2/users
+}' http://grafana:3000/api/orgs/2/users/2
 
 curl -XPOST -u kousuzuk:kousuzuk42! -H "Content-Type: application/json" -d '{ "name":"resaito",
   "email":"resaito@graf.com",
@@ -17,11 +16,10 @@ curl -XPOST -u kousuzuk:kousuzuk42! -H "Content-Type: application/json" -d '{ "n
   "password":"Resaito4242!!",
   "OrgId": 2
 }' http://grafana:3000/api/admin/users
-curl -X POST -u kousuzuk:kousuzuk42! -H "Accept: application/json" -H "Content-Type: application/json" -d '
+curl -X PATCH -u kousuzuk:kousuzuk42! -H "Accept: application/json" -H "Content-Type: application/json" -d '
 {
-  "loginOrEmail":"resaito",
   "role":"Editor"
-}' http://grafana:3000/api/orgs/2/users
+}' http://grafana:3000/api/orgs/2/users/3
 
 curl -XPOST -u kousuzuk:kousuzuk42! -H "Content-Type: application/json" -d '{
   "name":"jyasukaw",
@@ -30,11 +28,10 @@ curl -XPOST -u kousuzuk:kousuzuk42! -H "Content-Type: application/json" -d '{
   "password":"Jyasukaw4242!!",
   "OrgId": 2
 }' http://grafana:3000/api/admin/users
-curl -X POST -u kousuzuk:kousuzuk42! -H "Accept: application/json" -H "Content-Type: application/json" -d '
+curl -X PATCH -u kousuzuk:kousuzuk42! -H "Accept: application/json" -H "Content-Type: application/json" -d '
 {
-  "loginOrEmail":"jyasukaw",
   "role":"Editor"
-}' http://grafana:3000/api/orgs/2/users
+}' http://grafana:3000/api/orgs/2/users/4
 
 curl -X POST -u kousuzuk:kousuzuk42! -H "Content-Type: application/json" -d '{
   "name":"tchoquet",
@@ -43,11 +40,10 @@ curl -X POST -u kousuzuk:kousuzuk42! -H "Content-Type: application/json" -d '{
   "password":"Tchoquet4242!!",
   "OrgId": 2
 }' http://grafana:3000/api/admin/users
-curl -X POST -u kousuzuk:kousuzuk42! -H "Accept: application/json" -H "Content-Type: application/json" -d '
+curl -X PATCH -u kousuzuk:kousuzuk42! -H "Accept: application/json" -H "Content-Type: application/json" -d '
 {
-  "loginOrEmail":"tchoquet",
   "role":"Editor"
-}' http://grafana:3000/api/orgs/2/users
+}' http://grafana:3000/api/orgs/2/users/5
 
 curl -XPOST -u kousuzuk:kousuzuk42! -H "Content-Type: application/json" -d '{
   "name":"viewer",

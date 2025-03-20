@@ -1,25 +1,15 @@
 #!/bin/bash
 
 echo "entrypoint.sh"
-# generate snapshot repository
-curl -XPUT https://es01:9200/_snapshot/archive-backup \
-curl -X PUT https://es01:9200/_snapshot/archive-backup \
-  --cacert /usr/share/elastic-agent/certs/ca/ca.crt \
-  -u elastic:changeme \
-  -H 'Content-Type: application/json' \
-  -d '{
-  	"type": "fs",
-  	"settings": {
-  	  "location": "/usr/share/elasticsearch/archive-backup"
-  	}
-  }'
-# generate snapshot lifecycle policy
-sh /usr/local/bin/generate_snapshot_lifecycle_policy.sh
-#index lifecycle policy
-sh /usr/local/bin/generate_index_lifecycle_policy.sh
+CERTS_DIR="/usr/share/elastic-agent/certs"
+mkdir -p $CERTS_DIR
+cp /certs/ca/ca.crt $CERTS_DIR/ca.crt
+cp /certs/elastic-agent/elastic-agent.crt $CERTS_DIR/elastic-agent.crt
+cp /certs/elastic-agent/elastic-agent.key $CERTS_DIR/elastic-agent.key
+rm -rf /certs/elastic-agent
 
 
-response=$(curl -s --cacert /usr/share/elastic-agent/certs/ca/ca.crt -u elastic:changeme  -X POST "https://es01:9200/_security/api_key" -H "Content-Type: application/json" -u "elastic:changeme" -d '{"name": "my_api_key", "role_descriptors": {"standalone_agent": {"cluster": ["monitor", "manage_api_key", "manage_own_api_key", "manage_index_templates"],"index": [{"names": ["*"],"privileges": ["all"]}]}}}')
+response=$(curl -s --cacert $CERTS_DIR/ca.crt -u elastic:${ELASTIC_PASSWORD}  -X POST "https://es01:9200/_security/api_key" -H "Content-Type: application/json" -u "elastic:${ELASTIC_PASSWORD}" -d '{"name": "my_api_key", "role_descriptors": {"standalone_agent": {"cluster": ["monitor", "manage_api_key", "manage_own_api_key", "manage_index_templates"],"index": [{"names": ["*"],"privileges": ["all"]}]}}}')
 
 echo "$response"
 
