@@ -26,11 +26,7 @@ else
     echo "Elastic Agentのインストールが完了しました。"
 fi
 
-#chmod -w /etc/elastic-agent/elastic-agent.yml
-
 cp -f /usr/share/elastic-agent/elastic-agent.yml /etc/elastic-agent/elastic-agent.yml
-
-#cat /etc/elastic-agent/elastic-agent.yml
 
 
 echo "run elstic-agent"

@@ -1,20 +1,4 @@
 services:
-  setup:
-    build: ./setup
-    container_name: setup
-    #user: root
-    env_file:
-      - ../../.env
-    volumes:
-      - certs:/usr/share/elasticsearch/config/certs
-      - "./setup/generate_certificates/elasticstack.yml:/usr/share/elasticsearch/elasticstack-certificates.yml"
-    healthcheck:
-      test: ["CMD-SHELL", "/usr/share/scripts/healthcheck.sh"]
-      start_period: 30s
-      interval: 2s
-      timeout: 5s
-      retries: 120
-
   es01:
     container_name: es01
     depends_on:
@@ -26,7 +10,6 @@ services:
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
       - esdata01:/usr/share/elasticsearch/data
-      - "./es01/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
     ports:
       - ${ES_PORT}:9200
     environment:
@@ -42,7 +25,7 @@ services:
       - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.security.http.ssl.client_authentication=optional
       - xpack.license.self_generated.type=${LICENSE}
-      - path.repo=/usr/share/elasticsearch/archive-backup #change env variable soon
+      - path.repo=/usr/share/elasticsearch/archive-backup
     mem_limit: ${ES_MEM_LIMIT}
     ulimits:
       memlock:
@@ -92,51 +75,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 120
-
-      #  metricbeat01:
-      #    container_name: metricbeat01
-      #    depends_on:
-      #      es01:
-      #        condition: service_healthy
-      #      kibana:
-      #        condition: service_healthy
-      #    image: docker.elastic.co/beats/metricbeat:${STACK_VERSION}
-      #    user: root
-      #    volumes:
-      #      - certs:/usr/share/metricbeat/certs
-      #      - metricbeatdata01:/usr/share/metricbeat/data
-      #      - "./beats/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro"
-      #      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      #      - "/sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro"
-      #      - "/proc:/hostfs/proc:ro"
-      #      - "/:/hostfs:ro"
-      #    environment:
-      #      - ELASTIC_USER=elastic
-      #      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      #      - ELASTIC_HOSTS=https://es01:9200
-      #      - KIBANA_HOSTS=http://kibana:5601
-      #      - LOGSTASH_HOSTS=http://logstash:9600
-      #
-      #  filebeat01:
-      #    container_name: filebeat01
-      #    depends_on:
-      #      es01:
-      #        condition: service_healthy
-      #    image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
-      #    user: root
-      #    volumes:
-      #      - certs:/usr/share/filebeat/certs
-      #      - filebeatdata01:/usr/share/filebeat/data
-      #      - "./beats/filebeat_ingest_data/:/usr/share/filebeat/ingest_data/"
-      #      - "./beats/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
-      #      - "/var/lib/docker/containers:/var/lib/docker/containers:ro"
-      #      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      #    environment:
-      #      - ELASTIC_USER=elastic
-      #      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      #      - ELASTIC_HOSTS=https://es01:9200
-      #      - KIBANA_HOSTS=http://kibana:5601
-      #      - LOGSTASH_HOSTS=http://logstash:9600
 
   logstash:
     container_name: logstash

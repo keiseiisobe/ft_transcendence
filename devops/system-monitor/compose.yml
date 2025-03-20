@@ -4,7 +4,6 @@
 services:
   prometheus:
     image: prom/prometheus
-    #build: ./prometheus
     container_name: prometheus
     platform: linux/arm64
     ports:
@@ -14,7 +13,6 @@ services:
       - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
       - "./prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml:ro"
       - log-volume:/prometheus/query.log
-      #- "./prometheus/web-config.yml:/etc/prometheus/web-config.yml:ro"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--log.level=debug'
@@ -63,7 +61,6 @@ services:
 
   elasticsearch-exporter:
     container_name: elasticsearch-exporter
-    #image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
     build: ./elasticsearch-exporter
     depends_on:
       - es01
@@ -92,7 +89,6 @@ services:
 
   alertmanager:
     image: prom/alertmanager
-  #build: ./alertmanager
     container_name: alertmanager
     hostname: alertmanager
     env_file:
@@ -134,14 +130,14 @@ services:
       - store:/data/store
       - ./thanos/bucket.yml:/bucket.yml
 
-  compactor:
+  thanos-compactor:
     user: root
     image: thanosio/thanos:v0.37.2
-    container_name: compactor
+    container_name: thanos-compactor
     command:
       - "compact"
       - "--wait"
-      - "--data-dir=/tmp/thanos-compact"
+      - "--data-dir=/tmp/thanos-compactor"
       - "--objstore.config-file=/bucket.yml"
       - "--http-address=0.0.0.0:10902"
     volumes:
@@ -176,4 +172,4 @@ services:
       - "19291"  # Prometheus の remote_write で使うポート
     depends_on:
       - thanos-store
-      - compactor
+      - thanos-compactor

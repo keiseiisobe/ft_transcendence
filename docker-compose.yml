@@ -3,6 +3,21 @@ include:
   - ./devops/system-monitor/compose.yml
 
 services:
+  setup:
+    build: ./setup
+    container_name: setup
+    env_file:
+      - .env
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - "./setup/generate_certificates/elasticstack.yml:/usr/share/elasticsearch/elasticstack-certificates.yml"
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/share/scripts/healthcheck.sh"]
+      start_period: 30s
+      interval: 2s
+      timeout: 5s
+      retries: 120
+
   db:
     container_name: db
     image: postgres:16
@@ -30,9 +45,9 @@ services:
       - "8000:8000"
     depends_on:
       - db
-      #      - selenium
-      #    links:
-      #      - selenium
+      - selenium
+    links:
+      - selenium
     env_file:
       - .env
     environment:
@@ -52,46 +67,34 @@ services:
     depends_on:
       - web
 
-      #  selenium:
-      #    image: seleniarm/standalone-chromium  # 修正
-      #    platform: linux/arm64
-      #    environment:
-      #      - SE_VNC_NO_PASSWORD=1
-      #    ports:
-      #      - "4444:4444"
-      #      - "7900:7900"
-  
-
-  adminer:
-    # build: ./requirements/adminer
-    image: adminer
-    container_name: adminer
+  selenium:
+    image: seleniarm/standalone-chromium
+    platform: linux/arm64
+    environment:
+      - SE_VNC_NO_PASSWORD=1
     ports:
-      - "8080:8080"
+      - "4444:4444"
+      - "7900:7900"
+
+      #  adminer:
+      #    build: ./requirements/adminer
+      #    image: adminer
+      #    container_name: adminer
+      #    ports:
+      #      - "8080:8080"
 
 volumes:
   certs:
-    driver: local
   esdata01:
-    driver: local
   kibanadata:
-    driver: local
   metricbeatdata01:
-    driver: local
   filebeatdata01:
-    driver: local
   logstashdata01:
-    driver: local
   log-volume:
-    driver: local
   thanos: 
-    driver: local
   store: 
-    driver: local
   compact: 
-    driver: local
   receive: 
-    driver: local
   uwsgisocket:
   static_assets:
   db_volume:

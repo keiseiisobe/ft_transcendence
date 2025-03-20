@@ -6,8 +6,6 @@ global:
     cluster: "my-cluster"
     prometheus: "prometheus-1"
     replica: 0
-  # scrape_timeout is set to the global default (10s).
-  #  query_log_file: /prometheus/query.log
 
 # Alertmanager configuration
 alerting:
@@ -18,7 +16,6 @@ alerting:
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
   - "/etc/prometheus/alert.rules.yml"
-  # - "second_rules.yml"
 
 # Here it's Prometheus itself.
 scrape_configs:

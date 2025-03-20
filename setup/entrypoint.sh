@@ -16,14 +16,11 @@ if [[ $? -ne 0 ]]; then
 fi
 
 echo "Setting file permissions"
-#chown -R root:root config/certs;
-#chown -R root:root config/certs/service-certificates;
-#find . -type d -exec chmod 750 \{\} \;;
-#find . -type f -exec chmod 640 \{\} \;;
 
 echo "Waiting for Elasticsearch availability";
 until curl -s --cacert config/certs/ca/ca.crt https://es01:9200 | grep -q "missing authentication credentials"; do sleep 3; done;
 	
+echo "Setting snapshot repository";
 # generate snapshot repository
 curl -X PUT https://es01:9200/_snapshot/archive-backup \
   --cacert config/certs/ca/ca.crt \
@@ -35,8 +32,10 @@ curl -X PUT https://es01:9200/_snapshot/archive-backup \
   	  "location": "/usr/share/elasticsearch/archive-backup"
   	}
   }'
+echo "Setting snapshot lifecycle policy";
 # generate snapshot lifecycle policy
 sh /usr/share/scripts/generate_snapshot_lifecycle_policy.sh
+echo "Setting index lifecycle policy";
 #index lifecycle policy
 sh /usr/share/scripts/generate_index_lifecycle_policy.sh
 
