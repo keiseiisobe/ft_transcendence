@@ -13,3 +13,16 @@ datasources:
       tlsAuthWithCACert: false
       tlsSkipVerify: true
 
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: false
+    basicAuth: false
+    editable: true
+    jsonData:
+      tlsAuth: false
+      tlsAuthWithCACert: false
+      tlsSkipVerify: true
+
+  
