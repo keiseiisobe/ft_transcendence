@@ -10,7 +10,6 @@ services:
       - .env
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
-      - "./setup/generate_certificates/elasticstack.yml:/usr/share/elasticsearch/elasticstack-certificates.yml"
     healthcheck:
       test: ["CMD-SHELL", "/usr/share/scripts/healthcheck.sh"]
       start_period: 30s
@@ -85,11 +84,10 @@ services:
 
 volumes:
   certs:
-  esdata01:
-  kibanadata:
-  metricbeatdata01:
-  filebeatdata01:
-  logstashdata01:
+    #esdata01:
+    #kibanadata:
+    #filebeatdata01:
+    #logstashdata01:
   log-volume:
   thanos: 
   store: 

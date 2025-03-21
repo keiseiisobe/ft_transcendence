@@ -8,6 +8,7 @@ RUN curl -L https://github.com/mikefarah/yq/releases/download/v4.40.5/yq_linux_a
 COPY ./entrypoint.sh /usr/share/scripts/entrypoint.sh
 COPY ./healthcheck.sh /usr/share/scripts/healthcheck.sh
 COPY ./generate_certificates/elasticstack.sh /usr/share/scripts/elasticstack.sh
+COPY ./generate_certificates/elasticstack.yml /usr/share/elasticsearch/elasticstack-certificates.yml
 COPY ./es01/generate_index_lifecycle_policy.sh /usr/share/scripts/generate_index_lifecycle_policy.sh
 COPY ./es01/generate_snapshot_lifecycle_policy.sh /usr/share/scripts/generate_snapshot_lifecycle_policy.sh
 COPY ./kibana/setup-kibana-dashboard.sh /usr/share/scripts/setup-kibana-dashboard.sh
@@ -16,6 +17,7 @@ COPY ./grafana/create_org.sh /usr/share/scripts/create_org.sh
 COPY ./grafana/create_user.sh /usr/share/scripts/create_user.sh
 
 COPY ./kibana/kibana-dashboards/nginx_dashboard.ndjson /usr/share/elasticsearch/nginx_dashboard.ndjson
+
 
 RUN chmod 755 /usr/share/scripts/*.sh
 

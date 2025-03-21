@@ -9,7 +9,7 @@ services:
       co.elastic.logs/module: elasticsearch
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
-      - esdata01:/usr/share/elasticsearch/data
+      #      - esdata01:/usr/share/elasticsearch/data
     ports:
       - ${ES_PORT}:9200
     environment:
@@ -51,20 +51,11 @@ services:
       co.elastic.logs/module: kibana
     volumes:
       - certs:/certs
-      - kibanadata:/usr/share/kibana/data
-      - "./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro"
+      #      - kibanadata:/usr/share/kibana/data
     ports:
       - ${KIBANA_PORT}:5601
-    environment:
-      - SERVERNAME=kibana
-      - ELASTICSEARCH_HOSTS=https://es01:9200
-      - ELASTICSEARCH_USERNAME=kibana_system
-      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
-      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=/usr/share/kibana/config/certs/ca.crt
-      - XPACK_SECURITY_ENCRYPTIONKEY=${ENCRYPTION_KEY}
-      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${ENCRYPTION_KEY}
-      - XPACK_REPORTING_ENCRYPTIONKEY=${ENCRYPTION_KEY}
-      - KBN_PATH_CONF=/usr/share/kibana/config /usr/share/kibana/bin/kibana
+    env_file:
+      - ../../.env
     mem_limit: ${KB_MEM_LIMIT}
     healthcheck:
       test:
@@ -78,23 +69,20 @@ services:
 
   logstash:
     container_name: logstash
+    build: ./logstash
     depends_on:
       es01:
         condition: service_healthy
-    image: docker.elastic.co/logstash/logstash:${STACK_VERSION}
-    user: root
     labels:
       co.elastic.logs/module: logstash
     volumes:
       - certs:/usr/share/logstash/certs
-      - logstashdata01:/usr/share/logstash/data
-      - "./logstash/elastic-agent_pipeline.conf:/usr/share/logstash/pipeline/elastic-agent_pipeline.conf:ro"
+      #- logstashdata01:/usr/share/logstash/data
     environment:
       - xpack.monitoring.enabled=false
       - ELASTIC_USER=elastic
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - ELASTIC_HOSTS=https://es01:9200
-    command: ["logstash", "-f", "/usr/share/logstash/pipeline/elastic-agent_pipeline.conf" ]
     restart: always
 
   elastic-agent:
@@ -123,7 +111,7 @@ services:
 
   apm-server:
     container_name: apm-server
-    image: docker.elastic.co/apm/apm-server:${STACK_VERSION}
+    build: ./apm-server
     depends_on:
       es01:
         condition: service_healthy
@@ -132,7 +120,6 @@ services:
       - ../../.env
     volumes:
       - certs:/usr/share/apm-server/certs
-      - "./apm-server/apm-server.yml:/usr/share/apm-server/apm-server.yml:ro"
     ports:
       - "8200:8200"
 
