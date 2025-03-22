@@ -29,6 +29,7 @@ RUN npm run build
 
 COPY accounts ./accounts
 COPY games ./games
+COPY matches ./matches
 COPY pong ./pong
 COPY __init__.py manage.py .
 
