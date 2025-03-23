@@ -47,7 +47,7 @@ def mylogin(request):
 @login_required
 @require_http_methods(["POST"])
 def mylogout(request):
-    request.user.is_login = False;
+    request.user.is_login = False
     request.user.save()
     for user in Follow.objects.followers(request.user):
         bust_cache("following", user.pk)
