@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'django_vite',
     'elasticapm.contrib.django',
     'django_prometheus',
+    'matches'
 ]
 
 MIDDLEWARE = [

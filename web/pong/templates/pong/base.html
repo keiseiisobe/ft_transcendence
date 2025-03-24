@@ -15,7 +15,7 @@
             <div class="navbar-nav d-flex flex-row gap-3" id="navbar-btns">
                 {% if user.is_authenticated %}
                 <a class="nav-item btn btn-dark" href="{% url 'pong:mypage' %}">My Page</a>
-                <a class="nav-item btn btn-dark" href="{% url 'accounts:logout' %}">Logout</a>
+                <button class="nav-item btn btn-dark" onclick="window.logoutUser()">Logout</button>
                 {% else %}
                 <a class="nav-item btn btn-dark" href="{% url 'pong:login' %}">Login</a>
                 <a class="nav-item btn btn-dark" href="{% url 'pong:signup' %}">Signup</a>

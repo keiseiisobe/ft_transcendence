@@ -5,6 +5,9 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth.decorators import login_required
 from friendship.models import Follow
+from django.urls import reverse
+from matches.models import Match
+from django.db import models
 
 # Create your views here.
 
@@ -23,59 +26,55 @@ def login(request):
 def signup(request):
     return render(request, "pong/index.html")
 
-def myPageData(request):
+def myPageContext(request):
     friendList = Follow.objects.following(request.user)
-    wins = request.user.matchhistory_set.filter(result=1).count()
-    loses = request.user.matchhistory_set.filter(result=0).count()
-    matches = request.user.matchhistory_set.all().order_by("-id")
+    user_matches = Match.objects.filter(models.Q(p1_user=request.user) | models.Q(p2_user=request.user), is_finished=True).order_by("-date")
+    wins = 0
+    loses = 0
+    for match in user_matches:
+        if match.p1_user == request.user and match.p1_score > match.p2_score:
+            wins += 1
+        elif match.p2_user == request.user and match.p2_score > match.p1_score:
+            wins += 1
+        else:
+            loses += 1
     return {
         "user": request.user,
         "friend_list": friendList,
         "wins": wins,
         "loses": loses,
-        "matches": matches
+        "matches": user_matches
     }
 
 @login_required
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def mypage(request):
-    return render(request, "pong/mypage.html", myPageData(request))
+    return render(request, "pong/mypage.html", myPageContext(request))
 
 @login_required
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def edit_username(request):
-    return render(request, "pong/mypage.html", myPageData(request))
+    return render(request, "pong/mypage.html", myPageContext(request))
 
 @login_required
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def edit_password(request):
-    return render(request, "pong/mypage.html", myPageData(request))
+    return render(request, "pong/mypage.html", myPageContext(request))
 
 @login_required
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def add_friend(request):
-    return render(request, "pong/mypage.html", myPageData(request))
+    return render(request, "pong/mypage.html", myPageContext(request))
 
 @login_required
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
 def edit_avatar(request):
-    return render(request, "pong/mypage.html", myPageData(request))
-
-@login_required
-@require_http_methods(["POST"])
-@ensure_csrf_cookie
-def gameover(request):
-    opponent = request.POST["opponent"]
-    score_user = request.POST["score_user"]
-    score_opponent = request.POST["score_opponent"]
-    result = request.POST["result"]
-    request.user.matchhistory_set.create(opponent=opponent, score_user=score_user, score_opponent=score_opponent, result=result)
-    return JsonResponse({"message": "OK"})
+    return render(request, "pong/mypage.html", myPageContext(request))
 
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
@@ -94,7 +93,7 @@ def ssr_mypage(request):
     if request.user.is_authenticated == False:
         return JsonResponse({ "message": "Unauthorized"}, status=401)
     return JsonResponse({
-        "content": render_to_string("pong/mypage_content.html", myPageData(request), request),
+        "content": render_to_string("pong/mypage_content.html", myPageContext(request), request),
         "modals": [
             render_to_string("pong/edit_avatar_modal.html", request=request),
             render_to_string("pong/edit_password_modal.html", request=request),

@@ -1,5 +1,4 @@
 import ModalBase from "./ModalBase";
-import Cookies from 'js-cookie'
 
 export default class extends ModalBase {
     constructor() {
@@ -42,37 +41,22 @@ export default class extends ModalBase {
         this.#clearValidation()
         if($("#login-form").get(0).checkValidity())
         {
-            const url = window.location.origin + "/accounts/login/";
-            const formData = new FormData();
-            formData.append("username", document.getElementById("login-form-username").value);
-            formData.append("password", document.getElementById("login-form-password").value);
             try
             {
-                const promise = await fetch(url, {
-                    method: "POST",
-                    headers: {"X-CSRFToken": Cookies.get("csrftoken")},
-                    mode: 'same-origin',
-                    body: formData
-                });
-                if (promise.ok) {
-                    $("#login-form-username").addClass("is-valid")
-                    $("#login-form-password").addClass("is-valid")
-                    $("#navbar-btns").html(`
-                        <a class="nav-item btn btn-dark" href="/pong/mypage">My Page</a>
-                        <a class="nav-item btn btn-dark" href="/accounts/logout/">Logout</a>
-                    `)
-                    this.modal.hide()
-                    return
-                }
-                else if (promise.status != 400)
-                    throw promise.status
+                await window.loginUser(
+                    document.getElementById("login-form-username").value,
+                    document.getElementById("login-form-password").value
+                )
+                $("#login-form-username").addClass("is-valid")
+                $("#login-form-password").addClass("is-valid")
+                this.modal.hide()
 
             } catch(error)
             {
                 console.error('Error during login: ', error);
+                $("#login-form-username").addClass("is-invalid")
+                $("#login-form-password").addClass("is-invalid")
             }
-            $("#login-form-username").addClass("is-invalid")
-            $("#login-form-password").addClass("is-invalid")
         } else {
             $("#login-form").addClass("was-validated")
         }

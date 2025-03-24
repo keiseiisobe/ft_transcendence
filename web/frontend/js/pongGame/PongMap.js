@@ -4,10 +4,12 @@ import { Ball } from './ball';
 import { Camera } from './camera';
 import { TextObj } from './text';
 import { ScoreText } from './scoreText';
+import helvetiker from "../../font/helvetiker_regular.json?url"
+import pong_score from "../../font/pong_score_regular.json?url"
 
-export class PongMap
+export default class PongMap
 {
-    constructor(canvas, fontPaths) {
+    constructor(canvas) {
         this.options = {
             canvas: canvas,
             mapSize: new THREE.Vector2(9.0, 6.0),
@@ -38,10 +40,10 @@ export class PongMap
             this.options,
             0.5,
             this.scene,
-            fontPaths.helvetica,
+            helvetiker,
             "hello world",
             new THREE.Vector2(0, 0))
-        this.scores = new ScoreText(this.options, 0.5, this.scene, fontPaths.pong)
+        this.scores = new ScoreText(this.options, 0.5, this.scene, pong_score)
 
         this.clock = new THREE.Clock()
         

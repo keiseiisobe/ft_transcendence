@@ -19,6 +19,50 @@ import AddFriendModal from "./modals/AddFriendModal";
 var currentView = null
 var currentPathname = null
 
+window.user = null
+
+window.loginUser = async (username, password) => {
+    const url = window.location.origin + "/accounts/login/";
+    const formData = new FormData();
+    formData.append("username", username);
+    formData.append("password", password);
+    const promise = await fetch(url, {
+        method: "POST",
+        headers: {"X-CSRFToken": Cookies.get("csrftoken")},
+        mode: 'same-origin',
+        body: formData
+    });
+    if (!promise.ok)
+        throw promise
+    $("#navbar-btns").html(`
+        <a class="nav-item btn btn-dark" href="/pong/mypage">My Page</a>
+        <button class="nav-item btn btn-dark" onclick="window.logoutUser()">Logout</button>
+    `)
+    window.user = {
+        username: username
+    }
+    currentView.refresh()
+}
+
+window.logoutUser = async () => {
+    const promise = await fetch("/accounts/logout/", {
+        method: "POST",
+        headers: { "X-CSRFToken": Cookies.get("csrftoken") },
+        mode: 'same-origin',
+    });
+    if (!promise.ok)
+        throw promise
+    $("#navbar-btns").html(`
+        <a class="nav-item btn btn-dark" href="/pong/login">Login</a>
+        <a class="nav-item btn btn-dark" href="/pong/signup">Signup</a>
+    `)
+    window.user = null
+    if (await switchToView(new IndexView(), null) == 0)
+        window.pushState("/pong")
+    currentView.refresh()
+}
+
+
 function getViewFromPathname(pathname) {
     switch(pathname) {
         case "/pong/":
@@ -96,35 +140,16 @@ window.pushState = (pathname) => {
     history.pushState(null, null, pathname)
 }
 
-async function logoutAction() {
-    const promise = await fetch("/accounts/logout/", {
-        method: "POST",
-        headers: { "X-CSRFToken": Cookies.get("csrftoken") },
+
+$(async function () {
+    const promise = await fetch("/accounts/user", {
+        method: "GET",
+        headers: {"X-CSRFToken": Cookies.get("csrftoken")},
         mode: 'same-origin',
     });
-    if (!promise.ok)
-        throw promise.statusText
-    $("#navbar-btns").html(`
-        <a class="nav-item btn btn-dark" href="/pong/login">Login</a>
-        <a class="nav-item btn btn-dark" href="/pong/signup">Signup</a>
-    `)
-}
+    if (promise.ok)
+        window.user = await promise.json()
 
-async function onUrlAction(pathname) {
-    switch(pathname) {
-        case "/accounts/logout":
-        case "/accounts/logout/":
-            await logoutAction()
-            return "/pong"
-        default:
-            return pathname
-    }
-}
-
-
-
-
-$(function () {
     $(this.body).on("click", onClick);
     $(window).on("popstate", onPopstate);
     
@@ -146,13 +171,12 @@ const onClick = async (event) => {
         const link = event.target.closest("a");
         if (link && link.pathname) {
             event.preventDefault()
-            const pathname = await onUrlAction(link.pathname)
-            const view = getViewFromPathname(pathname)
-            const modal = getModalFromPathname(pathname)
+            const view = getViewFromPathname(link.pathname)
+            const modal = getModalFromPathname(link.pathname)
             if (view == null && modal == null)
                 return
             if (await switchToView(view, modal) == 0)
-                window.pushState(pathname)
+                window.pushState(link.pathname)
         }
     }
     catch (error)
@@ -164,13 +188,12 @@ const onClick = async (event) => {
 const onPopstate = async (_) => {
     try
     {
-        const pathname = await onUrlAction(location.pathname)
-        const view = getViewFromPathname(pathname)
-        const modal = getModalFromPathname(pathname)
+        const view = getViewFromPathname(location.pathname)
+        const modal = getModalFromPathname(location.pathname)
         if (view == null && modal == null)
             return
         if (await switchToView(view, modal) == 0)
-            currentPathname = pathname
+            currentPathname = location.pathname
     }
     catch (error)
     {
