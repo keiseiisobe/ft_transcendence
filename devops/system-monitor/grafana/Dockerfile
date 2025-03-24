@@ -1,12 +1,6 @@
-FROM debian:bullseye
-RUN apt update && apt install -y vim wget procps iputils-ping net-tools curl
+FROM grafana/grafana-enterprise
 
-COPY ./tools/entrypoint.sh /entrypoint.sh
-
-COPY ./tools/prometheus-datasource.yml /prometheus-datasource.yml
-
-COPY ./tools/dashboards/node-exporter.json /node-exporter.json
-COPY ./tools/dashboards/postgres.json /postgres.json
-COPY ./tools/dashboard-settings/node-exporter.yml /node-exporter.yml
-
-CMD ["sh", "/entrypoint.sh"]
+COPY --chmod=755 ./defaults.ini /usr/share/grafana/conf/defaults.ini
+COPY --chmod=755 ./prometheus-datasource.yml /etc/grafana/provisioning/datasources/prometheus-datasource.yml
+COPY --chmod=755 ./dashboard-settings /etc/grafana/provisioning/dashboards
+COPY --chmod=755 ./dashboards /var/lib/grafana/dashboards

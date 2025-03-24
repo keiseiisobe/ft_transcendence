@@ -91,8 +91,8 @@ volumes:
   log-volume:
   thanos: 
   store: 
-  compact: 
-  receive: 
+    #compact: 
+    #receive: 
   uwsgisocket:
   static_assets:
   db_volume:

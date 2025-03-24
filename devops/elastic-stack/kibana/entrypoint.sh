@@ -1,6 +1,7 @@
 #!/bin/bash
 echo "entrypoint.sh"
 CERTS_DIR="/usr/share/kibana/config/certs"
+
 if [ -d "$CERTS_DIR" ]; then
     rm -rf "$CERTS_DIR"
     echo "Removed."

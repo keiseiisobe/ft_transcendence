@@ -3,24 +3,23 @@
 # ==========================================
 services:
   prometheus:
-    image: prom/prometheus
+    build: ./prometheus
     container_name: prometheus
     platform: linux/arm64
     ports:
       - "9090:9090"
     volumes:
       - thanos:/data/prom
-      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
-      - "./prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml:ro"
       - log-volume:/prometheus/query.log
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--log.level=debug'
       - "--storage.tsdb.path=/data/prom"
       - '--web.external-url=https://localhost:9090'
-      - '--storage.tsdb.retention.size=400MB'
-      - '--storage.tsdb.min-block-duration=10m'
-      - '--storage.tsdb.max-block-duration=10m'
+      - '--storage.tsdb.min-block-duration=5m'
+      - '--storage.tsdb.max-block-duration=5m'
+      - '--storage.tsdb.retention.time=5m'
+      #- '--storage.tsdb.retention.size=400MB'
     user: root
     restart: always
     depends_on:
@@ -28,16 +27,12 @@ services:
     mem_limit: ${PROMETHEUS_MEM_LIMIT}
 
   grafana:
-    image: grafana/grafana-enterprise
+    build: ./grafana
     container_name: grafana
     platform: linux/arm64
     ports:
       - "3000:3000"
     volumes:
-      - "./grafana/defaults.ini:/usr/share/grafana/conf/defaults.ini:ro"
-      - "./grafana/prometheus-datasource.yml:/etc/grafana/provisioning/datasources/prometheus-datasource.yml:ro"
-      - './grafana/dashboard-settings:/etc/grafana/provisioning/dashboards:ro'
-      - './grafana/dashboards:/var/lib/grafana/dashboards:ro'
       - thanos:/data/prom 
     user: root
 
@@ -48,7 +43,7 @@ services:
     ports:
       - "9100"
     command:
-    - "--no-collector.diskstats"
+      - "--no-collector.diskstats"
 
   postgres-exporter:
     container_name: postgres-exporter
@@ -88,7 +83,7 @@ services:
       - '--log.level=debug'
 
   alertmanager:
-    image: prom/alertmanager
+    build: ./alertmanager
     container_name: alertmanager
     hostname: alertmanager
     env_file:
@@ -96,8 +91,6 @@ services:
     ports:
       - "9093:9093"
     restart: always
-    volumes:
-      - "./alertmanager/config.yml:/etc/alertmanager/alertmanager.yml:ro"
   
   thanos-query:
     user: root
@@ -141,14 +134,14 @@ services:
       - "--objstore.config-file=/bucket.yml"
       - "--http-address=0.0.0.0:10902"
     volumes:
-      - compact:/tmp
+      #- compact:/tmp
       - ./thanos/bucket.yml:/bucket.yml
     depends_on:
       - thanos-store
 
   thanos-receiver:
     user: root
-    image: thanosio/thanos:v0.37.2
+    build: ./thanos/receiver
     container_name: thanos-receiver
     command:
       - "receive"
@@ -165,9 +158,8 @@ services:
       - "--tsdb.max-block-duration=30m"
     volumes:
       - store:/data/store
-      - receive:/data/receive
+      #- receive:/data/receive
       - ./thanos/bucket.yml:/bucket.yml
-      - ./thanos/hashrings.json:/etc/thanos/hashrings.json
     ports:
       - "19291"  # Prometheus の remote_write で使うポート
     depends_on:

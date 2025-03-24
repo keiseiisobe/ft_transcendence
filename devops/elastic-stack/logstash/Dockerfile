@@ -1,9 +1,11 @@
 FROM docker.elastic.co/logstash/logstash:8.17.2
 
-COPY ./elastic-agent_pipeline.conf /usr/share/logstash/pipeline/elastic-agent_pipeline.conf
 USER root
-RUN chmod 755 /usr/share/logstash/pipeline/elastic-agent_pipeline.conf
-USER logstash
+RUN apt-get update && apt-get install -y gosu
 
-ENTRYPOINT ["logstash", "-f", "/usr/share/logstash/pipeline/elastic-agent_pipeline.conf" ]
+COPY --chmod=755 ./logstash.yml /usr/share/logstash/config/logstash.yml
+COPY --chmod=755 ./logstash.conf /usr/share/logstash/pipeline/logstash.conf
+COPY --chmod=755 ./entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT ["sh", "-c", "whoami && /entrypoint.sh"]
 
