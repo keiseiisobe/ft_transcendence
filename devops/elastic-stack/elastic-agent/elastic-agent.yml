@@ -3,19 +3,21 @@ revision: 3
 outputs:
   default:
     type: elasticsearch
-    hosts:
-      - 'https://es01:9200'
+    ssl.enabled: true
+    ssl.certificate_authorities:
+      - "/usr/share/elastic-agent/certs/ca.crt"
+    #ssl.certificate: "/usr/share/elastic-agent/certs/elastic-agent.crt"
+    #ssl.key: "/usr/share/elastic-agent/certs/elastic-agent.key"
+    hosts: [ "https://es01:9200" ]
     username: "elastic"
     password: ${ELASTIC_PASSWORD}
     preset: balanced
-    ssl.certificate_authorities: ["/usr/share/elastic-agent/certs/ca.crt"]
-    ssl.certificate: "/usr/share/elastic-agent/certs/elastic-agent.crt"
-    ssl.key: "/usr/share/elastic-agent/certs/elastic-agent.key"
 
   logstash_output:
     type: logstash
-    hosts:
-      - "logstash:5044" 
+    ssl.certificate_authorities:
+      - "/usr/share/elastic-agent/certs/ca.crt"
+    hosts: [ "logstash:5044" ] 
 
 output_permissions:
   default:
@@ -442,7 +444,7 @@ inputs:
         metricsets:
           - collector
         hosts:
-          - 'https://prometheus:9090'
+          - 'prometheus:9090'
         metrics_filters.exclude: null
         metrics_filters.include: null
         metrics_path: /metrics
@@ -452,13 +454,6 @@ inputs:
         use_types: true
         username: null
         password: null
-        ssl.certificate_authorities:
-          - >-
-            /usr/share/elastic-agent/certs/ca/ca.crt
-        ssl.certificate: >-
-          /usr/share/elastic-agent/certs/prometheus/prometheus.crt
-        ssl.key: >-
-          /usr/share/elastic-agent/certs/prometheus/prometheus.key
           
   - id: logfile-system-97017285-9171-4906-933d-93505686ca4a
     name: system

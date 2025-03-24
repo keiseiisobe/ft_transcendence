@@ -75,15 +75,16 @@ services:
         condition: service_healthy
     labels:
       co.elastic.logs/module: logstash
+    env_file:
+      - ../../.env
     volumes:
-      - certs:/usr/share/logstash/certs
+      - certs:/certs
       #- logstashdata01:/usr/share/logstash/data
     environment:
       - xpack.monitoring.enabled=false
       - ELASTIC_USER=elastic
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - ELASTIC_HOSTS=https://es01:9200
-    restart: always
 
   elastic-agent:
     container_name: elastic-agent
