@@ -68,5 +68,3 @@ pyrightconfig.json
 web/assets
 .env
 .vscode
-
-Makefile
