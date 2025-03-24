@@ -19,18 +19,14 @@ services:
 
   db:
     container_name: db
-    image: postgres:16
-    platform: linux/arm64
+    build: ./db
     env_file:
       - .env
     volumes:
       - log-volume:/var/log
       - db_volume:/var/lib/postgresql/data
-      - "./db/postgresql.conf:/etc/postgresql/postgresql.conf"
-      - "./db/init-pg-stat-statements.sql:/docker-entrypoint-initdb.d/init-pg-stat-statements.sql"
     ports:
       - "5432"
-    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
 
   web:
     container_name: web
@@ -59,32 +55,18 @@ services:
       - web
 
   selenium:
-    image: seleniarm/standalone-chromium
-    platform: linux/arm64
+    image: selenium/standalone-chrome
     environment:
       - SE_VNC_NO_PASSWORD=1
     ports:
       - "4444:4444"
       - "7900:7900"
 
-      #  adminer:
-      #    build: ./requirements/adminer
-      #    image: adminer
-      #    container_name: adminer
-      #    ports:
-      #      - "8080:8080"
-
 volumes:
   certs:
-    #esdata01:
-    #kibanadata:
-    #filebeatdata01:
-    #logstashdata01:
   log-volume:
   thanos: 
   store: 
-    #compact: 
-    #receive: 
   uwsgisocket:
   static_assets:
   db_volume:
