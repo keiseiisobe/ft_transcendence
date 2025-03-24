@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.12
+FROM python:3
 
 ENV NODE_VERSION=23.7.0
 RUN apt install -y curl

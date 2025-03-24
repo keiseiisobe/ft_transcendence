@@ -34,7 +34,8 @@ SECRET_KEY = 'django-insecure-%a3+jjm^3z^o+!vbykri7l3tr1!n*559ief$6h52(%v_@0h((3
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = not PRODUCTION
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'web']
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 CSRF_TRUSTED_ORIGINS = ['https://localhost']
 # CSRF_USE_SESSIONS = True
@@ -54,13 +55,10 @@ INSTALLED_APPS = [
     'friendship',
     'rainbowtests',
     'django_vite',
-    'elasticapm.contrib.django',
-    'django_prometheus',
     'matches'
 ]
 
 MIDDLEWARE = [
-    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -68,7 +66,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = 'games.urls'
@@ -179,8 +176,4 @@ DJANGO_VITE = {
     "default": {
         "dev_mode": not PRODUCTION
     }
-}
-
-ELASTIC_APM = {
-    "SERVICE_NAME": "pong-backend",
 }
