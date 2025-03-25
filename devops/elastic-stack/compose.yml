@@ -88,6 +88,7 @@ services:
 
   elastic-agent:
     container_name: elastic-agent
+    user: root
     depends_on:
       es01:
         condition: service_healthy

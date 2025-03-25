@@ -5,7 +5,6 @@ services:
   prometheus:
     build: ./prometheus
     container_name: prometheus
-    platform: linux/arm64
     ports:
       - "9090:9090"
     volumes:
@@ -29,7 +28,6 @@ services:
   grafana:
     build: ./grafana
     container_name: grafana
-    platform: linux/arm64
     ports:
       - "3000:3000"
     volumes:
@@ -39,7 +37,6 @@ services:
   node-exporter:
     image: prom/node-exporter
     container_name: node-exporter
-    platform: linux/arm64
     ports:
       - "9100"
     command:
@@ -48,7 +45,6 @@ services:
   postgres-exporter:
     container_name: postgres-exporter
     image: quay.io/prometheuscommunity/postgres-exporter
-    platform: linux/arm64
     env_file:
       - ../../.env
     ports:
