@@ -299,6 +299,11 @@ export default class extends ViewBase {
                 <h3 class="mb-3 menu-title">New Tournament</h3>
                 <hr>
                 <form id="tournament-form" novalidate>
+                    <label for="tournament-type-select">Type:</label>
+                    <select name="type" id="tournament-type-select">
+                        <option value="0">Round Robin</option>
+                        <option value="1">Single Elimination</option>
+                    </select>
                     <div class="row">
                         ${this.#buildPlayerForm(1, window.user != null)}
                         ${this.#buildPlayerForm(2)}
@@ -330,7 +335,8 @@ export default class extends ViewBase {
                 ]
                 try {
                     this.#tournament = await newTournament({
-                        players: players
+                        players: players,
+                        type: parseInt($("#tournament-type-select").val())
                     })
                     localStorage.setItem("tournamentId", this.#tournament.id)
                     $("#floating-menu").html("")
@@ -451,18 +457,29 @@ export default class extends ViewBase {
 
     async #showTournamentResults() {
         const results = await this.#tournament.results()
-        $("#floating-menu").html(/*html*/`
-            <div class="container tournament-result">
-                <h3 class="mb-3 menu-title">Tournament Complete</h3>
-                <hr>
-                <p>Winner: ${results.winner}</p>
-                <p>Final Rankings:</p>
-                <ol>
-                    ${results.rankings.map((p) => `<li>${p.nickname} (${p.wins} wins)</li>`).join('')}
-                </ol>
-                <button class="btn btn-secondary btn-custom" id="return-btn">Return to Menu</button>
-            </div>
-        `);
+        if (results.rankings.length > 0) {
+            $("#floating-menu").html(/*html*/`
+                <div class="container tournament-result">
+                    <h3 class="mb-3 menu-title">Tournament Complete</h3>
+                    <hr>
+                    <p>Winner: ${results.winner}</p>
+                    <p>Final Rankings:</p>
+                    <ol>
+                        ${results.rankings.map((p) => `<li>${p.nickname} (${p.wins} wins)</li>`).join('')}
+                    </ol>
+                    <button class="btn btn-secondary btn-custom" id="return-btn">Return to Menu</button>
+                </div>
+            `);
+        } else {
+            $("#floating-menu").html(/*html*/`
+                <div class="container tournament-result">
+                    <h3 class="mb-3 menu-title">Tournament Complete</h3>
+                    <hr>
+                    <p>Winner: ${results.winner}</p>
+                    <button class="btn btn-secondary btn-custom" id="return-btn">Return to Menu</button>
+                </div>
+            `);
+        }
         $("#return-btn").on("click", () => {
             this.#tournament = null
             localStorage.removeItem("tournamentId")

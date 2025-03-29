@@ -1,9 +1,6 @@
 import json
-from django.db.transaction import non_atomic_requests
-from django.http import JsonResponse, request
+from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate
 
 from accounts.models import User
@@ -92,27 +89,24 @@ def tournaments_new(request):
             raise ValueError("bad input")
 
         validation_errors = {}
-        players:list[tuple[str, dict, str, dict]] = [
-            ("1", data['players'][0], "2", data['players'][1]),
-            ("3", data['players'][2], "4", data['players'][3]),
-            ("1", data['players'][0], "3", data['players'][2]),
-            ("2", data['players'][1], "4", data['players'][3]),
-            ("1", data['players'][0], "4", data['players'][3]),
-            ("2", data['players'][1], "3", data['players'][2])
-        ]
-        match_players:list[tuple[dict, dict]] = []
+        validated_players = [{}] * len(data['players'])
         cache = {}
-        for n1, p1, n2, p2 in players:
-            try:
-                match_players.append(validate_match_players(request, p1, p2, cache))
-            except MyValidationError as e:
-                validation_errors.setdefault("players", {}).setdefault(n1, {}).update(e.dict.get("players", {}).get("1", {}))
-                validation_errors.setdefault("players", {}).setdefault(n2, {}).update(e.dict.get("players", {}).get("2", {}))
+        for i in range(len(data['players'])):
+            for j in range(len(data['players'])):
+                if i == j:
+                    continue
+                try:
+                    validated_players[i], validated_players[j] = validate_match_players(request, data['players'][i], data['players'][j], cache)
+                except MyValidationError as e:
+                    validation_errors.setdefault("players", {}).setdefault(i+1, {}).update(e.dict.get("players", {}).get("1", {}))
+                    validation_errors.setdefault("players", {}).setdefault(j+1, {}).update(e.dict.get("players", {}).get("2", {}))
 
-        if len(validation_errors.get("players", {})) > 0:
+        if len(validation_errors.get("players", {})) > 0 or validation_errors.get("message", None):
             return JsonResponse(validation_errors, status=400)
-        
-        tournament = Tournament.objects.create(match_players) #pyright: ignore
+        if data['type'] == 0: # round robin
+            tournament = Tournament.objects.create_round_robin(validated_players) # pyright
+        else:
+            tournament = Tournament.objects.create_single_elimination(validated_players)
         return JsonResponse({"id": tournament.id})
 
     except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
@@ -122,7 +116,7 @@ def tournaments_new(request):
 def tournaments_details(_, tournament_id:int):
     tournament = Tournament.objects.get_ongoing_tournament(id=tournament_id)
     if tournament is None:
-        return JsonResponse({"message": "no ongoing tournament foud for this id"}, status=404)
+        return JsonResponse({"message": "no ongoing tournament found for this id"}, status=404)
     else:
         return JsonResponse(tournament.dict())
 
@@ -130,7 +124,7 @@ def tournaments_details(_, tournament_id:int):
 def tournaments_next_match(_, tournament_id:int):
     tournament = Tournament.objects.get_ongoing_tournament(id=tournament_id)
     if tournament is None:
-        return JsonResponse({"message": "no ongoing tournament foud for this id"}, status=404)
+        return JsonResponse({"message": "no ongoing tournament found for this id"}, status=404)
     else:
         match = tournament.next_match()
         if match is None:
@@ -145,19 +139,24 @@ def tournaments_results(_, tournament_id:int):
     if tournament.is_finished == False:
         return JsonResponse({"message": "tournament not finished"}, status=400)
 
-    scores:dict[str,int] = {}
-    for match in tournament.matches.all():
-        if match.p1_score > match.p2_score:
-            scores[match.p1_nickname] = scores.get(match.p1_nickname, 0) + 1
-            scores[match.p2_nickname] = scores.get(match.p2_nickname, 0)
-        else:
-            scores[match.p2_nickname] = scores.get(match.p2_nickname, 0) + 1
+    if tournament.type == 0: # round robin
+        scores:dict[str,int] = {}
+        for match in tournament.matches.all():
+            winner = match.winner()
             scores[match.p1_nickname] = scores.get(match.p1_nickname, 0)
-    
-    results = {
-        "winner": "",
-        "rankings": [ { "nickname": nickname, "wins": wins } for nickname, wins in scores.items() ]
-    }
-    results["rankings"].sort(reverse=True, key=lambda x: x['wins'])
-    results["winner"] = results["rankings"][0]['nickname']
-    return JsonResponse(results)
+            scores[match.p2_nickname] = scores.get(match.p2_nickname, 0)
+            scores[winner['nickname']] += 1
+        
+        results = {
+            "winner": "",
+            "rankings": [ { "nickname": nickname, "wins": wins } for nickname, wins in scores.items() ]
+        }
+        results["rankings"].sort(reverse=True, key=lambda x: x['wins'])
+        results["winner"] = results["rankings"][0]['nickname']
+        return JsonResponse(results)
+    else:
+        finalMatch = tournament.current_round_matches()[0]
+        return JsonResponse({
+            "winner": finalMatch.winner()["nickname"],
+            "rankings": []
+        })

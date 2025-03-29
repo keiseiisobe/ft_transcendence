@@ -1,12 +1,23 @@
 from datetime import datetime
 from django.db import models
 from channels.auth import get_user_model
+from itertools import combinations
+import random
 
 # Create your models he.
 
 class TournamentManager(models.Manager):
-    def create(self, match_players:list[tuple[dict, dict]]):
-        tournament = super().create()
+    def create_round_robin(self, players:list[dict]):
+        tournament = super().create(type=0)
+        match_players = list(combinations(players, 2))
+        random.shuffle(match_players)
+        for p1, p2 in match_players:
+            Match.objects.create(p1, p2, tournament)
+        return tournament
+
+    def create_single_elimination(self, players:list[dict]):
+        tournament = super().create(type=1)
+        match_players = [(players[p1], players[p1+1]) for p1 in range(0, len(players), 2)]
         for p1, p2 in match_players:
             Match.objects.create(p1, p2, tournament)
         return tournament
@@ -19,16 +30,42 @@ class TournamentManager(models.Manager):
             return None
 
 class Tournament(models.Model):
+    TOURNAMENT_TYPE_CHOICES = [(0, "round-robin"), (1, "single-elimination")]
+
+    type = models.IntegerField(choices=TOURNAMENT_TYPE_CHOICES)
     date = models.DateTimeField(auto_now_add=True)
     
     objects = TournamentManager()
 
+    def current_round_matches(self):
+        current_round = self.matches.order_by("-round").values_list("round", flat=True).first() # pyright: ignore
+        return list(self.matches.filter(round=current_round)) # pyright: ignore
+
     @property
     def is_finished(self):
-        return self.matches.filter(is_finished=False).exists() == False #pyright: ignore
+        if self.type == 0: # round-robin
+            return self.matches.filter(is_finished=False).exists() == False # pyright: ignore
+        else:
+            matches = self.current_round_matches()
+            if len(matches) == 1 and matches[0].is_finished:
+                return True
+            else:
+                return False
     
     def next_match(self):
-        return self.matches.filter(is_finished=False).order_by("id").first() #pyright: ignore
+        if self.type == 0: # round-robin
+            return self.matches.filter(is_finished=False).order_by("id").first() #pyright: ignore
+        else:
+            matches = self.current_round_matches()
+            for match in matches:
+                if not match.is_finished:
+                    return match
+            if len(matches) > 1:
+                for i in range(0, len(matches), 2):
+                    Match.objects.create( matches[i].winner(), matches[i+1].winner(), tournament=self, round=matches[i].round + 1)
+                return self.next_match()
+            else:
+                return None
 
     def dict(self):
         return {
@@ -36,7 +73,7 @@ class Tournament(models.Model):
         }
 
 class MatchManager(models.Manager):
-    def create(self, p1:dict, p2:dict, tournament: Tournament|None = None):
+    def create(self, p1:dict, p2:dict, tournament: Tournament|None = None, round=1):
         if p1['type'] == 0 and p1.get('user', None) == None or p2['type'] == 0 and p2.get('user', None) == None:
             raise ValueError('type 0 player must have a user')
         if p1.get('user', None) is not None and p2.get('user', None) is not None and p1['user'] == p2['user']:
@@ -50,14 +87,12 @@ class MatchManager(models.Manager):
             p2_type     = p2['type'],
             p2_nickname = p2['nickname'][:20],
             p2_user     = p2.get('user', None),
-            tournament  = tournament
+            tournament  = tournament,
+            round       = round
         )
     
     def get_ongoing_match(self, id):
         return super().get(id=id, is_finished=False)
-
-    def patch_match(self, id, patch_data):
-        match = self.get_ongoing_match(id)
 
 class Match(models.Model):
     PLAYER_TYPE_CHOICES = [(0, "User"), (1, "Guest"), (2, "AI")]
@@ -73,6 +108,7 @@ class Match(models.Model):
     p2_score = models.IntegerField(default=0) # type: ignore
 
     tournament = models.ForeignKey(Tournament, null=True, blank=True, on_delete=models.CASCADE, related_name="matches")
+    round = models.IntegerField(default=1) # type: ignore
 
     is_finished = models.BooleanField(default=False) # type: ignore
     date = models.DateTimeField(auto_now_add=True)
@@ -112,3 +148,18 @@ class Match(models.Model):
         self.date = datetime.now()
         self.save()
 
+    def winner(self):
+        if not self.is_finished:
+            return None
+        if self.p1_score > self.p2_score:
+            return {
+                "type": self.p1_type,
+                "nickname": self.p1_nickname,
+                "user": self.p1_user
+            }
+        else:
+            return {
+                "type": self.p2_type,
+                "nickname": self.p2_nickname,
+                "user": self.p2_user
+            }
