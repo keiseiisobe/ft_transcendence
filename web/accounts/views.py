@@ -14,6 +14,9 @@ from friendship.exceptions import AlreadyExistsError
 
 from accounts.forms import UserChangeUsernameForm, UserCreationForm
 
+# jwt
+from .jwt_utils import create_token_response, delete_token_response
+
 # Create your views here.
 
 @require_http_methods(["POST"])
@@ -42,7 +45,7 @@ def mylogin(request):
     request.user.save()
     for user in Follow.objects.followers(request.user):
         bust_cache("following", user.pk)
-    return JsonResponse({ "message": "OK" })
+    return create_token_response(request.user.id, "OK")
 
 @login_required
 @require_http_methods(["POST"])
@@ -52,7 +55,7 @@ def mylogout(request):
     for user in Follow.objects.followers(request.user):
         bust_cache("following", user.pk)
     logout(request)
-    return JsonResponse({ "message": "OK" })
+    return delete_token_response("OK")
 
 @login_required
 @require_http_methods(["POST"])
