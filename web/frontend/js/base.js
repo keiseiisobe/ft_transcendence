@@ -142,7 +142,7 @@ window.pushState = (pathname) => {
 
 
 $(async function () {
-    const promise = await fetch("/accounts/user", {
+    const promise = await fetch("/accounts/user/", {
         method: "GET",
         headers: {"X-CSRFToken": Cookies.get("csrftoken")},
         mode: 'same-origin',
