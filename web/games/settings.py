@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+import datetime
 
 PRODUCTION = 'POSTGRES_NAME'     in os.environ and \
              'POSTGRES_USER'     in os.environ and \
@@ -66,6 +67,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'accounts.middleware.JWTAuthenticationMiddleware',
 ]
 
 ROOT_URLCONF = 'games.urls'
@@ -177,3 +179,11 @@ DJANGO_VITE = {
         "dev_mode": not PRODUCTION
     }
 }
+
+# jwt
+JWT_SECRET_KEY = SECRET_KEY
+JWT_ALGORITHM = 'HS256'
+ACCESS_TOKEN_KEY = 'jwt_access'
+REFRESH_TOKEN_KEY = 'jwt_refresh'
+ACCESS_TOKEN_LIFETIME = datetime.timedelta(minutes=5)
+REFRESH_TOKEN_LIFETIME = datetime.timedelta(days=7)
