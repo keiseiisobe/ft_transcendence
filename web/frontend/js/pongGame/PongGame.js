@@ -8,6 +8,7 @@ export default class PongGame {
         this.pongMap.onCollision(this.#onCollision.bind(this));
         this.idle()
         this.side = null
+        this.lastAIUpdate = performance.now() - 1000;
     }
 
     idle() {
@@ -24,6 +25,17 @@ export default class PongGame {
         this.pongMap.middleText.text = "\n\n\nPress a space";
         this.pongMap.middleText.visible = true;
         this.pongMap.scores.visible = true
+
+        this.p1_type = match.p1_type;
+        this.p2_type = match.p2_type;
+        
+        if (this.p1_type === 2) { /* AI */
+            // create socket connection with the backed
+        }
+        
+        if (this.p2_type === 2) { /* AI */
+            // create socket connection with the backed
+        }
 
         const listener = (e) => {
             if (e.keyCode == 32) {
@@ -56,10 +68,35 @@ export default class PongGame {
         this.pongMap.paddleR.velocity = 0;
         this.pongMap.paddleL.velocity = 0;
         if (this.gameState === 1 /*running*/) {
-            if (pressedKeys[69]) this.pongMap.paddleL.velocity += 1;
-            if (pressedKeys[68]) this.pongMap.paddleL.velocity -= 1;
-            if (pressedKeys[73]) this.pongMap.paddleR.velocity += 1;
-            if (pressedKeys[75]) this.pongMap.paddleR.velocity -= 1;
+            const currentTime = performance.now()
+            if (this.p1_type === 2) { /* AI */
+                if (currentTime - this.lastAIUpdate >= 1000) {
+                    const aiData = this.pongMap.getAIinputData("left");
+                    console.log("sending ai data data to backed")
+                    // send data though the socket
+                }
+                // get ai input from the socket
+                // update paddle velocity
+            } else {
+                if (pressedKeys[69]) this.pongMap.paddleL.velocity += 1;
+                if (pressedKeys[68]) this.pongMap.paddleL.velocity -= 1;
+            }
+            
+            if (this.p2_type === 2) { /* AI */
+                if (currentTime - this.lastAIUpdate >= 1000) {
+                    const aiData = this.pongMap.getAIinputData("right");
+                    console.log("sending ai data data to backed")
+                    // send data though the socket
+                }
+                // get ai input from the socket
+                // update paddle velocity
+            } else {
+                if (pressedKeys[73]) this.pongMap.paddleR.velocity += 1;
+                if (pressedKeys[75]) this.pongMap.paddleR.velocity -= 1;
+            }
+            if (currentTime - this.lastAIUpdate >= 1000) {
+                this.lastAIUpdate = currentTime
+            }
         }
 
         if (this.gameState === 2 || this.gameState === 3 /*resetting*/ && (
