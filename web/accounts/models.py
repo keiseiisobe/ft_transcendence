@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.auth.validators import ASCIIUsernameValidator
 from django.utils.translation import gettext_lazy as gl
+import pyotp
 
 # Create your models here.
 
@@ -41,6 +42,8 @@ class User(AbstractUser):
     email = None
     avatar = models.ImageField(upload_to="images", blank=True)
     is_login = models.BooleanField(default=False) # type: ignore
+    use_totp = models.BooleanField(default=False)
+    totp_secret = models.CharField(max_length=32, blank=True, null=True)
 
     EMAIL_FIELD = None
     REQUIRED_FIELDS = []
@@ -54,3 +57,13 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    def generate_totp_secret(self):
+        self.totp_secret = pyotp.random_base32()
+        self.save()
+
+    def verify_totp(self, otp_code):
+        if not self.totp_secret:
+            return False
+        totp = pyotp.TOTP(self.totp_secret)
+        return totp.verify(otp_code)
