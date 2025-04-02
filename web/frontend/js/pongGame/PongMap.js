@@ -84,6 +84,30 @@ export default class PongMap
 
         this.renderer.dispose();
     }
+
+    getAIinputData(side) {
+        if (side === "left") {
+            return {
+                ballX: this.ball.realPosition.x,
+                ballY: this.ball.realPosition.y,
+                ballDx: this.ball.velocity.x,
+                ballDy: this.ball.velocity.y,
+                paddleX: this.paddleL.mesh.position.x,
+                paddleY: this.paddleL.mesh.position.y
+            }
+        }
+        else {
+            return {
+                ballX: this.ball.realPosition.x,
+                ballY: this.ball.realPosition.y,
+                ballDx: this.ball.velocity.x,
+                ballDy: this.ball.velocity.y,
+                paddleX: this.paddleR.mesh.position.x,
+                paddleY: this.paddleR.mesh.position.y
+            }
+        }
+    }
+
 // private:
     #addStaticObjects() {
         const planeGeo = new THREE.PlaneGeometry()

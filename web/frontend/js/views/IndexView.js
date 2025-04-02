@@ -418,10 +418,82 @@ export default class extends ViewBase {
                         console.warn(error)
                         this.#match = {
                             id: null,
-                            p1_type: 1, p1_nickname: players[0].nickname, p1_score: 0,
-                            p1_type: 1, p1_nickname: players[1].nickname, p1_score: 0,
+                            p1_type: players[0].type, p1_nickname: players[0].nickname, p1_score: 0,
+                            p2_type: players[1].type, p2_nickname: players[1].nickname, p2_score: 0,
                             is_finished: false,
-                            tournament_id: int | null
+                            tournament_id: null
+                        }
+                    }
+                } 
+                $("#floating-menu").html("")
+                this.#startNewRound()
+            }
+            else {
+                formEl.classList.add("was-validated");
+            }
+        });
+    }
+    
+    #showPvAiMenu() {
+        $("#floating-menu").html(/*html*/`
+            <div class="container pva-menu">
+                <h3 class="mb-3 menu-title">New PvP match</h3>
+                <hr>
+                <form id="pva-form" novalidate>
+                    <div class="row">
+                        ${this.#buildPlayerForm(1, window.user != null)}
+                    </div>
+                    <div class="d-flex justify-content-between mt-3">
+                        <button type="button" class="btn btn-secondary" id="back-btn">Back</button>
+                        <button type="submit" class="btn btn-primary" id="start-btn">Start</button>
+                    </div>
+                </form>
+            </div>
+        `);
+
+        $("#back-btn").on("click", () => {
+            this.#showRootMenu()
+        });
+
+        $("#pva-form").on("submit", async (e) => {
+            e.preventDefault();
+            const formEl = e.currentTarget;
+            if (formEl.checkValidity()) {
+                formEl.classList.remove("was-validated");
+                const players = [
+                    this.#getPlayerInfo(1),
+                    { 
+                        type: 2,
+                        isLoggedUser: false,
+                        nickname: "AI",
+                        username: null,
+                        password: null
+                    }
+                ]
+                try {
+                    this.#match = await newMatch({
+                        players: players
+                    })
+                    localStorage.setItem("matchId", this.#match.id)
+                }
+                catch(error) {
+                    if (error instanceof InputError) {
+                        if (error.description.message) {
+                            console.error(error.description.message)
+                        }
+                        if (error.description.hasOwnProperty("players")) {
+                            this.#setPlayerValidationErrors(1, error.description.players["1"])
+                        }
+                        return
+                    }
+                    else {
+                        console.warn(error)
+                        this.#match = {
+                            id: null,
+                            p1_type: players[0].type, p1_nickname: players[0].nickname, p1_score: 0,
+                            p2_type: players[1].type, p2_nickname: players[1].nickname, p2_score: 0,
+                            is_finished: false,
+                            tournament_id: null
                         }
                     }
                 } 
@@ -434,7 +506,6 @@ export default class extends ViewBase {
         });
     }
 
-
     #showRootMenu() {
         $("#floating-menu").html(/*html*/`
             <div class="container root-menu">
@@ -446,6 +517,7 @@ export default class extends ViewBase {
             </div>
         `)
         $("#pva-btn").on("click", () => {
+            this.#showPvAiMenu()
         })
         $("#pvp-btn").on("click", () => {
             this.#showPvpMenu()
