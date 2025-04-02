@@ -9,6 +9,7 @@ export default class PongGame {
         this.idle()
         this.side = null
         this.lastAIUpdate = performance.now() - 1000;
+	this.idealY = 0;
     }
 
     idle() {
@@ -83,13 +84,14 @@ export default class PongGame {
             }
             
             if (this.p2_type === 2) { /* AI */
-                if (currentTime - this.lastAIUpdate >= 1000) {
-                    const aiData = this.pongMap.getAIinputData("right");
-                    console.log("sending ai data data to backed")
-                    // send data though the socket
-                }
-                // get ai input from the socket
+                if (currentTime - this.lastAIUpdate >= 1000)
+		    this.idealY = this.#AIPredict("right");
                 // update paddle velocity
+		if (this.pongMap.paddleR.mesh.position.y + this.pongMap.options.paddleSize.y / 2 < this.idealY)
+		    this.pongMap.paddleR.velocity += 1;
+		else if (this.pongMap.paddleR.mesh.position.y - this.pongMap.options.paddleSize.y / 2 > this.idealY)
+		    this.pongMap.paddleR.velocity -= 1;
+		
             } else {
                 if (pressedKeys[73]) this.pongMap.paddleR.velocity += 1;
                 if (pressedKeys[75]) this.pongMap.paddleR.velocity -= 1;
@@ -136,5 +138,27 @@ export default class PongGame {
         var d = this.pongMap.ball.velocity.clone().normalize();
         var r = d.clone().sub(normal.clone().multiplyScalar(d.clone().dot(normal.clone()) * 2));
         this.pongMap.ball.velocity = r.multiplyScalar(2.4);
+    }
+
+    #AIPredict(side) {
+        const aiData = this.pongMap.getAIinputData(side);
+	if (side === "right") {
+	    if (aiData.ballDx < 0)
+		return 0;
+	    let ballX = aiData.ballX;
+	    let ballY = aiData.ballY;
+	    let ballDy = aiData.ballDy;
+	    for (;ballX < aiData.paddleX;ballX += aiData.ballDx) {
+		ballY += ballDy;
+		const mapTop = this.pongMap.options.mapSize.y / 2;
+		const mapButtom = -this.pongMap.options.mapSize.y / 2;
+		if (ballY + this.pongMap.options.ballSize >= mapTop ||
+		    ballY - this.pongMap.options.ballSize <= mapButtom)
+		    ballDy *= -1;
+	    }
+	    return ballY;
+	}
+	else
+	    return 0;
     }
 }
