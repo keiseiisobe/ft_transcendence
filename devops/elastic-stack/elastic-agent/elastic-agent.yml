@@ -1,0 +1,1155 @@
+id: 7880547d-f090-4e7f-901c-9c59b801acc2
+revision: 3
+outputs:
+  default:
+    type: elasticsearch
+    ssl.enabled: true
+    ssl.certificate_authorities:
+      - "/usr/share/elastic-agent/certs/ca.crt"
+    #ssl.certificate: "/usr/share/elastic-agent/certs/elastic-agent.crt"
+    #ssl.key: "/usr/share/elastic-agent/certs/elastic-agent.key"
+    hosts: [ "https://es01:9200" ]
+    username: "elastic"
+    password: ${ELASTIC_PASSWORD}
+    preset: balanced
+
+  logstash_output:
+    type: logstash
+    ssl.certificate_authorities:
+      - "/usr/share/elastic-agent/certs/ca.crt"
+    hosts: [ "logstash:5044" ] 
+
+output_permissions:
+  default:
+    _elastic_agent_monitoring:
+      indices:
+        - names:
+            - logs-elastic_agent.apm_server-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.apm_server-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.auditbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.auditbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.cloud_defend-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.cloudbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.cloudbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.elastic_agent-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.endpoint_security-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.endpoint_security-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.filebeat_input-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.filebeat_input-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.filebeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.filebeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.fleet_server-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.fleet_server-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.heartbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.heartbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.metricbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.metricbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.osquerybeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.osquerybeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.packetbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.packetbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.pf_elastic_collector-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.pf_elastic_symbolizer-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.pf_host_agent-default
+          privileges:
+            - auto_configure
+            - create_doc
+    _elastic_agent_checks:
+      cluster:
+        - monitor
+    3e807b3f-e846-4bd9-8ae0-1c743a35d59d:
+      indices:
+        - names:
+            - metrics-*-*
+          privileges:
+            - auto_configure
+            - create_doc
+    97017285-9171-4906-933d-93505686ca4a:
+      indices:
+        - names:
+            - logs-system.auth-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-system.syslog-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-system.auth-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-system.syslog-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-system.application-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-system.security-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-system.system-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-system.cpu-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-system.diskio-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-system.filesystem-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-system.fsstat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-system.load-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-system.memory-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-system.network-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-system.process-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-system.process.summary-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-system.socket_summary-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-system.uptime-default
+          privileges:
+            - auto_configure
+            - create_doc
+    39f124a5-682c-47a1-8083-98c6746691c1:
+      indices:
+        - names:
+            - logs-postgresql.log-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-postgresql.activity-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-postgresql.bgwriter-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-postgresql.database-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-postgresql.statement-default
+          privileges:
+            - auto_configure
+            - create_doc
+    b2e4a52b-7693-4ae2-954f-c5292cd992d0:
+      cluster:
+        - 'cluster:monitor/main'
+      indices:
+        - names:
+            - traces-*
+            - logs-*
+            - metrics-*
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - traces-apm.sampled-*
+          privileges:
+            - auto_configure
+            - create_doc
+            - maintenance
+            - monitor
+            - read
+    20d0d6a4-2697-4e3e-9c97-5d92180bc0b3:
+      indices:
+        - names:
+            - logs-nginx.access-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-nginx.error-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-nginx.stubstatus-default
+          privileges:
+            - auto_configure
+            - create_doc
+    b756f8fe-aa77-49d1-988f-6ececc5206dc:
+      indices:
+        - names:
+            - .logs-endpoint.action.responses-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - .logs-endpoint.actions-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-endpoint.alerts-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-endpoint.events.api-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - .logs-endpoint.diagnostic.collection-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-endpoint.events.file-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - .logs-endpoint.heartbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-endpoint.events.library-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-endpoint.metadata-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-endpoint.metrics-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-endpoint.events.network-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-endpoint.policy-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-endpoint.events.process-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-endpoint.events.registry-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-endpoint.events.security-default
+          privileges:
+            - auto_configure
+            - create_doc
+
+agent:
+  download:
+    sourceURI: 'https://artifacts.elastic.co/downloads/'
+  monitoring:
+    enabled: true
+    use_output: default
+    logs: true
+    metrics: true
+    traces: true
+    namespace: default
+  features: {}
+  protection:
+    enabled: false
+    uninstall_token_hash: FKKacS2hp5AJ+VzFaBYEFfvnxM27o6q9z/JiXzaagkE=
+    signing_key: >-
+      MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE9+N59cqXkrGplehZRzQpsDGEb4Xpbi/A7yufSxHzFQrHQ6wH1aqiWbPC6JuLDxpacvVfY1bJZKfVepRq0eJrEQ==
+
+inputs:
+  - id: prometheus/metrics-prometheus-3e807b3f-e846-4bd9-8ae0-1c743a35d59d
+    name: prometheus
+    revision: 1
+    type: prometheus/metrics
+    use_output: default
+    meta:
+      package:
+        name: prometheus
+        version: 1.23.0
+    data_stream:
+      namespace: default
+    package_policy_id: 3e807b3f-e846-4bd9-8ae0-1c743a35d59d
+    streams:
+      - id: >-
+          prometheus/metrics-prometheus.collector-3e807b3f-e846-4bd9-8ae0-1c743a35d59d
+        data_stream:
+          dataset: prometheus.collector
+        metricsets:
+          - collector
+        hosts:
+          - 'prometheus:9090'
+        metrics_filters.exclude: null
+        metrics_filters.include: null
+        metrics_path: /metrics
+        period: 10s
+        rate_counters: true
+        metrics_count: false
+        use_types: true
+        username: null
+        password: null
+          
+  - id: logfile-system-97017285-9171-4906-933d-93505686ca4a
+    name: system
+    revision: 2
+    type: logfile
+    use_output: default
+    meta:
+      package:
+        name: system
+        version: 1.66.1
+    data_stream:
+      namespace: default
+    package_policy_id: 97017285-9171-4906-933d-93505686ca4a
+    streams:
+      - id: logfile-system.auth-97017285-9171-4906-933d-93505686ca4a
+        data_stream:
+          dataset: system.auth
+          type: logs
+        condition: >-
+          ${host.os_version} != "12 (bookworm)" and (${host.os_platform} !=
+          "amzn" or ${host.os_version} != "2023")
+        ignore_older: 72h
+        paths:
+          - /var/log/auth.log*
+          - /var/log/secure*
+        exclude_files:
+          - \.gz$
+        multiline:
+          pattern: ^\s
+          match: after
+        tags:
+          - system-auth
+        allow_deprecated_use: true
+        processors:
+          - add_locale: null
+          - rename:
+              fields:
+                - from: message
+                  to: event.original
+              ignore_missing: true
+              fail_on_error: false
+          - syslog:
+              field: event.original
+              ignore_missing: true
+              ignore_failure: true
+      - id: logfile-system.syslog-97017285-9171-4906-933d-93505686ca4a
+        data_stream:
+          dataset: system.syslog
+          type: logs
+        condition: >-
+          ${host.os_version} != "12 (bookworm)" and (${host.os_platform} !=
+          "amzn" or ${host.os_version} != "2023")
+        paths:
+          - /var/log/messages*
+          - /var/log/syslog*
+          - /var/log/system*
+        exclude_files:
+          - \.gz$
+        multiline:
+          pattern: ^\s
+          match: after
+        processors:
+          - add_locale: null
+        allow_deprecated_use: true
+        tags: null
+        ignore_older: 72h
+
+  - id: journald-system-97017285-9171-4906-933d-93505686ca4a
+    name: system
+    revision: 2
+    type: journald
+    use_output: default
+    meta:
+      package:
+        name: system
+        version: 1.66.1
+    data_stream:
+      namespace: default
+    package_policy_id: 97017285-9171-4906-933d-93505686ca4a
+    streams:
+      - id: journald-system.auth-97017285-9171-4906-933d-93505686ca4a
+        type: journald
+        data_stream:
+          dataset: system.auth
+          type: logs
+        facilities:
+          - 4
+          - 10
+        condition: >-
+          ${host.os_version} == "12 (bookworm)" or (${host.os_platform} ==
+          "amzn" and ${host.os_version} == "2023")
+        tags: null
+      - id: journald-system.syslog-97017285-9171-4906-933d-93505686ca4a
+        type: journald
+        data_stream:
+          dataset: system.syslog
+          type: logs
+        facilities:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 5
+          - 6
+          - 7
+          - 8
+          - 9
+          - 11
+          - 12
+          - 15
+        condition: >-
+          ${host.os_version} == "12 (bookworm)" or (${host.os_platform} ==
+          "amzn" and ${host.os_version} == "2023")
+        tags: null
+
+  - id: winlog-system-97017285-9171-4906-933d-93505686ca4a
+    name: system
+    revision: 2
+    type: winlog
+    use_output: default
+    meta:
+      package:
+        name: system
+        version: 1.66.1
+    data_stream:
+      namespace: default
+    package_policy_id: 97017285-9171-4906-933d-93505686ca4a
+    streams:
+      - id: winlog-system.application-97017285-9171-4906-933d-93505686ca4a
+        name: Application
+        data_stream:
+          dataset: system.application
+          type: logs
+        condition: '${host.platform} == ''windows'''
+        ignore_older: 72h
+      - id: winlog-system.security-97017285-9171-4906-933d-93505686ca4a
+        name: Security
+        data_stream:
+          dataset: system.security
+          type: logs
+        condition: '${host.platform} == ''windows'''
+        ignore_older: 72h
+      - id: winlog-system.system-97017285-9171-4906-933d-93505686ca4a
+        name: System
+        data_stream:
+          dataset: system.system
+          type: logs
+        condition: '${host.platform} == ''windows'''
+        ignore_older: 72h
+
+  - id: system/metrics-system-97017285-9171-4906-933d-93505686ca4a
+    name: system
+    revision: 2
+    type: system/metrics
+    use_output: default
+    meta:
+      package:
+        name: system
+        version: 1.66.1
+    data_stream:
+      namespace: default
+    package_policy_id: 97017285-9171-4906-933d-93505686ca4a
+    streams:
+      - id: system/metrics-system.cpu-97017285-9171-4906-933d-93505686ca4a
+        data_stream:
+          dataset: system.cpu
+          type: metrics
+        metricsets:
+          - cpu
+        cpu.metrics:
+          - percentages
+          - normalized_percentages
+        period: 10s
+      - id: system/metrics-system.diskio-97017285-9171-4906-933d-93505686ca4a
+        data_stream:
+          dataset: system.diskio
+          type: metrics
+        metricsets:
+          - diskio
+        diskio.include_devices: null
+        period: 10s
+      - id: system/metrics-system.filesystem-97017285-9171-4906-933d-93505686ca4a
+        data_stream:
+          dataset: system.filesystem
+          type: metrics
+        metricsets:
+          - filesystem
+        period: 1m
+        processors:
+          - drop_event.when.regexp:
+              system.filesystem.mount_point: ^/(sys|cgroup|proc|dev|etc|host|lib|snap)($|/)
+      - id: system/metrics-system.fsstat-97017285-9171-4906-933d-93505686ca4a
+        data_stream:
+          dataset: system.fsstat
+          type: metrics
+        metricsets:
+          - fsstat
+        period: 1m
+        processors:
+          - drop_event.when.regexp:
+              system.fsstat.mount_point: ^/(sys|cgroup|proc|dev|etc|host|lib|snap)($|/)
+      - id: system/metrics-system.load-97017285-9171-4906-933d-93505686ca4a
+        data_stream:
+          dataset: system.load
+          type: metrics
+        metricsets:
+          - load
+        condition: '${host.platform} != ''windows'''
+        period: 10s
+      - id: system/metrics-system.memory-97017285-9171-4906-933d-93505686ca4a
+        data_stream:
+          dataset: system.memory
+          type: metrics
+        metricsets:
+          - memory
+        period: 10s
+      - id: system/metrics-system.network-97017285-9171-4906-933d-93505686ca4a
+        data_stream:
+          dataset: system.network
+          type: metrics
+        metricsets:
+          - network
+        period: 10s
+        network.interfaces: null
+      - id: system/metrics-system.process-97017285-9171-4906-933d-93505686ca4a
+        data_stream:
+          dataset: system.process
+          type: metrics
+        metricsets:
+          - process
+        period: 10s
+        process.include_top_n.by_cpu: 5
+        process.include_top_n.by_memory: 5
+        process.cmdline.cache.enabled: true
+        process.cgroups.enabled: false
+        process.include_cpu_ticks: false
+        processes:
+          - .*
+      - id: >-
+          system/metrics-system.process.summary-97017285-9171-4906-933d-93505686ca4a
+        data_stream:
+          dataset: system.process.summary
+          type: metrics
+        metricsets:
+          - process_summary
+        period: 10s
+      - id: >-
+          system/metrics-system.socket_summary-97017285-9171-4906-933d-93505686ca4a
+        data_stream:
+          dataset: system.socket_summary
+          type: metrics
+        metricsets:
+          - socket_summary
+        period: 10s
+      - id: system/metrics-system.uptime-97017285-9171-4906-933d-93505686ca4a
+        data_stream:
+          dataset: system.uptime
+          type: metrics
+        metricsets:
+          - uptime
+        period: 10s
+
+  - id: logfile-postgresql-39f124a5-682c-47a1-8083-98c6746691c1
+    name: postgresql
+    revision: 3
+    type: logfile
+    use_output: logstash_output
+    meta:
+      package:
+        name: postgresql
+        version: 1.27.0
+    data_stream:
+      namespace: default
+    package_policy_id: 39f124a5-682c-47a1-8083-98c6746691c1
+    streams:
+      - id: logfile-postgresql.log-39f124a5-682c-47a1-8083-98c6746691c1
+        data_stream:
+          dataset: postgresql.log
+          type: logs
+        index: "logs-postgresql"
+        paths:
+          - /var/log/postgresql/pg-*.log*
+          - /var/log/postgresql/pg-*.csv*
+        exclude_files:
+          - .gz$
+        multiline:
+          pattern: '^\d{4}-\d{2}-\d{2} '
+          negate: true
+          match: after
+        tags:
+          - postgresql-log
+        allow_deprecated_use: true
+
+  - id: postgresql/metrics-postgresql-39f124a5-682c-47a1-8083-98c6746691c1
+    name: postgresql
+    revision: 3
+    type: postgresql/metrics
+    use_output: default
+    meta:
+      package:
+        name: postgresql
+        version: 1.27.0
+    data_stream:
+      namespace: default
+    package_policy_id: 39f124a5-682c-47a1-8083-98c6746691c1
+    streams:
+      - id: >-
+          postgresql/metrics-postgresql.activity-39f124a5-682c-47a1-8083-98c6746691c1
+        data_stream:
+          dataset: postgresql.activity
+          type: metrics
+        metricsets:
+          - activity
+        hosts:
+          - 'postgres://postgres:postgres@db:5432?sslmode=disable'
+        period: 10s
+      - id: >-
+          postgresql/metrics-postgresql.bgwriter-39f124a5-682c-47a1-8083-98c6746691c1
+        data_stream:
+          dataset: postgresql.bgwriter
+          type: metrics
+        metricsets:
+          - bgwriter
+        hosts:
+          - 'postgres://postgres:postgres@db:5432?sslmode=disable'
+        period: 10s
+      - id: >-
+          postgresql/metrics-postgresql.database-39f124a5-682c-47a1-8083-98c6746691c1
+        data_stream:
+          dataset: postgresql.database
+          type: metrics
+        metricsets:
+          - database
+        hosts:
+          - 'postgres://postgres:postgres@db:5432?sslmode=disable'
+        period: 10s
+      - id: >-
+          postgresql/metrics-postgresql.statement-39f124a5-682c-47a1-8083-98c6746691c1
+        data_stream:
+          dataset: postgresql.statement
+          type: metrics
+        metricsets:
+          - statement
+        hosts:
+          - 'postgres://postgres:postgres@db:5432?sslmode=disable'
+        period: 10s
+  
+  - id: logfile-nginx-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+    name: nginx
+    revision: 1
+    type: logfile
+    use_output: logstash_output
+    meta:
+      package:
+        name: nginx
+        version: 1.25.0
+    data_stream:
+      namespace: default
+    package_policy_id: 20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+    streams:
+      - id: logfile-nginx.access-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+        data_stream:
+          dataset: nginx.access
+          type: logs
+        ignore_older: 72h
+        paths:
+          - /var/log/nginx/access.log*
+        tags:
+          - nginx-access
+        exclude_files:
+          - .gz$
+        processors:
+          - add_locale: null
+      - id: logfile-nginx.error-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+        data_stream:
+          dataset: nginx.error
+          type: logs
+        ignore_older: 72h
+        paths:
+          - /var/log/nginx/error.log*
+        tags:
+          - nginx-error
+        exclude_files:
+          - .gz$
+        multiline:
+          pattern: '^\d{4}\/\d{2}\/\d{2} '
+          negate: true
+          match: after
+        processors:
+          - add_locale: null
+
+  - id: nginx/metrics-nginx-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+    name: nginx-1
+    revision: 1
+    type: nginx/metrics
+    use_output: default
+    meta:
+      package:
+        name: nginx
+        version: 1.25.0
+    data_stream:
+      namespace: default
+    package_policy_id: 20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+    streams:
+      - id: nginx/metrics-nginx.stubstatus-20d0d6a4-2697-4e3e-9c97-5d92180bc0b3
+        data_stream:
+          dataset: nginx.stubstatus
+          type: metrics
+        metricsets:
+          - stubstatus
+        hosts:
+          - 'http://nginx:80'
+        tags:
+          - nginx-stubstatus
+        period: 10s
+        server_status_path: /nginx_status
+
+  - id: b756f8fe-aa77-49d1-988f-6ececc5206dc
+    name: elastic-defend
+    revision: 1
+    type: endpoint
+    use_output: default
+    meta:
+      package:
+        name: endpoint
+        version: 8.17.0
+    data_stream:
+      namespace: default
+    package_policy_id: b756f8fe-aa77-49d1-988f-6ececc5206dc
+    integration_config:
+      type: endpoint
+      endpointConfig:
+        preset: EDRComplete
+    artifact_manifest:
+      manifest_version: 1.0.0
+      schema_version: v1
+      artifacts:
+        endpoint-exceptionlist-macos-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-exceptionlist-macos-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+        endpoint-exceptionlist-windows-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-exceptionlist-windows-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+        endpoint-exceptionlist-linux-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-exceptionlist-linux-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+        endpoint-trustlist-macos-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-trustlist-macos-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+        endpoint-trustlist-windows-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-trustlist-windows-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+        endpoint-trustlist-linux-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-trustlist-linux-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+        endpoint-eventfilterlist-macos-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-eventfilterlist-macos-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+        endpoint-eventfilterlist-windows-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-eventfilterlist-windows-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+        endpoint-eventfilterlist-linux-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-eventfilterlist-linux-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+        endpoint-hostisolationexceptionlist-macos-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-hostisolationexceptionlist-macos-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+        endpoint-hostisolationexceptionlist-windows-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-hostisolationexceptionlist-windows-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+        endpoint-hostisolationexceptionlist-linux-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-hostisolationexceptionlist-linux-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+        endpoint-blocklist-macos-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-blocklist-macos-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+        endpoint-blocklist-windows-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-blocklist-windows-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+        endpoint-blocklist-linux-v1:
+          encryption_algorithm: none
+          decoded_sha256: d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          decoded_size: 14
+          encoded_sha256: f8e6afa1d5662f5b37f83337af774b5785b5b7f1daee08b7b00c2d6813874cda
+          encoded_size: 22
+          relative_url: >-
+            /api/fleet/artifacts/endpoint-blocklist-linux-v1/d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658
+          compression_algorithm: zlib
+    policy:
+      meta:
+        license: basic
+        license_uuid: 493d54c3-a0a8-40f1-90a1-623c4ae5bb93
+        cluster_uuid: FCh2LSgKSOSJQM4xZg3sxA
+        cluster_name: docker-cluster
+        cloud: false
+        serverless: false
+        billable: false
+      global_manifest_version: latest
+      windows:
+        events:
+          credential_access: true
+          dll_and_driver_load: true
+          dns: true
+          file: true
+          network: true
+          process: true
+          registry: true
+          security: true
+        malware:
+          mode: prevent
+          blocklist: true
+          on_write_scan: true
+        ransomware:
+          mode: 'off'
+          supported: false
+        memory_protection:
+          mode: 'off'
+          supported: false
+        behavior_protection:
+          mode: 'off'
+          reputation_service: false
+          supported: false
+        popup:
+          malware:
+            enabled: true
+            message: ''
+          ransomware:
+            enabled: false
+            message: ''
+          memory_protection:
+            enabled: false
+            message: ''
+          behavior_protection:
+            enabled: false
+            message: ''
+        logging:
+          file: info
+        antivirus_registration:
+          enabled: true
+          mode: sync_with_malware_prevent
+        attack_surface_reduction:
+          credential_hardening:
+            enabled: false
+      mac:
+        events:
+          process: true
+          file: true
+          network: true
+        malware:
+          mode: prevent
+          blocklist: true
+          on_write_scan: true
+        behavior_protection:
+          mode: 'off'
+          reputation_service: false
+          supported: false
+        memory_protection:
+          mode: 'off'
+          supported: false
+        popup:
+          malware:
+            enabled: true
+            message: ''
+          behavior_protection:
+            enabled: false
+            message: ''
+          memory_protection:
+            enabled: false
+            message: ''
+        logging:
+          file: info
+        advanced:
+          capture_env_vars: >-
+            DYLD_INSERT_LIBRARIES,DYLD_FRAMEWORK_PATH,DYLD_LIBRARY_PATH,LD_PRELOAD
+      linux:
+        events:
+          process: true
+          file: true
+          network: true
+          session_data: false
+          tty_io: false
+        malware:
+          mode: prevent
+          blocklist: true
+          on_write_scan: true
+        behavior_protection:
+          mode: 'off'
+          reputation_service: false
+          supported: false
+        memory_protection:
+          mode: 'off'
+          supported: false
+        popup:
+          malware:
+            enabled: true
+            message: ''
+          behavior_protection:
+            enabled: false
+            message: ''
+          memory_protection:
+            enabled: false
+            message: ''
+        logging:
+          file: info
+        advanced:
+          capture_env_vars: 'LD_PRELOAD,LD_LIBRARY_PATH'
+signed:
+  data: >-
+    eyJpZCI6ImYxODE0OThiLTM2NTUtNDZjNy1hNjMxLWVhZTM0YzE1NzdiNiIsImFnZW50Ijp7ImZlYXR1cmVzIjp7fSwicHJvdGVjdGlvbiI6eyJlbmFibGVkIjpmYWxzZSwidW5pbnN0YWxsX3Rva2VuX2hhc2giOiJGS0thY1MyaHA1QUorVnpGYUJZRUZmdm54TTI3bzZxOXovSmlYemFhZ2tFPSIsInNpZ25pbmdfa2V5IjoiTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFOStONTljcVhrckdwbGVoWlJ6UXBzREdFYjRYcGJpL0E3eXVmU3hIekZRckhRNndIMWFxaVdiUEM2SnVMRHhwYWN2VmZZMWJKWktmVmVwUnEwZUpyRVE9PSJ9fSwiaW5wdXRzIjpbeyJpZCI6InByb21ldGhldXMvbWV0cmljcy1wcm9tZXRoZXVzLTNlODA3YjNmLWU4NDYtNGJkOS04YWUwLTFjNzQzYTM1ZDU5ZCIsIm5hbWUiOiJwcm9tZXRoZXVzIiwicmV2aXNpb24iOjEsInR5cGUiOiJwcm9tZXRoZXVzL21ldHJpY3MifSx7ImlkIjoibG9nZmlsZS1zeXN0ZW0tOTcwMTcyODUtOTE3MS00OTA2LTkzM2QtOTM1MDU2ODZjYTRhIiwibmFtZSI6InN5c3RlbSIsInJldmlzaW9uIjoyLCJ0eXBlIjoibG9nZmlsZSJ9LHsiaWQiOiJqb3VybmFsZC1zeXN0ZW0tOTcwMTcyODUtOTE3MS00OTA2LTkzM2QtOTM1MDU2ODZjYTRhIiwibmFtZSI6InN5c3RlbSIsInJldmlzaW9uIjoyLCJ0eXBlIjoiam91cm5hbGQifSx7ImlkIjoid2lubG9nLXN5c3RlbS05NzAxNzI4NS05MTcxLTQ5MDYtOTMzZC05MzUwNTY4NmNhNGEiLCJuYW1lIjoic3lzdGVtIiwicmV2aXNpb24iOjIsInR5cGUiOiJ3aW5sb2cifSx7ImlkIjoic3lzdGVtL21ldHJpY3Mtc3lzdGVtLTk3MDE3Mjg1LTkxNzEtNDkwNi05MzNkLTkzNTA1Njg2Y2E0YSIsIm5hbWUiOiJzeXN0ZW0iLCJyZXZpc2lvbiI6MiwidHlwZSI6InN5c3RlbS9tZXRyaWNzIn0seyJpZCI6ImxvZ2ZpbGUtcG9zdGdyZXNxbC0zOWYxMjRhNS02ODJjLTQ3YTEtODA4My05OGM2NzQ2NjkxYzEiLCJuYW1lIjoicG9zdGdyZXNxbCIsInJldmlzaW9uIjozLCJ0eXBlIjoibG9nZmlsZSJ9LHsiaWQiOiJwb3N0Z3Jlc3FsL21ldHJpY3MtcG9zdGdyZXNxbC0zOWYxMjRhNS02ODJjLTQ3YTEtODA4My05OGM2NzQ2NjkxYzEiLCJuYW1lIjoicG9zdGdyZXNxbCIsInJldmlzaW9uIjozLCJ0eXBlIjoicG9zdGdyZXNxbC9tZXRyaWNzIn1dfQ==
+  signature: >-
+    MEQCIGbfeROtxG38DclVN84h0GceAqS+GAtNXfvwXyz7OlBxAiAxPmLQX1Sn5nTZiLqWNyJVLirN0+9JUMKuvp/HBc9bRw==
+secret_references: []
+namespaces: []
+#end of file
+
