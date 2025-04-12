@@ -8,6 +8,9 @@ export default class PongGame {
         this.pongMap.onCollision(this.#onCollision.bind(this));
         this.idle()
         this.side = null
+        this.lastAIUpdate = performance.now() - 1000;
+	this.p1_ideal_y = 0;
+	this.p2_ideal_y = 0;
     }
 
     idle() {
@@ -24,6 +27,17 @@ export default class PongGame {
         this.pongMap.middleText.text = "\n\n\nPress a space";
         this.pongMap.middleText.visible = true;
         this.pongMap.scores.visible = true
+
+        this.p1_type = match.p1_type;
+        this.p2_type = match.p2_type;
+        
+        if (this.p1_type === 2) { /* AI */
+            // create socket connection with the backed
+        }
+        
+        if (this.p2_type === 2) { /* AI */
+            // create socket connection with the backed
+        }
 
         const listener = (e) => {
             if (e.keyCode == 32) {
@@ -56,10 +70,35 @@ export default class PongGame {
         this.pongMap.paddleR.velocity = 0;
         this.pongMap.paddleL.velocity = 0;
         if (this.gameState === 1 /*running*/) {
-            if (pressedKeys[69]) this.pongMap.paddleL.velocity += 1;
-            if (pressedKeys[68]) this.pongMap.paddleL.velocity -= 1;
-            if (pressedKeys[73]) this.pongMap.paddleR.velocity += 1;
-            if (pressedKeys[75]) this.pongMap.paddleR.velocity -= 1;
+            const currentTime = performance.now();
+            if (this.p1_type === 2) { /* AI */
+                if (currentTime - this.lastAIUpdate >= 1000)
+		    this.p1_ideal_y = this.#AIPredict("left");
+                // update paddle velocity
+		if (this.pongMap.paddleL.mesh.position.y + this.pongMap.options.paddleSize.y / 2 < this.p1_ideal_y)
+		    this.pongMap.paddleL.velocity += 1;
+		else if (this.pongMap.paddleL.mesh.position.y - this.pongMap.options.paddleSize.y / 2 > this.p1_ideal_y)
+		    this.pongMap.paddleL.velocity -= 1;
+            } else {
+                if (pressedKeys[69]) this.pongMap.paddleL.velocity += 1;
+                if (pressedKeys[68]) this.pongMap.paddleL.velocity -= 1;
+            }
+            
+            if (this.p2_type === 2) { /* AI */
+                if (currentTime - this.lastAIUpdate >= 1000)
+		    this.p2_ideal_y = this.#AIPredict("right");
+                // update paddle velocity
+		if (this.pongMap.paddleR.mesh.position.y + this.pongMap.options.paddleSize.y / 2 < this.p2_ideal_y)
+		    this.pongMap.paddleR.velocity += 1;
+		else if (this.pongMap.paddleR.mesh.position.y - this.pongMap.options.paddleSize.y / 2 > this.p2_ideal_y)
+		    this.pongMap.paddleR.velocity -= 1;
+            } else {
+                if (pressedKeys[73]) this.pongMap.paddleR.velocity += 1;
+                if (pressedKeys[75]) this.pongMap.paddleR.velocity -= 1;
+            }
+            if (currentTime - this.lastAIUpdate >= 1000) {
+                this.lastAIUpdate = currentTime;
+            }
         }
 
         if (this.gameState === 2 || this.gameState === 3 /*resetting*/ && (
@@ -99,5 +138,42 @@ export default class PongGame {
         var d = this.pongMap.ball.velocity.clone().normalize();
         var r = d.clone().sub(normal.clone().multiplyScalar(d.clone().dot(normal.clone()) * 2));
         this.pongMap.ball.velocity = r.multiplyScalar(2.4);
+    }
+
+    #AIPredict(side) {
+        const aiData = this.pongMap.getAIinputData(side);
+	if (side === "right") {
+	    if (aiData.ballDx < 0)
+		return 0;
+	    let ballX = aiData.ballX;
+	    let ballY = aiData.ballY;
+	    let ballDy = aiData.ballDy;
+	    for (;ballX < aiData.paddleX;ballX += aiData.ballDx) {
+		ballY += ballDy;
+		const mapTop = this.pongMap.options.mapSize.y / 2;
+		const mapButtom = -this.pongMap.options.mapSize.y / 2;
+		if (ballY + this.pongMap.options.ballSize >= mapTop ||
+		    ballY - this.pongMap.options.ballSize <= mapButtom)
+		    ballDy *= -1;
+	    }
+	    return ballY;
+	}
+	else if (side === "left") {
+	    if (aiData.ballDx > 0)
+		return 0;
+	    let ballX = aiData.ballX;
+	    let ballY = aiData.ballY;
+	    let ballDy = aiData.ballDy;
+	    for (;ballX > aiData.paddleX;ballX += aiData.ballDx) {
+		ballY += ballDy;
+		const mapTop = this.pongMap.options.mapSize.y / 2;
+		const mapButtom = -this.pongMap.options.mapSize.y / 2;
+		if (ballY + this.pongMap.options.ballSize >= mapTop ||
+		    ballY - this.pongMap.options.ballSize <= mapButtom)
+		    ballDy *= -1;
+	    }
+	    return ballY;
+	}
+	return 0;
     }
 }
