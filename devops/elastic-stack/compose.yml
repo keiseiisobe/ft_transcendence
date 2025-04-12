@@ -26,11 +26,11 @@ services:
       - xpack.security.http.ssl.client_authentication=optional
       - xpack.license.self_generated.type=${LICENSE}
       - path.repo=/usr/share/elasticsearch/archive-backup
-    mem_limit: ${ES_MEM_LIMIT}
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
+#    mem_limit: ${ES_MEM_LIMIT}
+#    ulimits:
+#      memlock:
+#        soft: -1
+#        hard: -1
     healthcheck:
       test:
         [
