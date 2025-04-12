@@ -18,26 +18,12 @@ services:
       - static_assets:/project/assets
       - uwsgisocket:/var/run/nginx
       - data:/data
-    # links:
-    #   - selenium
     env_file:
       - .env
     networks:
       - ft_transcendence
     depends_on:
       - db
-      # - selenium
-
-  # selenium:
-  #   container_name: selenium
-  #   image: selenium/standalone-chrome
-  #   env_file:
-  #     - .env
-  #   ports:
-  #     - 4444:4444
-  #     - 7900:7900
-  #   networks:
-  #     - ft_transcendence
 
   nginx:
     container_name: nginx
@@ -50,20 +36,6 @@ services:
       - '443:443'
     depends_on:
       - web
-    networks:
-      - ft_transcendence
-
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    restart: always
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
-    ports:
-      - "5050:80"
-    depends_on:
-      - db
     networks:
       - ft_transcendence
 
