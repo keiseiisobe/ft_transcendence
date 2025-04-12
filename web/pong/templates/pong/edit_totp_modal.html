@@ -1,0 +1,21 @@
+{% extends "pong/modal_base.html" %}
+{% block modal-id %}"edit-totp-modal"{% endblock modal-id %}
+{% block modal-header %}{% endblock modal-header %}
+{% block modal-body %}
+<form id="edit-totp-form" novalidate>
+    <div class="mb-3">
+        {% if user.use_totp %}
+        <label for="edit-totp" id="edit-totp-text" class="form-label" style="color: green;">Currently, TOTP(Time-Based One-Time Password) is enabled at login.</label>
+        {% else %}
+        <label for="edit-totp" id="edit-totp-text" class="form-label" style="color: red;">Currently, TOTP(Time-Based One-Time Password) is disabled at login.</label>
+        {% endif %}
+    </div>
+{% endblock modal-body %}
+{% block modal-footer %}
+    {% if user.use_totp %}
+    <input type="button" class="btn btn-dark" id="disable-totp-button" value="Disable TOTP"/>
+    {% else %}
+    <input type="button" class="btn btn-dark" id="enable-totp-button" value="Enable TOTP"/>
+    {% endif %}
+</form>
+{% endblock modal-footer %}

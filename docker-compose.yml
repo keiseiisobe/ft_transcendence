@@ -18,26 +18,12 @@ services:
       - static_assets:/project/assets
       - uwsgisocket:/var/run/nginx
       - data:/data
-    links:
-      - selenium
     env_file:
       - .env
     networks:
       - ft_transcendence
     depends_on:
       - db
-      - selenium
-
-  selenium:
-    container_name: selenium
-    image: selenium/standalone-chrome
-    env_file:
-      - .env
-    ports:
-      - 4444:4444
-      - 7900:7900
-    networks:
-      - ft_transcendence
 
   nginx:
     container_name: nginx

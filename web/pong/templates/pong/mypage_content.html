@@ -9,6 +9,7 @@
     <h3 id="username" class="card-title mb-2">{{ user.get_username }}</h3>
     <a href="{% url 'pong:edit_username' %}" class="btn btn-light"><i class="fas fa-edit me-2"></i>Edit username</a>
     <a href="{% url 'pong:edit_password' %}" class="btn btn-light"><i class="fas fa-edit me-2"></i>Edit password</a>
+    <a href="{% url 'pong:edit_totp' %}" class="btn btn-light"><i class="fas fa-edit me-2"></i>Edit totp</a>
     <div class="row" style="margin: 20px;height: 350px;">
         <div class="col-md-6">
             {% include 'pong/match_history.html' %}

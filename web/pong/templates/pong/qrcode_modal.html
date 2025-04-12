@@ -1,0 +1,14 @@
+{% extends "pong/modal_base.html" %}
+{% block modal-id %}"qrcode-modal"{% endblock modal-id %}
+{% block modal-header %}TOTP Code (6 digits){% endblock modal-header %}
+{% block modal-body %}
+<form id="qrcode-form" novalidate>
+    <div class="mb-3">
+        <input type="password" class="form-control" id="qrcode-form-qrcode" required/>
+    </div>
+		<img id="qrCodeImage" src="" alt="Scan this QR code with Google Authenticator" style="max-width:100%; height:auto; display:block; margin:10px auto;">
+{% endblock modal-body %}
+{% block modal-footer %}
+    <button type="button" class="btn btn-dark btn-primary" id="qrcode-submit-button">OK</button>
+</form>
+{% endblock modal-footer %}

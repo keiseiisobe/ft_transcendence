@@ -67,6 +67,18 @@ def edit_password(request):
 @login_required
 @require_http_methods(["GET"])
 @ensure_csrf_cookie
+def edit_totp(request):
+    return render(request, "pong/mypage.html", myPageContext(request))
+
+@login_required
+@require_http_methods(["GET"])
+@ensure_csrf_cookie
+def qrcode(request):
+    return render(request, "pong/mypage.html", myPageContext(request))
+
+@login_required
+@require_http_methods(["GET"])
+@ensure_csrf_cookie
 def add_friend(request):
     return render(request, "pong/mypage.html", myPageContext(request))
 
@@ -97,6 +109,9 @@ def ssr_mypage(request):
         "modals": [
             render_to_string("pong/edit_avatar_modal.html", request=request),
             render_to_string("pong/edit_password_modal.html", request=request),
+            render_to_string("pong/edit_totp_modal.html", request=request),
+            render_to_string("pong/qrcode_modal.html", request=request),
+            render_to_string("pong/totp_code_modal.html", request=request),
             render_to_string("pong/edit_usename_modal.html", request=request),
             render_to_string("pong/add_friend_modal.html", request=request),
         ]
