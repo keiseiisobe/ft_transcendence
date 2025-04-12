@@ -11,6 +11,8 @@ urlpatterns = [
     path("mypage/edit-avatar", views.edit_avatar, name="edit_avatar"),
     path("mypage/edit-username", views.edit_username, name="edit_username"),
     path("mypage/edit-password", views.edit_password, name="edit_password"),
+    path("mypage/edit-totp", views.edit_totp, name="edit_totp"),
+    path("mypage/qrcode", views.qrcode, name="qrcode"),
     path("mypage/add-friend", views.add_friend, name="add_friend"),
 
     path("ssr/index", views.ssr_index, name="ssr-index"),

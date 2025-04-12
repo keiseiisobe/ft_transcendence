@@ -17,12 +17,19 @@ EXCLUDED_PATHS = [
   '/accounts/signup/',
   '/accounts/login/',
   '/accounts/logout/',
-  '/accounts/user/'
+  '/accounts/user',
+  '/accounts/user/',
+  '/accounts/verify-totp-code',
+  '/accounts/verify-totp-code/',
+  '/matches/new',
+  '/matches/tournaments/new',
 ]
 
 class JWTAuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
         if request.path in EXCLUDED_PATHS:
+            return
+        if request.path.startswith('/matches/'):
             return
         access_token = request.COOKIES.get(settings.ACCESS_TOKEN_KEY)
         refresh_token = request.COOKIES.get(settings.REFRESH_TOKEN_KEY)
@@ -70,6 +77,11 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
             )
         # delete cookie on logout
         if getattr(request, 'clear_jwt_cookies', False):
+            print('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
+            print('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
+            print(request.path)
+            print('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
+            print('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
             response = render(request, 'pong/index.html', status=401)
             response.delete_cookie(settings.ACCESS_TOKEN_KEY)
             response.delete_cookie(settings.REFRESH_TOKEN_KEY)

@@ -14,6 +14,8 @@ import Cookies from 'js-cookie'
 import EditAvatarModal from "./modals/EditAvatarModal";
 import EditUsernameModal from "./modals/EditUsernameModal";
 import EditPasswordModal from "./modals/EditPasswordModal";
+import EditTotpModal from "./modals/EditTotpModal";
+import TOTPcodeModal from "./modals/TOTPcodeModal";
 import AddFriendModal from "./modals/AddFriendModal";
 
 var currentView = null
@@ -32,16 +34,33 @@ window.loginUser = async (username, password) => {
         mode: 'same-origin',
         body: formData
     });
+    const text = await promise.text();
+    if (promise.ok && text.includes('use_totp_login')) {
+        const modal = new TOTPcodeModal(username);
+        modal.onHide = () => {
+            console.log("TOTPcode modal hide");
+        };
+        if (await modal.render() === 0) {
+            modal.applyRendered();
+            modal.init();
+            $('#totp-code-modal').one('hidden.bs.modal', () => {
+                modal.clean();
+            });
+        }
+        return
+    }
     if (!promise.ok)
         throw promise
+    window.updateNavbarAfterLogin(username);
+}
+
+window.updateNavbarAfterLogin = (username) => {
     $("#navbar-btns").html(`
         <a class="nav-item btn btn-dark" href="/pong/mypage">My Page</a>
         <button class="nav-item btn btn-dark" onclick="window.logoutUser()">Logout</button>
-    `)
-    window.user = {
-        username: username
-    }
-    currentView.refresh()
+    `);
+    window.user = { username: username };
+    currentView.refresh();
 }
 
 window.logoutUser = async () => {
@@ -76,6 +95,8 @@ function getViewFromPathname(pathname) {
         case "/pong/mypage/edit-username":
         case "/pong/mypage/edit-password/":
         case "/pong/mypage/edit-password":
+        case "/pong/mypage/edit-totp/":
+        case "/pong/mypage/edit-totp":
         case "/pong/mypage/add-friend/":
         case "/pong/mypage/add-friend":
             return new MyPageView()
@@ -101,6 +122,9 @@ function getModalFromPathname(pathname) {
         case "/pong/mypage/edit-password/":
         case "/pong/mypage/edit-password":
             return new EditPasswordModal()
+        case "/pong/mypage/edit-totp/":
+        case "/pong/mypage/edit-totp":
+            return new EditTotpModal()
         case "/pong/mypage/add-friend/":
         case "/pong/mypage/add-friend":
             return new AddFriendModal()
