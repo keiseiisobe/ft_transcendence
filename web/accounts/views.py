@@ -42,8 +42,11 @@ def generate_qr(request):
 @require_http_methods(["POST"])
 @login_required
 def verifyTOTP(request):
-    totp_code = request.POST.get("totp_code")
-    totp_code = int(totp_code)
+    totp_code_raw = request.POST.get("totp_code")
+    try:
+        totp_code = int(totp_code_raw)
+    except (TypeError, ValueError):
+        return HttpResponseBadRequest("Invalid TOTP code format")
     user = request.user
     if not user.verify_totp(totp_code):
         return HttpResponseForbidden("Invalid TOTP code")
