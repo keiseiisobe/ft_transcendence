@@ -1,10 +1,22 @@
-# How To Build
+# ft_transcendence
 
-1.  execute "docker compose up" at the root project directory
-2.  If you can't, execute "sudo chown -R $USER:$USER games manage.py; sudo chmod -R 777 data".
+Pong game web application
+
+## top page
+![](/images/toppage.png)
+
+## game page
+![](/images/gamepage.png)
+
+## my page
+![](/images/mypage.png)
+
+# Build
+```bash
+docker compose up
+```
 
 # Design
-
 * Google Drawings:
   - https://docs.google.com/drawings/d/10wUYA-RW9O3L8RCU4kKkAk1KcqOjuABCIes1RMlzLFQ/edit?usp=sharing
 
