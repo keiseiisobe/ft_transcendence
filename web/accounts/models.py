@@ -3,10 +3,9 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.auth.validators import ASCIIUsernameValidator
 from django.utils.translation import gettext_lazy as gl
 import pyotp
+from django_prometheus.models import ExportModelOperationsMixin
 
-# Create your models here.
-
-class UserManager(BaseUserManager):
+class UserManager(ExportModelOperationsMixin('user-manager'), BaseUserManager):
     def create_user(self, username: str , password: str, avatar = None):
         if not username:
             raise ValueError(gl("Users must have a username"))
@@ -26,7 +25,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-class User(AbstractUser):
+class User(ExportModelOperationsMixin('user'), AbstractUser):
     username_validator = ASCIIUsernameValidator()
 
     username = models.CharField(

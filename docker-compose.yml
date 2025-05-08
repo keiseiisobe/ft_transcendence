@@ -1,27 +1,47 @@
+include:
+  - ./devops/elastic-stack/compose.yml
+  - ./devops/system-monitor/compose.yml
+
 services:
-  db:
-    container_name: db
-    image: postgres
-    volumes:
-      - db_volume:/var/lib/postgresql/data
+  setup:
+    build: ./setup
+    container_name: setup
     env_file:
       - .env
-    networks:
-      - ft_transcendence
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/share/scripts/healthcheck.sh"]
+      start_period: 30s
+      interval: 2s
+      timeout: 5s
+      retries: 120
+
+  db:
+    container_name: db
+    image: postgres:16
+    platform: linux/arm64
+    env_file:
+      - .env
+    volumes:
+      - log-volume:/var/log
+      - db_volume:/var/lib/postgresql/data
+      - "./db/postgresql.conf:/etc/postgresql/postgresql.conf"
+      - "./db/init-pg-stat-statements.sql:/docker-entrypoint-initdb.d/init-pg-stat-statements.sql"
+    ports:
+      - "5432"
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
 
   web:
     container_name: web
-    image: web
-    pull_policy: never
     build: ./web
+    pull_policy: never
     volumes:
       - static_assets:/project/assets
       - uwsgisocket:/var/run/nginx
       - data:/data
     env_file:
       - .env
-    networks:
-      - ft_transcendence
     depends_on:
       - db
 
@@ -32,19 +52,50 @@ services:
       - static_assets:/app/assets
       - uwsgisocket:/var/run/nginx
       - data:/data
+      - log-volume:/var/log
     ports:
       - '443:443'
     depends_on:
       - web
-    networks:
-      - ft_transcendence
+
+  selenium:
+    image: seleniarm/standalone-chromium
+    platform: linux/arm64
+    environment:
+      - SE_VNC_NO_PASSWORD=1
+    ports:
+      - "4444:4444"
+      - "7900:7900"
+
+      #  adminer:
+      #    build: ./requirements/adminer
+      #    image: adminer
+      #    container_name: adminer
+      #    ports:
+      #      - "8080:8080"
 
 volumes:
-    uwsgisocket:
-    static_assets:
-    db_volume:
-    data:
+  certs:
+    #esdata01:
+    #kibanadata:
+    #filebeatdata01:
+    #logstashdata01:
+  log-volume:
+  thanos: 
+  store: 
+    #compact: 
+    #receive: 
+  uwsgisocket:
+  static_assets:
+  db_volume:
+  data:
 
 networks:
-  ft_transcendence:
-    name: ft_transcendence
+  default:
+    name: elastic
+    external: false
+    ipam:
+      config:
+        - subnet: 192.168.100.0/24
+  system-monitor:
+    driver: bridge
