@@ -1,0 +1,12 @@
+global: 
+  resolve_timeout: 5m # この時間Prometheusから何も送信されなければ回復アラートを送信する
+route:
+  receiver: "prometheusalert" # default receiver : アラートがいずれにも分離されない場合、これがアラートを処理する
+
+receivers: # Define Each Receiver
+  - name: "prometheusalert" # general-channel(任意)というSlackチャンネルにアラートを送信する
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/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'
+        channel: '#prometheusalert'
+        send_resolved: true # 回復したら回復アラートを送信(boolean)
+
