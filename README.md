@@ -23,7 +23,7 @@ docker compose up
 * figma
   - https://www.figma.com/design/MiDiaoFDUuOb4aEGGjzNcA/pong-game?node-id=0-1&t=47vmdUqikmOEhxHB-1
 
-# Reference sites
+# Reference sites:
 
 * Javascript:
   - http://vanilla-js.com/

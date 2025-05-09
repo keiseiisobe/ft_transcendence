@@ -1,0 +1,13 @@
+{% extends "pong/modal_base.html" %}
+{% block modal-id %}"totp-code-modal"{% endblock modal-id %}
+{% block modal-header %}TOTP Code (6 digits){% endblock modal-header %}
+{% block modal-body %}
+<form id="totp-form" novalidate>
+    <div class="mb-3">
+        <input type="password" class="form-control" id="totp-form-qrcode" required/>
+    </div>
+{% endblock modal-body %}
+{% block modal-footer %}
+    <button type="submit" class="btn btn-dark btn-primary" id="totp-submit-button">OK</button>
+</form>
+{% endblock modal-footer %}

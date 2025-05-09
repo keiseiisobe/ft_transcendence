@@ -1,0 +1,58 @@
+groups:
+  - name: sample001
+    rules:
+      - alert: cpu_usage_exceeds_80%
+        # CPU usage exceeds 80%
+        expr: avg without(cpu) (rate(node_cpu_seconds_total{mode!="idle"}[1m])) >= 0.8
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          firing_text: "[{{ $labels.env }}] {{ $labels.instance }} CPU usage exceeds 80%"
+          resolved_text: "[{{ $labels.env }}] {{ $labels.instance }} CPU usage falls"
+      - alert: cpu_load_avg_exceeds_1
+        # Load average exceeds 1
+        expr: node_load1 / count(count(node_cpu_seconds_total) without (mode)) without (cpu) > 1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          firing_text: "[{{ $labels.env }}] {{ $labels.instance }} CPU load average exceeds 1"
+          resolved_text: "[{{ $labels.env }}] {{ $labels.instance }} CPU load average falls"
+      - alert: memory_usage_exceeds_80%
+        # Memory usage exceeds 80%
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes >= 0.8
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          firing_text: "[{{ $labels.env }}] {{ $labels.instance }} Memory usage exceeds 80%"
+          resolved_text: "[{{ $labels.env }}] {{ $labels.instance }} Memory usage falls"
+      - alert: disk_usage_exceeds_80%
+        # Disk usage exceeds 80%
+        expr: 1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes) >= 0.8
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          firing_text: "[{{ $labels.env }}] {{ $labels.instance }} Disk usage exceeds 80%"
+          resolved_text: "[{{ $labels.env }}] {{ $labels.instance }} Disk usage falls"
+      - alert: disk_usage_exceeds_80%
+        # inode usage exceeds 80%
+        expr: 1 - (node_filesystem_files_free / node_filesystem_files) >= 0.8
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          firing_text: "[{{ $labels.env }}] {{ $labels.instance }} Inode usage exceeds 80%"
+          resolved_text: "[{{ $labels.env }}] {{ $labels.instance }} Inode usage falls"
+      - alert: io_usage_exceeds_80%
+        # I/O request CPU usage exceeds 80%
+        expr: rate(node_disk_io_time_seconds_total[1m]) >= 0.8
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          firing_text: "[{{ $labels.env }}] {{ $labels.instance }} I/O usage exceeds 80%"
+          resolved_text: "[{{ $labels.env }}] {{ $labels.instance }} I/O usage falls"
+

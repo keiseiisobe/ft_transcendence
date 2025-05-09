@@ -1,22 +1,83 @@
+include:
+  - ./devops/elastic-stack/compose.yml
+  - ./devops/system-monitor/compose.yml
+
 services:
+  setup:
+    build: ./setup
+    container_name: setup
+    env_file:
+      - .env
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/share/scripts/healthcheck.sh"]
+      start_period: 30s
+      interval: 2s
+      timeout: 5s
+      retries: 120
+
   db:
-    image: postgres
+    container_name: db
+    build: ./db
+    env_file:
+      - .env
     volumes:
-      - ./data/db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-  web:
-    build: .
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/project
+      - log-volume:/var/log
+      - db_volume:/var/lib/postgresql/data
     ports:
-      - "8000:8000"
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - "5432"
+
+  web:
+    container_name: web
+    build: ./web
+    pull_policy: never
+    volumes:
+      - static_assets:/project/assets
+      - uwsgisocket:/var/run/nginx
+      - data:/data
+    env_file:
+      - .env
     depends_on:
       - db
+
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    volumes:
+      - static_assets:/app/assets
+      - uwsgisocket:/var/run/nginx
+      - data:/data
+      - log-volume:/var/log
+    ports:
+      - '443:443'
+    depends_on:
+      - web
+
+  selenium:
+    image: selenium/standalone-chrome
+    environment:
+      - SE_VNC_NO_PASSWORD=1
+    ports:
+      - "4444:4444"
+      - "7900:7900"
+
+volumes:
+  certs:
+  log-volume:
+  thanos: 
+  store: 
+  uwsgisocket:
+  static_assets:
+  db_volume:
+  data:
+
+networks:
+  default:
+    name: elastic
+    external: false
+    ipam:
+      config:
+        - subnet: 192.168.100.0/24
+  system-monitor:
+    driver: bridge

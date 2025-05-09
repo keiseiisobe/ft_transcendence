@@ -1,0 +1,8 @@
+$font-family-sans-serif: "SpaceType", sans-serif;
+
+@import "~bootstrap/scss/bootstrap";
+@import "https://fonts.cdnfonts.com/css/spacetype";
+
+.navbar-brand {
+    font-size: 50px;
+}

@@ -1,0 +1,14 @@
+{% extends "pong/modal_base.html" %}
+{% block modal-id %}"add-friend-modal"{% endblock modal-id %}
+{% block modal-header %}{% endblock modal-header %}
+{% block modal-body %}
+<form id="add-friend-form" novalidate>
+    <div class="mb-3">
+        <label for="add-friend-form-username" class="form-label">Friend's name</label>
+        <input type="text" class="form-control" id="add-friend-form-username" required/>
+    </div>
+{% endblock modal-body %}
+{% block modal-footer %}
+    <button type="submit" class="btn btn-dark btn-primary">OK</button>
+</form>
+{% endblock modal-footer %}
