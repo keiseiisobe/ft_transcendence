@@ -6,7 +6,7 @@ route:
 receivers: # Define Each Receiver
   - name: "prometheusalert" # general-channel(任意)というSlackチャンネルにアラートを送信する
     slack_configs:
-      - api_url: 'https://hooks.slack.com/services/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'
+      - api_url: 'https://hooks.slack.com/services/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'
         channel: '#prometheusalert'
         send_resolved: true # 回復したら回復アラートを送信(boolean)
 
