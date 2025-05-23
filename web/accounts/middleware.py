@@ -23,6 +23,7 @@ EXCLUDED_PATHS = [
   '/accounts/verify-totp-code/',
   '/matches/new',
   '/matches/tournaments/new',
+  '/metrics'
 ]
 
 class JWTAuthenticationMiddleware(MiddlewareMixin):

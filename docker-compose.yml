@@ -54,14 +54,6 @@ services:
     depends_on:
       - web
 
-  selenium:
-    image: selenium/standalone-chrome
-    environment:
-      - SE_VNC_NO_PASSWORD=1
-    ports:
-      - "4444:4444"
-      - "7900:7900"
-
 volumes:
   certs:
   log-volume:
