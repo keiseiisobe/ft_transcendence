@@ -2,7 +2,7 @@
 <div class="card-body text-center">
     <div>
         <img id="avatar" src={% if user.avatar %}"{{ user.avatar.url }}"{% else %}"{% static 'accounts/gnu.png' %}"{% endif %} alt="User Profile" class="rounded-circle profile-img mb-3" style="width: 100px;height: 100px">
-        <a href="{% url 'pong:edit_avatar' %}" class="btn btn-dark btn-sm rounded-circle navbar-toggle" style="position: absolute;top: 27%;left: 53%">
+        <a href="{% url 'pong:edit_avatar' %}" class="btn btn-dark btn-sm rounded-circle navbar-toggle">
             <i class="fas fa-camera"></i>
         </a>
     </div>

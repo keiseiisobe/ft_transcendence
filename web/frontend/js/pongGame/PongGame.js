@@ -44,7 +44,7 @@ export default class PongGame {
                 this.pongMap.middleText.visible = false;
                 if ((match.p1_score === 0 && match.p2_score === 0) || this.side == null)
                     this.side = Math.random() < 0.5 ? -1 : 1
-                this.pongMap.ball.velocity = new Vector2(this.side, (Math.random() - 0.5)).normalize().multiplyScalar(2)
+                this.pongMap.ball.velocity = new Vector2(this.side, (Math.random() - 0.5)).normalize().multiplyScalar(4)
                 this.gameState = 1 /*running*/
             } else {
                 window.addEventListener("keydown", listener, { once: true })
@@ -137,7 +137,7 @@ export default class PongGame {
         }
         var d = this.pongMap.ball.velocity.clone().normalize();
         var r = d.clone().sub(normal.clone().multiplyScalar(d.clone().dot(normal.clone()) * 2));
-        this.pongMap.ball.velocity = r.multiplyScalar(2.4);
+        this.pongMap.ball.velocity = r.normalize().multiplyScalar(4);
     }
 
     #AIPredict(side) {
